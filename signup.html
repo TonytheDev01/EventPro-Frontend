@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EventPro — Sign Up</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- PAGE -->
+    <div class="page">
+      <div class="card">
+        <!-- FORM -->
+        <div class="form-section">
+          <h1>Sign Up</h1>
+
+          <div class="input-block">
+            <label for="firstName">First Name</label>
+            <div class="input-wrap">
+              <input
+                class="no-icon"
+                type="text"
+                id="firstName"
+                placeholder="Enter here..."
+              />
+            </div>
+          </div>
+
+          <div class="input-block">
+            <label for="lastName">Last Name</label>
+            <div class="input-wrap">
+              <input
+                class="no-icon"
+                type="text"
+                id="lastName"
+                placeholder="Enter here..."
+              />
+            </div>
+          </div>
+
+          <div class="input-block">
+            <label for="email">Email Address</label>
+            <div class="input-wrap">
+              <span class="icon">✉</span>
+              <input
+                type="email"
+                id="email"
+                placeholder="Enter email address"
+              />
+            </div>
+          </div>
+
+          <div class="input-block">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <span class="icon">🔒</span>
+              <input
+                type="password"
+                id="password"
+                placeholder="Enter password"
+              />
+            </div>
+          </div>
+
+          <div class="input-block">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="input-wrap">
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Enter password"
+              />
+            </div>
+          </div>
+
+          <button class="btn-create" onclick="handleSignup()">
+            Create Account
+          </button>
+
+          <p class="signin-text">
+            Already have an account? <a href="#">Sign In</a>
+          </p>
+        </div>
+
+        <!-- ILLUSTRATION -->
+        <div class="illustration">
+          <svg
+            viewBox="0 0 320 360"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="90"
+              y="20"
+              width="130"
+              height="220"
+              rx="18"
+              fill="#E8D9F8"
+            />
+            <rect
+              x="98"
+              y="32"
+              width="114"
+              height="196"
+              rx="12"
+              fill="#F3ECFC"
+            />
+            <circle cx="155" cy="90" r="28" fill="#C4A0E8" />
+            <circle cx="155" cy="82" r="16" fill="#9B59D6" />
+            <ellipse cx="155" cy="108" rx="22" ry="10" fill="#D4B8F0" />
+            <rect x="110" y="128" width="90" height="8" rx="4" fill="#DDD" />
+            <rect x="110" y="144" width="70" height="8" rx="4" fill="#DDD" />
+            <rect
+              x="118"
+              y="162"
+              width="75"
+              height="20"
+              rx="6"
+              fill="#7B2FBE"
+            />
+            <text
+              x="155"
+              y="176"
+              font-size="8"
+              fill="white"
+              text-anchor="middle"
+              font-family="DM Sans"
+            >
+              Sign Up
+            </text>
+            <rect
+              x="195"
+              y="60"
+              width="70"
+              height="22"
+              rx="6"
+              fill="#F472B6"
+              opacity="0.85"
+            />
+            <rect
+              x="200"
+              y="65"
+              width="60"
+              height="12"
+              rx="3"
+              fill="#FBBF24"
+              opacity="0.5"
+            />
+            <rect
+              x="205"
+              y="90"
+              width="50"
+              height="10"
+              rx="3"
+              fill="#F472B6"
+              opacity="0.6"
+            />
+            <rect
+              x="160"
+              y="190"
+              width="110"
+              height="48"
+              rx="10"
+              fill="#7B2FBE"
+            />
+            <text
+              x="215"
+              y="208"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+              font-family="sans-serif"
+              font-weight="700"
+            >
+              Sign
+            </text>
+            <text
+              x="215"
+              y="226"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+              font-family="sans-serif"
+              font-weight="700"
+            >
+              Up
+            </text>
+            <ellipse cx="210" cy="270" rx="14" ry="14" fill="#C4A0E8" />
+            <rect
+              x="198"
+              y="284"
+              width="24"
+              height="40"
+              rx="8"
+              fill="#4A1A7A"
+            />
+            <rect x="196" y="300" width="8" height="28" rx="4" fill="#4A1A7A" />
+            <rect x="220" y="300" width="8" height="28" rx="4" fill="#4A1A7A" />
+            <line
+              x1="222"
+              y1="290"
+              x2="242"
+              y2="268"
+              stroke="#C4A0E8"
+              stroke-width="6"
+              stroke-linecap="round"
+            />
+            <rect
+              x="199"
+              y="322"
+              width="10"
+              height="24"
+              rx="5"
+              fill="#2D1052"
+            />
+            <rect
+              x="213"
+              y="322"
+              width="10"
+              height="24"
+              rx="5"
+              fill="#2D1052"
+            />
+            <circle cx="100" cy="310" r="14" fill="#FBBF24" opacity="0.8" />
+            <circle cx="100" cy="310" r="7" fill="#F59E0B" />
+            <circle cx="128" cy="325" r="10" fill="#F472B6" opacity="0.8" />
+            <circle cx="128" cy="325" r="5" fill="#EC4899" />
+            <circle
+              cx="248"
+              cy="330"
+              r="18"
+              fill="none"
+              stroke="#EF4444"
+              stroke-width="5"
+            />
+            <line
+              x1="261"
+              y1="343"
+              x2="272"
+              y2="354"
+              stroke="#EF4444"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function handleSignup() {
+        const firstName = document.getElementById("firstName").value.trim();
+        const lastName = document.getElementById("lastName").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirm = document.getElementById("confirmPassword").value;
+
+        if (!firstName || !lastName || !email || !password || !confirm) {
+          alert("Please fill in all fields.");
+          return;
+        }
+        if (password.length < 8) {
+          alert("Password must be at least 8 characters.");
+          return;
+        }
+        if (password !== confirm) {
+          alert("Passwords do not match.");
+          return;
+        }
+        alert(`Welcome to EventPro, ${firstName}! 🎉`);
+      }
+    </script>
+  </body>
+</html>

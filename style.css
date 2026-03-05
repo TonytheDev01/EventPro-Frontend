@@ -1,0 +1,262 @@
+/* =============================================
+   CSS VARIABLES
+============================================= */
+:root {
+  --purple:        #7B2FBE;
+  --purple-light:  #9B59D6;
+  --purple-dark:   #5A1F99;
+  --black:         #1A1A1A;
+  --white:         #FFFFFF;
+  --bg:            #F7F7FB;
+  --border:        #E0E0E0;
+  --text-main:     #1A1A1A;
+  --text-muted:    #777;
+  --input-bg:      #FAFAFA;
+  --shadow:        0 4px 32px rgba(123,47,190,0.08);
+}
+
+/* =============================================
+   RESET & BASE — Mobile First
+============================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text-main);
+  min-height: 100vh;
+}
+
+/* =============================================
+   NAVBAR
+============================================= */
+nav {
+  background: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--white);
+  border-radius: 2px;
+}
+
+.nav-logo {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.04em;
+}
+
+.nav-spacer { width: 22px; }
+
+/* =============================================
+   PAGE BODY
+============================================= */
+.page {
+  padding-top: 1.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 2rem;
+  min-height: calc(100vh - 56px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =============================================
+   CARD — Mobile
+============================================= */
+.card {
+  background: var(--white);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1rem;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: fadeUp 0.5s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =============================================
+   ILLUSTRATION
+============================================= */
+.illustration {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.illustration svg {
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+}
+
+/* =============================================
+   FORM SECTION
+============================================= */
+.form-section { display: flex; flex-direction: column; gap: 1.25rem;}
+
+h1 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* =============================================
+   INPUT BLOCKS
+============================================= */
+.input-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+}
+
+label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrap .icon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  padding-left: 2rem;
+  font-size: 0.8125rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-main);
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input.no-icon { padding-left: 0.75rem; }
+
+input::placeholder { color: #BBBBBB; font-size: 0.8125rem; }
+
+input:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(123,47,190,0.12);
+}
+
+.helper {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  margin-top: 0.125rem;
+}
+
+/* =============================================
+   BUTTON
+============================================= */
+.btn-create {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--purple);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  margin-top: 0.25rem;
+  letter-spacing: 0.02em;
+}
+
+.btn-create:hover {
+  background: var(--purple-dark);
+  box-shadow: 0 4px 16px rgba(123,47,190,0.3);
+}
+
+.btn-create:active { transform: scale(0.98); }
+
+.signin-text {
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.signin-text a {
+  color: var(--purple);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.signin-text a:hover { text-decoration: underline; }
+
+/* =============================================
+   DESKTOP — min-width: 768px
+============================================= */
+@media (min-width: 768px) {
+  .card {
+    flex-direction: row;
+    max-width: 860px;
+    padding: 1.25rem 2rem;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .form-section {
+    flex: 1;
+    gap: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .illustration {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .illustration svg { max-width: 340px; }
+}
