@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inline Validation State</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/form-input.css" />
+  <style>
+
+* {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #FFFFFF;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 1rem;
+    }
+
+    h1 {
+      font-size: clamp(1.125rem, 2.5vw, 1.25rem);
+      font-weight: 700;
+      color: #1F2937;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── MOBILE FIRST ──
+       Cards stack vertically on small screens */
+    .wrapper {
+      width: 100%;
+      max-width: min(494px, 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      width: 100%;
+      border-radius: 5px;
+      padding: 1.25rem 1rem;
+      border: 1px dashed #C4B5FD;
+      background: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ── TABLET AND UP (600px+) ──
+       Cards sit side by side */
+    @media (min-width: 600px) {
+      h1 {
+        margin-bottom: 2rem;
+      }
+
+      .wrapper {
+        flex-direction: row;
+        align-items: stretch;
+        gap: 14px;
+      }
+
+      .card {
+        flex: 1;
+        gap: 1.5rem;
+      }
+    }
+
+    /* ── LARGE SCREENS (1024px+) ──
+       Layout stays capped and centred */
+    @media (min-width: 1024px) {
+      .wrapper {
+        max-width: min(494px, 100%);
+      }
+    }
+
+    /* ── Each input block ── */
+    .input-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3125rem;
+    }
+
+    .input-block label {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .input-block input {
+      width: 100%;
+      height: 2.5rem;
+      padding: 0 0.75rem;
+      font-size: 0.8125rem;
+      font-family: 'Inter', sans-serif;
+      color: #6B7280;
+      background: #FFFFFF;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    /* DEFAULT — grey border */
+    .input-block input.state-default {
+      border: 1.5px solid #E5E7EB;
+    }
+
+    /* FOCUS — gradient purple to pink border via wrapper */
+    .input-block .focus-wrapper {
+      position: relative;
+      border-radius: 8px;
+      padding: 1.5px;
+      background: linear-gradient(to right, #8F00FF, #EC4899);
+    }
+
+    .input-block .focus-wrapper input {
+      border: none;
+      width: 100%;
+      height: 2.375rem;
+      border-radius: 7px;
+      padding: 0 0.75rem;
+      background: #FFFFFF;
+      font-size: 0.8125rem;
+      font-family: 'Inter', sans-serif;
+      color: #6B7280;
+      outline: none;
+    }
+
+    /* ERROR — red border */
+    .input-block input.state-error {
+      border: 1.5px solid #FCA5A5;
+    }
+
+    /* SUCCESS — green border */
+    .input-block input.state-success {
+      border: 1.5px solid #6EE7B7;
+    }
+
+    /* ── Helper text ── */
+    .input-block .helper {
+      font-size: 0.6875rem;
+      font-style: italic;
+      margin-top: 0.125rem;
+    }
+
+    .input-block .helper.error-text {
+      color: #EF4444;
+    }
+
+    .input-block .helper.success-text {
+      color: #10B981;
+    }
+
+    .input-block .helper.hidden {
+      visibility: hidden;
+      height: 0.875rem;
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>Inline validation State</h1>
+
+  <div class="wrapper">
+
+    <!-- LEFT CARD — First Name -->
+    <div class="card">
+
+      <!-- 1. Default -->
+      <div class="input-block">
+        <label>First Name</label>
+        <input type="text" class="state-default" placeholder="Enter here..." />
+        <span class="helper hidden">_</span>
+      </div>
+
+      <!-- 2. Focus -->
+      <div class="input-block">
+        <label>First Name</label>
+        <div class="focus-wrapper">
+          <input type="text" placeholder="Enter here..." />
+        </div>
+        <span class="helper hidden">_</span>
+      </div>
+
+      <!-- 3. Error -->
+      <div class="input-block">
+        <label>First Name</label>
+        <input type="text" class="state-error" placeholder="Enter here..." />
+        <span class="helper error-text">The names must consist of two words</span>
+      </div>
+
+      <!-- 4. Success -->
+      <div class="input-block">
+        <label>First Name</label>
+        <input type="text" class="state-success" placeholder="Enter here..." />
+        <span class="helper success-text">Name accepted</span>
+      </div>
+
+    </div>
+
+    <!-- RIGHT CARD — Email -->
+    <div class="card">
+
+      <!-- 1. Default -->
+      <div class="input-block">
+        <label>Email</label>
+        <input type="email" class="state-default" placeholder="Enter here..." />
+        <span class="helper hidden">_</span>
+      </div>
+
+      <!-- 2. Focus -->
+      <div class="input-block">
+        <label>Email</label>
+        <div class="focus-wrapper">
+          <input type="email" placeholder="Enter here..." />
+        </div>
+        <span class="helper hidden">_</span>
+      </div>
+
+      <!-- 3. Error -->
+      <div class="input-block">
+        <label>Email</label>
+        <input type="email" class="state-error" placeholder="Enter here..." />
+        <span class="helper error-text">Please enter a valid email address</span>
+      </div>
+
+      <!-- 4. Success -->
+      <div class="input-block">
+        <label>Email</label>
+        <input type="email" class="state-success" placeholder="Enter here..." />
+        <span class="helper success-text">Email looks good!</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
