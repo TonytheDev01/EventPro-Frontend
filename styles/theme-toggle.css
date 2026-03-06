@@ -1,0 +1,89 @@
+/* MOBILE-FIRST DESIGN */
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+
+}
+
+.theme-toggle input {
+    display: none;
+}
+
+/* Toggle track */
+
+.toggle-track {
+    width: 48px;
+    height: 26px;
+    background: #d0d5dd;
+    border-radius: 50px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+/* Toggle circle */
+
+.toggle-thumb {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #000000;
+    border-radius: 50%;
+    top: 3px;
+    left: 4px;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.theme-toggle input:checked + .toggle-track {
+    background: #22c55e;
+}
+
+.theme-toggle input:checked + .toggle-track .toggle-thumb {
+    transform: translateX(22px);
+    background: #ffffff; 
+}
+
+.theme-toggle input:checked + .toggle-track .toggle-thumb {
+    transform: translateX(22px);
+}
+
+/* TABLET */
+
+@media (min-width: 768px) {
+  .toggle-track {
+    width: 52px;
+    height: 28px;
+  }
+
+  .toggle-thumb {
+    width: 22px;
+    height: 22px;
+  }
+
+  .theme-toggle input:checked + .toggle-track .toggle-thumb {
+    transform: translateX(24px);
+  }
+}
+
+/* DESKTOP */
+
+@media (min-width: 1024px) {
+  .toggle-track {
+    width: 56px;
+    height: 30px;
+  }
+
+  .toggle-thumb {
+    width: 24px;
+    height: 24px;
+  }
+
+  .theme-toggle input:checked + .toggle-track .toggle-thumb {
+    transform: translateX(26px);
+  }
+}
