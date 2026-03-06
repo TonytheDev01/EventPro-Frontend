@@ -1,0 +1,258 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #FFFFFF;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+   /* MOBILE FIRST — single column */
+.page-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.form-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.25rem;
+}
+
+/* ── Group 1 — Title + new user link ── */
+.title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5625rem;
+}
+
+.form-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1F2937;
+}
+
+.new-user-text {
+  font-size: 0.875rem;
+  color: #6B7280;
+}
+
+.create-account-link {
+  color: #6F00FF;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.create-account-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Group 2 — Fields ── */
+.fields-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.0625rem;
+}
+
+/* ── Password toggle button ── */
+.toggle-password {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #6B7280;
+  padding: 0;
+  line-height: 1;
+}
+
+/* ── Forgot password link ── */
+.forgot-password {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1F2937;
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+  display: block;
+  margin-bottom: 1.2rem;
+}
+
+.forgot-password:hover {
+  color: #6F00FF;
+}
+
+/* ── Login button ── */
+.btn-login {
+  width: 100%;
+  height: 3.8125rem;
+  background-color: #6F00FF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+  padding: 0.625rem;
+  margin-bottom: 2rem;
+}
+
+.btn-login:hover {
+  background-color: #5900CC;
+}
+
+.btn-login:disabled {
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+/* ── Social login group ── */
+.social-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+/* ── Each social button ── */
+.social-btn {
+  width: 100%;
+  height: 3.8125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  color: #1F2937;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.social-btn:hover {
+  border-color: #6F00FF;
+  background-color: #F5F0FF;
+}
+
+.social-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: contain;
+}
+
+/* ── Privacy text ── */
+.privacy-text {
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  color: #6B7280;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.privacy-link {
+  color: #1F2937;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.privacy-link:hover {
+  color: #6F00FF;
+}
+
+/* ── Illustration card — hidden on mobile ── */
+.illustration-card {
+  display: none;
+}
+
+   /* TABLET (768px+) */
+@media (min-width: 768px) {
+  body {
+    padding: 2rem 1.5rem;
+  }
+
+  .page-wrapper {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .form-card {
+    width: 30.625rem;
+    flex-shrink: 0;
+    padding: 1.5rem;
+  }
+
+  .illustration-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    max-width: 46.1875rem;
+    height: 50rem;
+    border-radius: 15px;
+    overflow: hidden;
+  }
+
+  .illustration-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .illustration-inner img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+}
+
+   /* DESKTOP (1200px+) */
+@media (min-width: 1200px) {
+  body {
+    padding: 2rem;
+  }
+
+  .page-wrapper {
+    gap: 2.5rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .form-card {
+    width: 30.625rem;
+    padding: 2rem;
+    min-height: 40.25rem;
+    justify-content: center;
+  }
+
+  .illustration-card {
+    width: 46.1875rem;
+    height: 40.25rem;
+    align-self: auto;
+  }
+}
