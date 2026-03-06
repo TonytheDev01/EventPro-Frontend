@@ -6,11 +6,13 @@
 
 
 body {
-/* display: block; */
-Justify-content: center; 
+display: flex;
+flex-direction: column;
 align-items: center;
-/* font-family: ; */
-font-family: 'Inter', sans-serif;
+justify-content: center;
+min-height: 100vh;
+padding: 1.5rem 1rem;
+font-family: 'Inter', 'sans-serif';
 }
 
 #verification-img{
@@ -20,8 +22,9 @@ font-family: 'Inter', sans-serif;
     padding: 1.25rem;
 }
 
-img{
-    width: 30rem;
+img {
+width: 100%;
+max-width: 12rem;
 }
 
 
@@ -52,22 +55,23 @@ img{
     font-weight: 600;
 }
 
-button{
+#resendBtn{
     width: 12rem;
     height: 3rem;
     padding: 1rem 1rem;
-    display: block;
-    margin: auto;
+    /* display: block;
+    margin: auto; */
     background-color: #6f00ff;
     font-size: 0.75rem;   
     border-radius: 0.875rem;
     border-color: #6f00ff; 
+    color: #ffffff;
 }
 
-button a{
+/* button a{
     color: #ffffff;
     text-decoration: none;
-}
+} */
 
 .change-email{
     font-size: 0.95rem;
@@ -75,14 +79,31 @@ button a{
 }
 
 .change-email a{
-    color: #000000;   
+    color: #000000; 
+    margin-top: 1rem;  
 }
 
 .back-to-login{
     font-size: 0.8rem;
     text-align: center;
     text-decoration: none;
-    margin: auto;
+    margin-top: 0.75rem;
     display: block;
     color: #000000;
 }
+
+
+@media (min-width: 600px) {
+img {
+max-width: 15rem;
+}
+
+.check-h2 {
+font-size: 2rem;
+}
+
+.verify-text {
+font-size: 1rem;
+}
+}
+
