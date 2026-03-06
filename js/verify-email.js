@@ -6,7 +6,7 @@ const resendBtn     = document.getElementById("resendBtn");
 // Mask email: "john@email.com" → "j***@email.com"
 function maskEmail(email) {
   const [local, domain] = email.split("@");
-  return local.charAt(0) + "*@" + domain;
+  return local.charAt(0) + "***@" + domain;
 }
 
 // Get email saved from signup page
