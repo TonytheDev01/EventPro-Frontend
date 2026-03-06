@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EventPro — Sign Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/form-input.css" />
+  <link rel="stylesheet" href="../styles/signup.css" />
+</head>
+<body>
+
+  <div class="page-wrapper">
+
+    <!-- ══ LEFT — Sign Up Form ══ -->
+    <div class="form-card">
+
+      <h1 class="form-title">Sign Up</h1>
+
+      <form class="signup-form" id="signupForm" novalidate>
+
+        <!-- First Name -->
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input
+            type="text"
+            id="firstName"
+            placeholder="Enter here..."
+            autocomplete="given-name"
+          />
+          <span class="helper-text"></span>
+        </div>
+
+        <!-- Last Name -->
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input
+            type="text"
+            id="lastName"
+            placeholder="Enter here..."
+            autocomplete="family-name"
+          />
+          <span class="helper-text"></span>
+        </div>
+
+        <!-- Email Address -->
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="input-with-icon">
+            <span class="input-icon">✉</span>
+            <input
+              type="email"
+              id="email"
+              placeholder="Enter email address"
+              autocomplete="email"
+            />
+          </div>
+          <span class="helper-text"></span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-with-icon">
+            <span class="input-icon">🔒</span>
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter password"
+              autocomplete="new-password"
+            />
+          </div>
+          <span class="helper-text"></span>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="input-with-icon">
+            <span class="input-icon">🔒</span>
+            <input
+              type="password"
+              id="confirmPassword"
+              placeholder="Enter password"
+              autocomplete="new-password"
+            />
+          </div>
+          <span class="helper-text"></span>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-primary" id="submitBtn">
+          Create Account
+        </button>
+
+      </form>
+
+    </div>
+
+<!-- RIGHT — Illustration -->
+<div class="illustration-card">
+  <div class="illustration-inner">
+    <img
+      src="../assets/images/image.png"
+      alt="Sign Up illustration"
+    />
+  </div>
+</div>
+
+  <script src="../js/form-input.js"></script>
+  <script src="../js/signup.js"></script>
+
+</body>
+</html>

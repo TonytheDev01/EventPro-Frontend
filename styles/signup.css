@@ -1,0 +1,163 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #FFFFFF;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+   /* MOBILE FIRST — single column */
+.page-wrapper {
+  width: 100%;
+  max-width: 90rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ── Form Card ── */
+.form-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.25rem;
+}
+
+/* ── Page title ── */
+.form-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1F2937;
+  text-align: center;
+}
+
+/* ── Form fields ── */
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Submit button ── */
+.btn-primary {
+  width: 100%;
+  height: 2.75rem;
+  background-color: #8F00FF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.btn-primary:hover {
+  background-color: #7600D4;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Illustration card — hidden on mobile ── */
+.illustration-card {
+  display: none;
+}
+
+   /* TABLET (768px+)
+   Side by side layout, illustration shows */
+
+   @media (min-width: 768px) {
+  body {
+    padding: 2rem 1.5rem;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .page-wrapper {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    width: 100%;
+  }
+
+  /* Form card — fixed to design width */
+  .form-card {
+    width: 28.375rem;
+    flex-shrink: 1;
+    padding: 1.5rem;
+    gap: 1.2rem;
+  }
+
+  /* Illustration shows on tablet+ */
+  .illustration-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 39.375rem;
+    flex-shrink: 0.5;
+    align-self: stretch;
+    border-radius: 15px;
+    overflow: hidden;
+  }
+
+  .illustration-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  /* ── The actual image ── */
+  .illustration-inner img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+}
+
+   /* DESKTOP (1200px+)
+   Full design spec */
+@media (min-width: 1200px) {
+  body {
+    padding: 2rem;
+  }
+
+  .page-wrapper {
+    gap: 2.5rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .form-card {
+    width: 28.375rem;
+    padding: 2rem;
+    min-height: 47.8125rem;
+    justify-content: center;
+    gap: 2rem;
+  }
+
+  .illustration-card {
+    width: 39.375rem;
+    height: 55.625rem;
+    align-self: auto;
+  }
+}
