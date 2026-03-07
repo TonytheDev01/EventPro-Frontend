@@ -1,0 +1,110 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding: 1.25rem;
+}
+
+/* Card */
+.ticket-card {
+  background: #fff;
+  width: 31.25rem;
+  padding: 3.125rem;
+  border-radius: 1rem;
+  box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.2);
+}
+
+/* Top Row */
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.625rem;
+}
+
+.ticket-title {
+  font-size: 1.25rem;
+}
+
+.ticket-price {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* Sales Text */
+
+.sales-text {
+  font-size: 0.8125rem;
+  color: #777;
+  margin-top: 0.25rem;
+}
+
+/* Attendees */
+
+.attendees {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  margin: 1.25rem 0;
+  color: #555;
+}
+
+/* Buttons */
+
+#registerBtn {
+  width: 100%;
+  padding: 0.875rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #ff6a13;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Divider */
+
+hr {
+  margin: 1.25rem 0;
+  border: none;
+  height: 0.0625rem;
+  background-color: #eee;
+}
+
+/* Buttom-Actions */
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.action-btn {
+  border: none;
+  background-color: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #000;
+}
+
+@media (max-width: 600px) {
+  .ticket-card {
+    width: 100%;
+    max-width: 350px;
+  }
+}
