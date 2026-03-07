@@ -1,0 +1,131 @@
+* {
+  box-sizing: border-box;
+  margin: 0px;
+  padding: 0px;
+}
+  
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f0f0f0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+  
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+  
+.modal {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem 1rem;
+  width: 300px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: 2px solid #000;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+  font-weight: bolder;
+  cursor: pointer;
+  color: #000;
+}
+
+.close-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 16px;
+  }
+
+.icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.modal h2 {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: #111111;
+  margin: 0 0 0.5rem 0;
+}
+
+.modal p {
+  font-size: 1.0rem;
+  color: #666666;
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+
+.buttons {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.btn {
+  flex: 1;
+  padding: 0.75rem 0;
+  font-size: 0.8125rem;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background-color: #ffffff;
+  color: #333333;
+  border: 1px solid #cccccc;
+}
+
+.btn-cancel:hover {
+  background-color: #f5f5f5;
+}
+
+.btn-deactivate {
+  background-color: #e02020;
+  color: #ffffff;
+}
+
+.btn-deactivate:hover {
+  background-color: #c41a1a;
+}
+
+@media (max-width: 767px) {
+  .modal h2 {
+    font-size: 1.125rem;     
+    margin-bottom: 1.5rem;   
+  }
+
+  body {
+    padding-top: 1.5rem;     
+    padding-left: 1rem;      
+    padding-right: 1rem;     
+  }
+}

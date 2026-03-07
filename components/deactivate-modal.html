@@ -5,24 +5,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Deactivate Modal</title>
-  <link rel="stylesheet" href="..../styles/deactivate-modal.css.css">
+  <link rel="stylesheet" href="../styles/deactivate-modal.css">
 </head>
 
 <body>
-  <div class="modal-overlay">
-  <div class="modal-card">
-    <button class="close-x">&times;</button>
-    <div class="modal-body">
-      <img src="../assets/warning-icon.png" alt="Warning" class="warning-icon">
-      <h1>Deactivate Event?</h1>
-      <p>This event will no longer be visible to attendees.</p>
+  <div class="overlay">
+  <div class="modal">
+    <button class="close-btn">&#x2715;</button>
+    
+    <div class="icon">
+      <img src="warning-icon.png" alt="Warning" />
     </div>
-    <div class="modal-footer">
-      <button class="btn-secondary">Cancel</button>
-      <button class="btn-danger">Deactivate</button>
+    
+    <h2 class="modal-title">Deactivate Event?</h2>
+    <p class="modal-subtitle">This event will no longer be visible to attendees.</p>
+    
+    <div class="buttons">
+      <button class="btn btn-cancel">Cancel</button>
+      <button class="btn btn-deactivate">Deactivate</button>
     </div>
   </div>
 </div>
 </body>
 
 </html>
+
