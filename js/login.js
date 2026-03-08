@@ -1,15 +1,15 @@
 // EventPro — Login Page Logic
 
-const form        = document.getElementById("loginForm");
-const emailInput  = document.getElementById("email");
-const passInput   = document.getElementById("password");
-const loginBtn    = document.getElementById("loginBtn");
-const toggleBtn   = document.getElementById("togglePassword");
+const form       = document.getElementById("loginForm");
+const emailInput = document.getElementById("email");
+const passInput  = document.getElementById("password");
+const loginBtn   = document.getElementById("loginBtn");
+const toggleBtn  = document.getElementById("togglePassword");
 
 // ── Toggle password visibility ──
 toggleBtn.addEventListener("click", () => {
   const isPassword = passInput.type === "password";
-  passInput.type = isPassword ? "text" : "password";
+  passInput.type   = isPassword ? "text" : "password";
   toggleBtn.textContent = isPassword ? "🙈" : "👁";
 });
 
@@ -30,7 +30,7 @@ passInput.addEventListener("blur", () => {
 });
 
 // ── Form submit ──
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const isEmailValid = validateEmail(emailInput);
@@ -42,12 +42,25 @@ form.addEventListener("submit", (e) => {
   loginBtn.textContent = "Signing in...";
   loginBtn.disabled = true;
 
-  // Save email for any downstream pages
-  localStorage.setItem("userEmail", emailInput.value.trim());
+  // Call auth service
+  const result = await loginUser(
+    emailInput.value.trim(),
+    passInput.value
+  );
 
-  // Navigate to dashboard on success
-  // Replace with actual API call when backend is ready
-  setTimeout(() => {
+  if (!result.success) {
+    setInputState(emailInput, "error", result.message);
+    loginBtn.textContent = "Login";
+    loginBtn.disabled = false;
+    return;
+  }
+
+  // Redirect based on user role
+  const user = getStoredUser();
+
+  if (user && user.role === "admin") {
+    window.location.href = "../pages/admin-dashboard.html";
+  } else {
     window.location.href = "../pages/dashboard.html";
-  }, 1000);
+  }
 });
