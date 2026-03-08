@@ -8,8 +8,8 @@ const toggleBtn  = document.getElementById("togglePassword");
 
 // ── Toggle password visibility ──
 toggleBtn.addEventListener("click", () => {
-  const isPassword = passInput.type === "password";
-  passInput.type   = isPassword ? "text" : "password";
+  const isPassword      = passInput.type === "password";
+  passInput.type        = isPassword ? "text" : "password";
   toggleBtn.textContent = isPassword ? "🙈" : "👁";
 });
 
@@ -40,7 +40,7 @@ form.addEventListener("submit", async (e) => {
 
   // Show loading state
   loginBtn.textContent = "Signing in...";
-  loginBtn.disabled = true;
+  loginBtn.disabled    = true;
 
   // Call auth service
   const result = await loginUser(
@@ -51,14 +51,20 @@ form.addEventListener("submit", async (e) => {
   if (!result.success) {
     setInputState(emailInput, "error", result.message);
     loginBtn.textContent = "Login";
-    loginBtn.disabled = false;
+    loginBtn.disabled    = false;
     return;
   }
 
-  // Redirect based on user role
+  // ── Redirect based on verification status and role ──
   const user = getStoredUser();
 
-  if (user && user.role === "admin") {
+  if (!user.isVerified) {
+    localStorage.setItem("userEmail", user.email);
+    window.location.href = "../pages/verify-email.html";
+    return;
+  }
+
+  if (user.role === "admin") {
     window.location.href = "../pages/admin-dashboard.html";
   } else {
     window.location.href = "../pages/dashboard.html";
