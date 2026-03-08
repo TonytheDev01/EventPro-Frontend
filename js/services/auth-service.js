@@ -2,7 +2,7 @@
 // Handles all authentication API calls
 // Base URL updates to Render URL when backend is hosted
 
-const BASE_URL = "https://eventpro-api.onrender.com/api";
+const BASE_URL = process.env.API_URL || "http://localhost:5000/api";
 
 // ── Signup ──
 async function signupUser(firstName, lastName, email, password) {
