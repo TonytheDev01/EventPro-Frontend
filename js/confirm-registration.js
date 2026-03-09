@@ -91,7 +91,7 @@ if (!eventData) {
 const event = JSON.parse(eventData);
 
 try {
-    const response = await fetch(${BASE_URL}/event/${event_id}/register, {
+    const response = await fetch(`${BASE_URL}/event/${event_id}/register`, {
     method: "POST",
     
     headers: {
