@@ -1,14 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Island+Moments&family=Jost:ital,wght@0,100..900;1,100..900&family=Modak&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', Arial, sans-serif;
     font-weight: 500;
 }
 
 body {
+    font-family: 'Poppins', 'Inter', sans-serif;
     background: white;   
     min-height: 100vh;
 }
@@ -63,6 +63,7 @@ h1 {
     background: #f5d9c8;
     padding: 0.625rem 0.75rem;   
     border-radius: 0.5rem;
+    flex-shrink: 0;
 }
 
 .icon i { 
@@ -84,6 +85,16 @@ h1 {
     margin: 0.5rem 0;
 }
 
+/* ERROR MESSAGE */
+
+.error-message {
+    font-size: 0.875rem;
+    color: #E11727;
+    text-align: center;
+    margin-top: 0.5rem;
+    display: none;
+}
+
 /* BUTTONS */
 
 .buttons {
@@ -94,12 +105,15 @@ h1 {
 
 .cancel-btn {
     flex: 1;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    border: 1px solid #d5cccc;
+    height: 5.8125rem;
+    padding: 1.875rem 3.659rem;
+    border-radius: 10.8px;
+    border: 0.59px solid #dfcccc;
     background: #fefefe;
     cursor: pointer;
     font-weight: 600;
+    font-size: 0.875rem;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .cancel-btn:hover {
@@ -109,14 +123,16 @@ h1 {
 
 .confirm-btn {
     flex: 2;
-    padding: 0.75rem;
+    height: 5.8125rem;
+    padding: 1.875rem 3.659rem;
     border: none;
-    border-radius: 0.5rem;
+    border-radius: 10.8px;
     background: #f97316;
     color: white;
-    font-weight: bold;
-    cursor: pointer;
     font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
 .confirm-btn:hover {
@@ -126,6 +142,19 @@ h1 {
 .confirm-btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+}
+
+/* TABLET STYLE */
+
+@media (min-width: 768px) {
+.container {
+    max-width: 31.25rem;
+    margin: 0 auto;
+}
+
+.card {
+    padding: 1.75rem;
+}
 }
 
 /* DESKTOP STYLE */

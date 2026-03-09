@@ -3,73 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirm Your Registration</title>
+    <title>Confirm Your Registration — EventPro</title>
     <link rel="stylesheet" href="../styles/confirm-registration.css">
     <script src="https://kit.fontawesome.com/9ab2ab27be.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="container">
 
-    <div class="card">
+    <h1>Confirm Your Registration</h1>
+    <p class="subtitle">
+        Please review the event details below before confirming.
+    </p>
 
-        <h1>Confirm Your Registration</h1>
-        <p class="subtitle">
-            Please review the event details below before confirming.
-        </p>
+    <div class="event-box">
 
-        <div class="event-box">
+        <!-- Event title — populated by JS -->
+        <h2 id="event-title">Loading...</h2>
 
-            <h2>Design Systems Conference 2026</h2>
-
-            <div class="detail">
-                <div class="icon"><i class="fa-solid fa-calendar"></i></div>
-                <div class="info">
-                    <p class="label">Date</p>
-                    <p>March 28, 2026</p>
-                </div>
+        <div class="detail">
+            <div class="icon"><i class="fa-solid fa-calendar"></i></div>
+            <div class="info">
+                <p class="label">Date</p>
+                <p id="event-date">—</p>
             </div>
-
-            <div class="divider"></div>
-
-            <div class="detail">
-                <div class="icon"><i class="fa-regular fa-clock"></i></div>
-                <div class="info">
-                    <p class="label">Time</p>
-                    <p>9:00 AM – 5:00 PM PST</p>
-                </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="detail">
-                <div class="icon"><i class="fa-solid fa-location-dot"></i></div>
-                <div class="info">
-                    <p class="label">Location</p>
-                    <p>The Grand Hall, San Francisco, CA</p>
-                </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="detail">
-                <div class="icon"><i class="fa-solid fa-ticket"></i></div>
-                <div class="info">
-                    <p class="label">Ticket Type</p>
-                    <p>General Admission</p>
-                </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="detail">
-                <div class="icon"><i class="fa-solid fa-user"></i></div>
-                <div class="info">
-                    <p class="label">Attendee</p>
-                    <p>Alex Johnson - alex@example.com</p>
-                </div>
-            </div>
-
         </div>
+
+        <div class="divider"></div>
+
+        <div class="detail">
+            <div class="icon"><i class="fa-regular fa-clock"></i></div>
+            <div class="info">
+                <p class="label">Time</p>
+                <p id="event-time">—</p>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="detail">
+            <div class="icon"><i class="fa-solid fa-location-dot"></i></div>
+            <div class="info">
+                <p class="label">Location</p>
+                <p id="event-location">—</p>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="detail">
+            <div class="icon"><i class="fa-solid fa-ticket"></i></div>
+            <div class="info">
+                <p class="label">Ticket Type</p>
+                <p id="event-ticket-type">—</p>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="detail">
+            <div class="icon"><i class="fa-solid fa-user"></i></div>
+            <div class="info">
+                <p class="label">Attendee</p>
+                <p id="event-attendee">—</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Error message — hidden by default -->
+        <p class="error-message" id="errorMessage"></p>
 
         <div class="buttons">
             <button class="cancel-btn" id="cancelBtn">Cancel</button>
@@ -78,8 +79,8 @@
 
     </div>
 
-</div>
-
+    <script src="../js/services/auth-service.js"></script>
     <script src="../js/confirm-registration.js"></script>
+
 </body>
 </html>
