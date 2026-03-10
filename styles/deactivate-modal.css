@@ -33,7 +33,7 @@ body {
 .overlay {
   position: fixed;
   inset: 0;
-  background: var(--color-overlay);
+  background: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -95,8 +95,8 @@ body {
 }
 
 .modal__title {
-  font-size: clamp(1.75rem, 5vw, 2.925rem);
-  font-weight: 800;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 600;
   color: var(--color-text-primary);
   line-height: 1;
   letter-spacing: -0.02em;
@@ -118,12 +118,12 @@ body {
 }
 
 .btn {
-  height: 4.39rem;
+  height: 4.0rem;
   padding: 1.4625rem 3.659rem;
   border-radius: 11px;
   font-family: 'Poppins', sans-serif;
   font-size: 0.8125rem;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease, opacity 0.2s ease;
 }
