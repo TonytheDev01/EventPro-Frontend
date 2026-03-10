@@ -48,7 +48,7 @@ body {
 
 /* Sales Text */
 
-.sales-text {
+.ticket-sales {
   font-size: 0.8125rem;
   color: #777;
   margin-top: 0.25rem;
@@ -56,7 +56,7 @@ body {
 
 /* Attendees */
 
-.attendees {
+.ticket-attendees {
   display: flex;
   align-items: flex-start;
   gap: 0.625rem;
@@ -79,7 +79,7 @@ body {
 
 /* Divider */
 
-hr {
+.ticket-divider {
   margin: 1.25rem 0;
   border: none;
   height: 0.0625rem;
@@ -88,7 +88,7 @@ hr {
 
 /* Buttom-Actions */
 
-.actions {
+.ticket-actions {
   display: flex;
   justify-content: center;
   gap: 30px;
