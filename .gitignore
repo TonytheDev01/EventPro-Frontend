@@ -141,3 +141,5 @@ vite.config.ts.timestamp-*
 
 CLAUDE-BRIEF.md
 .env.local
+
+.vscode/
