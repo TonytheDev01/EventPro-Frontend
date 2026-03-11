@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EventPro — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/form-input.css" />
+  <link rel="stylesheet" href="../styles/login.css" />
+</head>
+<body>
+
+  <div class="page-wrapper">
+
+    <!-- ══ LEFT — Sign In Form ══ -->
+    <div class="form-card">
+
+      <!-- Group 1 — Title + new user link -->
+      <div class="title-group">
+        <h1 class="form-title">Sign in</h1>
+        <p class="new-user-text">
+          New user?
+          <a href="signup.html" class="create-account-link">Create an account</a>
+        </p>
+      </div>
+
+      <form class="login-form" id="loginForm" novalidate>
+
+        <!-- Group 2 — Email and Password fields -->
+        <div class="fields-group">
+
+          <!-- Email -->
+          <div class="form-group">
+            <div class="input-with-icon">
+              <span class="input-icon">✉</span>
+              <input
+                type="email"
+                id="email"
+                placeholder="Email Address"
+                autocomplete="email"
+              />
+            </div>
+            <span class="helper-text"></span>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <div class="input-with-icon">
+              <span class="input-icon">🔒</span>
+              <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                id="togglePassword"
+                aria-label="Show password"
+              >
+                👁
+              </button>
+            </div>
+            <span class="helper-text"></span>
+          </div>
+
+        </div>
+
+        <!-- Forgot Password -->
+        <a href="forgot-password.html" class="forgot-password">
+          Forget password?
+        </a>
+
+        <!-- Login Button -->
+        <button type="submit" class="btn-login" id="loginBtn">
+          Login
+        </button>
+
+        <!-- Social Login Group -->
+        <div class="social-group">
+
+          <button type="button" class="social-btn">
+            <img
+              src="https://www.google.com/favicon.ico"
+              alt="Google"
+              class="social-icon"
+            />
+            Continue with Google
+          </button>
+
+          <button type="button" class="social-btn">
+            <img
+              src="https://www.facebook.com/favicon.ico"
+              alt="Facebook"
+              class="social-icon"
+            />
+            Continue with Facebook
+          </button>
+
+          <button type="button" class="social-btn">
+            <svg
+              class="social-icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            Continue with X
+          </button>
+
+          <button type="button" class="social-btn">
+            <svg
+              class="social-icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 2c4.418 0 8 3.582 8 8 0 3.818-2.674 7.013-6.27 7.79V15.5h2.27l.43-2.5H13.73v-1.62c0-.684.336-1.35 1.414-1.35h1.094V7.81s-.993-.17-1.942-.17c-1.981 0-3.276 1.2-3.276 3.374V13H8.75v2.5H11v4.29C7.326 19.013 4 15.818 4 12c0-4.418 3.582-8 8-8z"/>
+            </svg>
+            Continue with Apple
+          </button>
+
+        </div>
+
+        <!-- Privacy -->
+        <p class="privacy-text">
+          By signing in with an account, you agree to 60's <br>
+          <a href="#" class="privacy-link">Terms of service</a>
+          and
+          <a href="#" class="privacy-link">Privacy Policy</a>
+        </p>
+
+      </form>
+
+    </div>
+
+    <!-- ══ RIGHT — Illustration ══ -->
+    <div class="illustration-card">
+      <div class="illustration-inner">
+        <img
+          src="../assets/images/image-login.jpg"
+          alt="Sign in illustration"
+        />
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/form-input.js"></script>
+  <script src="../js/login.js"></script>
+
+</body>
+</html>
