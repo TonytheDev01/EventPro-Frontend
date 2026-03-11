@@ -1,0 +1,310 @@
+/* =============================================
+   CSS VARIABLES
+============================================= */
+:root {
+  --green:         #1A3C2E;
+  --green-dark:    #122B20;
+  --white:         #FFFFFF;
+  --bg:            #F5F5F5;
+  --border:        #D0D0D0;
+  --text-main:     #1A1A1A;
+  --text-muted:    #999;
+  --input-bg:      #FFFFFF;
+  --input-disabled:#F0F0F0;
+  --shadow:        0 4px 32px rgba(0,0,0,0.08);
+}
+
+/* =============================================
+   RESET & BASE — Mobile First
+============================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text-main);
+  min-height: 100vh;
+}
+
+/* =============================================
+   PAGE
+============================================= */
+.page {
+  padding-top: 1.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 2rem;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* =============================================
+   CARD — Mobile
+============================================= */
+.card {
+  background: var(--white);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1rem;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+}
+
+/* =============================================
+   BACK ARROW
+============================================= */
+.back-arrow {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--text-main);
+  text-align: left;
+  width: fit-content;
+  padding: 0;
+  display: none;
+}
+
+.back-arrow.visible {
+  display: block;
+}
+
+/* =============================================
+   HEADING
+============================================= */
+.heading {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 1.5rem;
+}
+
+.subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* =============================================
+   STEPS
+============================================= */
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.step.hidden {
+  display: none;
+}
+
+/* =============================================
+   INPUT BLOCKS
+============================================= */
+.input-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+}
+
+label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.8125rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-main);
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(26,60,46,0.1);
+}
+
+/* Date and time inputs — light grey background like design */
+input[type="date"],
+input[type="time"] {
+  background: var(--input-disabled);
+  color: var(--text-muted);
+}
+
+/* =============================================
+   TEXTAREA
+============================================= */
+textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+/* =============================================
+   SELECT WRAP
+============================================= */
+.select-wrap {
+  position: relative;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 2rem;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+/* =============================================
+   UPLOAD WRAP
+============================================= */
+.upload-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background: var(--input-bg);
+  transition: border-color 0.2s;
+}
+
+.upload-wrap:hover {
+  border-color: var(--green);
+}
+
+.upload-wrap span {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.upload-icon {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+/* =============================================
+   BUTTONS
+============================================= */
+.btn-next,
+.btn-create {
+  width: 100%;
+  padding: 0.875rem;
+  background: var(--green);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  letter-spacing: 0.02em;
+}
+
+.btn-next:hover,
+.btn-create:hover {
+  background: var(--green-dark);
+}
+
+.btn-next:active,
+.btn-create:active {
+  transform: scale(0.98);
+}
+
+.btn-back {
+  flex: 1;
+  padding: 0.875rem;
+  background: var(--white);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  letter-spacing: 0.02em;
+}
+
+.btn-back:hover {
+  background: var(--bg);
+}
+
+.btn-back:active {
+  transform: scale(0.98);
+}
+
+/* =============================================
+   BUTTON ROW (Back + Next side by side)
+============================================= */
+.btn-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.btn-row .btn-next {
+  flex: 1;
+}
+
+/* =============================================
+   DESKTOP — min-width: 768px
+============================================= */
+@media (min-width: 768px) {
+  .page {
+    align-items: center;
+  }
+
+  .card {
+    max-width: 480px;
+    padding: 1.25rem 2rem;
+    gap: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+  }
+}
