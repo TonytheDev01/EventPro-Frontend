@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <link rel="stylesheet" href="../styles/verify-email.css"/>
+    
+</head>
+<body>
+
+    <div id="verification-img">
+        <img src="../assets/images/verify-icon.png" alt="Email verification" />
+    </div>
+
+
+    <div id="verify-heading">
+        <h2 class="check-h2">Check your inbox</h2>
+        <br>
+        <p class="verify-text">
+            We have sent a verification link to 
+            <strong id="masked-email">j***@email.com</strong>. 
+            Click the link to activate your account and 
+            start managing your events.
+        </p>
+    </div>
+
+    <button id="resendBtn" class="resend-btn">Resend Verification Mail</button>
+    <br>
+    <p class="change-email">Wrong Email? <a href="#">Change it</a></p>
+    <br>
+
+    <a href="#" class="back-to-login">Back to Login Page</a>
+
+    <script src="../js/form-input.js"></script>
+    <script src="../js/verify-email.js"></script>
+</body>
+</html>

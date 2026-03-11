@@ -1,0 +1,119 @@
+/*
+EventPro — You're All Set Screen
+youre-all-set.css
+*/
+
+*{
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+display: flex;
+justify-content: center;
+align-items: center;
+min-height: 100vh;
+padding: 1.5rem 1rem;
+font-family: 'Poppins', sans-serif;
+}
+
+.card {
+display: flex;
+flex-direction: column;
+align-items: center;
+width: min(36.9375rem, 100%);
+padding: 4.625rem 1.5rem 2.5rem;
+background-color: #f3f3f3; /*var(--color-white)*/
+border-radius: 29px;
+border-style: inset #000000;
+gap: 1.5rem;
+}
+
+.check-circle{
+display: flex;
+justify-content: center;
+align-items: center;
+width: 10rem;
+height: 7rem;
+border-radius: 56px;
+background-color: var(--color-success-circle);
+padding: 2.5rem 2.125rem;
+flex-shrink: 0;
+}
+
+.check-circle img {
+width: 100%;
+height: auto;
+display: block;
+}
+
+.card__content {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 0.75rem;
+text-align: center;
+}
+
+.card__title {
+font-size: clamp(1.75rem, 5vw, 2.925rem);
+font-weight: 600;
+color: var(--color-text-primary);
+line-height: 1;
+letter-spacing: -0.02em;
+max-width: 13.125rem;
+}
+
+.card__message {
+font-size: 0.8125rem;
+color: #494949; /* var(--color-text-muted)*/
+line-height: 1.6;
+max-width: 20rem;
+font-style: italic;
+}
+
+.card__message strong {
+color: #000000;/*var(--color-text-primary)*/
+font-weight: 600;
+font-style: normal;
+}
+
+.btn {
+width: min(27.9375rem, 100%);
+height: 4.99rem;
+padding: 1.4625rem 3.659rem;
+border: none;
+border-radius: 11px;
+font-family: 'Poppins', sans-serif;
+font-size: 0.8125rem;
+font-weight: 600;
+cursor: pointer;
+background-color: #0a5240;
+color: #ffffff;
+transition: opacity 0.2s ease;
+}
+
+.btn:hover{
+    opacity: 0.88;
+    outline: 2px solid darkgreen;
+}
+
+.btn:focus-visible{
+    outline: 2px solid darkgreen;
+}
+
+/* .btn--success {
+background-color: var(--color-success-dark);
+color: var(--color-white);
+} */
+
+/* .btn--success:hover {
+opacity: 0.88;
+}
+
+.btn--success:focus-visible {
+outline: 2px solid var(--color-success-dark);
+outline-offset: 3px;
+} */
+
