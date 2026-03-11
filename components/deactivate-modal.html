@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en"> <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deactivate Event - EventPro</title>
+    <link rel="stylesheet" href="../styles/deactivate-modal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,800;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="overlay">
+        <div class="modal">
+            <button type="button" id="close-btn" class="close-btn" aria-label="Close modal">&#x2715;</button>
+            
+            <div class="modal__icon">
+                <img src="../assets/images/deactivate-icon.jpg" alt="Warning">
+            </div>
+
+            <div class="modal__content">
+                <h1 class="modal__title">Deactivate <br/> Event?</h1>
+                <p class="modal__subtitle">This event will no longer be visible to attendees.</p>
+            </div>
+
+            <div class="modal__buttons">
+                <button type="button" id="cancel-btn" class="btn btn--cancel">Cancel</button>
+                <button type="button" id="deactivate-btn" class="btn btn--deactivate">Deactivate</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/services/auth-service.js"></script>
+    <script src="../js/deactivate-modal.js"></script>
+</body>
+</html>

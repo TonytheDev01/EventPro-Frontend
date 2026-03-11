@@ -1,22 +1,22 @@
-// EventPro — Form Input Component
-// Shared validation logic for all form pages
+// ================================================
+//  EventPro — Form Input Shared Utilities
+//  js/form-input.js
+//  Imported by: signup.js, login.js, and all
+//  pages that use form validation
+// ================================================
 
 function setInputState(inputElement, state, message = "") {
-
   const container = inputElement.closest(".input-block")
                  || inputElement.closest(".form-group");
-
   if (!container) return;
 
   const helperText = container.querySelector(".helper")
                   || container.querySelector(".helper-text");
 
-  // Clear existing states
+  // Clear all existing states
   inputElement.classList.remove(
-    "input-error",
-    "input-success",
-    "state-error",
-    "state-success"
+    "input-error", "input-success",
+    "state-error", "state-success"
   );
 
   if (helperText) {
@@ -25,7 +25,6 @@ function setInputState(inputElement, state, message = "") {
     helperText.style.display = "none";
   }
 
-  // Apply new state
   if (state === "error") {
     inputElement.classList.add("input-error");
     if (helperText && message) {
@@ -45,20 +44,36 @@ function setInputState(inputElement, state, message = "") {
   }
 }
 
-
-function validateNotEmpty(inputElement, errorMessage) {
+//  Validate: not empty 
+// successMessage is optional — defaults to "Looks good!"
+function validateNotEmpty(inputElement, errorMessage, successMessage = "Looks good!") {
   if (inputElement.value.trim() === "") {
     setInputState(inputElement, "error", errorMessage);
     return false;
   }
-  setInputState(inputElement, "success", "Looks good!");
+  setInputState(inputElement, "success", successMessage);
   return true;
 }
 
+// Validate: name (two words minimum) 
+function validateName(inputElement, fieldLabel = "Name") {
+  const value = inputElement.value.trim();
+  if (value === "") {
+    setInputState(inputElement, "error", `${fieldLabel} is required`);
+    return false;
+  }
+  const words = value.split(/\s+/).filter(Boolean);
+  if (words.length < 2) {
+    setInputState(inputElement, "error", "Please enter your first and last name");
+    return false;
+  }
+  setInputState(inputElement, "success", "Name accepted");
+  return true;
+}
 
+// Validate: email 
 function validateEmail(inputElement) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
   if (inputElement.value.trim() === "") {
     setInputState(inputElement, "error", "Email address is required");
     return false;
@@ -71,10 +86,9 @@ function validateEmail(inputElement) {
   return true;
 }
 
-
+// Validate: password 
 function validatePassword(inputElement) {
   const value = inputElement.value;
-
   if (value === "") {
     setInputState(inputElement, "error", "Password is required");
     return false;
@@ -87,7 +101,7 @@ function validatePassword(inputElement) {
   return true;
 }
 
-
+//  Validate: confirm password match 
 function validateMatch(inputElement, matchValue) {
   if (inputElement.value === "") {
     setInputState(inputElement, "error", "Please confirm your password");
@@ -101,12 +115,12 @@ function validateMatch(inputElement, matchValue) {
   return true;
 }
 
-
-function validateMinLength(inputElement, minLength, errorMessage) {
+//  Validate: minimum length 
+function validateMinLength(inputElement, minLength, errorMessage, successMessage = "Looks good!") {
   if (inputElement.value.trim().length < minLength) {
     setInputState(inputElement, "error", errorMessage);
     return false;
   }
-  setInputState(inputElement, "success", "Looks good!");
+  setInputState(inputElement, "success", successMessage);
   return true;
 }
