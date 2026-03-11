@@ -1,137 +1,212 @@
-/* ── The wrapper around each field ── */
-.input-block {
+/* ================================================
+   EventPro — Form Input Shared Component
+   Mobile-first. Imported by all form pages.
+   Base font size = 16px
+   ================================================ */
+
+:root {
+  --color-primary:      #8F00FF;
+  --color-focus-grad:   linear-gradient(to right, #8F00FF, #EC4899);
+  --color-danger:       #E11727;
+  --color-success:      #166534;
+  --color-neutral:      #424B57;
+  --color-border:       #D9D9D9;
+  --color-placeholder:  #6B7280;
+  --color-white:        #FFFFFF;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--color-white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+}
+
+h1 {
+  font-size: clamp(1.125rem, 2.5vw, 1.25rem);
+  font-weight: 700;
+  color: var(--color-neutral);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.wrapper {
+  width: 100%;
+  max-width: min(30.875rem, 100%);   
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card {
+  width: 100%;
+  border-radius: 5px;                
+  padding: 1.25rem;                 
+  border: 1px dashed #C4B5FD;
+  background: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/*  Tablet and up — two cards side by side  */
+@media (min-width: 48rem) {
+  h1 {
+    margin-bottom: 2rem;
+  }
+
+  .wrapper {
+    max-width: min(62.625rem, 100%);
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.9375rem;                  
+  }
+
+  .card {
+    flex: 1;                        
+  }
+}
+
+.input-block,
+.form-group {
   display: flex;
   flex-direction: column;
   gap: 0.3125rem;
   width: 100%;
 }
 
-/* ── Keep .form-group as alias so signup page works too ── */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
-  width: 100%;
+/* min-height only inside preview cards */
+.card .input-block {
+  min-height: 8.5rem;   
 }
 
-/* ── Label ── */
 .input-block label,
 .form-group label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #424B57;
-  margin-bottom: 0.375rem;
-  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;             
+  font-weight: 500;
+  color: var(--color-neutral);
+  font-family: 'Poppins', sans-serif;
 }
 
-/* ── Base input — DEFAULT state ── */
+/* ── Base input  */
 .input-block input,
 .form-group input {
   width: 100%;
-  padding: 0.625rem 0.875rem;
-  font-size: 0.875rem;
-  font-family: 'Inter', sans-serif;
-  color: #424B57;
-  background-color: #FFFFFF;
-  border: 1.5px solid #D9D9D9;
-  border-radius: 8px;
+  height: 2.5rem;                    
+  padding: 0 0.75rem;                
+  font-size: 0.8125rem;             
+  font-family: 'Poppins', sans-serif;
+  color: var(--color-placeholder);
+  background-color: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;                
   outline: none;
-  transition: border-color 0.2s ease;
-  box-sizing: border-box;
-}
+transition: border-color 0.2s ease-out,
+            box-shadow 0.2s ease-out;}
 
-/* ── FOCUS state — purple border ── */
+/*  Focus */
 .input-block input:focus,
-.form-group input:focus {
-  border-color: #8F00FF;
-}
-
-/* ── FOCUS state via JS class ── */
+.form-group input:focus,
 .input-block input.input-focus,
 .form-group input.input-focus,
 .input-block input.state-focus,
 .form-group input.state-focus {
-  border-color: #8F00FF;
+  border-color: var(--color-primary);
 }
 
-/* ── ERROR state ── */
-.input-block input.input-error,
-.form-group input.input-error,
-.input-block input.state-error,
-.form-group input.state-error {
-  border-color: #E11727;
-}
+/* Focus gradient wrapper  */
 
-/* ── SUCCESS state ── */
-.input-block input.input-success,
-.form-group input.input-success,
-.input-block input.state-success,
-.form-group input.state-success {
-  border-color: #166534;
-}
-
-/* ── Helper text — hidden by default ── */
-.input-block .helper,
-.input-block .helper-text,
-.form-group .helper,
-.form-group .helper-text {
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  font-family: 'Inter', sans-serif;
-  font-style: italic;
-  display: none;
-}
-
-/* ── Error message — red ── */
-.input-block .helper.error-text,
-.input-block .helper-text.error-text,
-.form-group .helper.error-text,
-.form-group .helper-text.error-text {
-  color: #E11727;
-  display: block;
-}
-
-/* ── Success message — green ── */
-.input-block .helper.success-text,
-.input-block .helper-text.success-text,
-.form-group .helper.success-text,
-.form-group .helper-text.success-text {
-  color: #166534;
-  display: block;
-}
-
-/* ── Hidden helper — reserves space so layout doesn't jump ── */
-.input-block .helper.hidden,
-.form-group .helper.hidden {
-  visibility: hidden;
-  height: 0.875rem;
-  display: block;
-}
-
-/* ── FOCUS gradient border wrapper ── */
 .input-block .focus-wrapper,
 .form-group .focus-wrapper {
   position: relative;
   border-radius: 8px;
   padding: 1.5px;
-  background: linear-gradient(to right, #8F00FF, #EC4899);
+  background: var(--color-focus-grad);
+  opacity: 0;
+  animation: focusIn 0.2s ease-out forwards;
+}
+
+@keyframes focusIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .input-block .focus-wrapper input,
 .form-group .focus-wrapper input {
   border: none;
   width: 100%;
-  height: 2.375rem;
-  border-radius: 7px;
+  height: 2.375rem;                  
+  border-radius: 7px;                
   padding: 0 0.75rem;
-  background: #FFFFFF;
-  font-size: 0.875rem;
-  font-family: 'Inter', sans-serif;
-  color: #6B7280;
+  background: var(--color-white);
+  font-size: 0.8125rem;
+  font-family: 'Poppins', sans-serif;
+  color: var(--color-placeholder);
   outline: none;
 }
 
-/* ── Input with icon inside ── */
+/* Error  */
+.input-block input.input-error,
+.form-group input.input-error,
+.input-block input.state-error,
+.form-group input.state-error {
+  border-color: var(--color-danger);
+}
+
+/*  Success  */
+.input-block input.input-success,
+.form-group input.input-success,
+.input-block input.state-success,
+.form-group input.state-success {
+  border-color: var(--color-success);
+}
+
+/*  Helper text  */
+.input-block .helper,
+.input-block .helper-text,
+.form-group .helper,
+.form-group .helper-text {
+  font-size: 0.6875rem;              
+  margin-top: 0.125rem;              
+  font-family: 'Poppins', sans-serif;
+  font-style: italic;
+  display: none;
+}
+
+.input-block .helper.error-text,
+.input-block .helper-text.error-text,
+.form-group .helper.error-text,
+.form-group .helper-text.error-text {
+  color: var(--color-danger);
+  display: block;
+}
+
+.input-block .helper.success-text,
+.input-block .helper-text.success-text,
+.form-group .helper.success-text,
+.form-group .helper-text.success-text {
+  color: var(--color-success);
+  display: block;
+}
+
+.input-block .helper.hidden,
+.form-group .helper.hidden {
+  visibility: hidden;
+  height: 0.875rem;                
+  display: block;
+}
+
+/* Input with icon  */
 .input-block .input-with-icon,
 .form-group .input-with-icon {
   position: relative;
@@ -143,7 +218,7 @@
 .form-group .input-with-icon .input-icon {
   position: absolute;
   left: 0.75rem;
-  color: #6B7280;
+  color: var(--color-placeholder);
   font-size: 0.875rem;
   pointer-events: none;
 }
@@ -151,4 +226,13 @@
 .input-block .input-with-icon input,
 .form-group .input-with-icon input {
   padding-left: 2.25rem;
+}
+
+/*  Focus animation via JS class  */
+.input-block input.input-focus,
+.form-group input.input-focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(143, 0, 255, 0.12);
+  transition: border-color 0.2s ease-out,
+              box-shadow 0.2s ease-out;
 }
