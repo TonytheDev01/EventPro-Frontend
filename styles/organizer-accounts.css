@@ -1,0 +1,165 @@
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:#f5f7fb;
+padding:40px;
+font-family: 'Poppins', 'Inter', sans-serif;
+}
+
+.container{
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 4px 20px rgba(0,0,0,0.05);
+}
+
+.header{
+display:flex;
+align-items:center;
+gap:15px;
+margin-bottom:25px;
+}
+
+.back-btn{
+border:none;
+padding:8px 12px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.controls{
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+margin-bottom:20px;
+}
+
+.controls input,
+.controls select{
+padding:10px;
+border:1px solid #ddd;
+border-radius:6px;
+}
+
+.add-btn{
+background:linear-gradient(45deg,#7b3ff2,#9f67ff);
+color:white;
+border:none;
+padding:10px 16px;
+border-radius:8px;
+cursor:pointer;
+}
+
+.table-container{
+overflow-x:auto;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+thead{
+background:#f4f4f4;
+}
+
+th,td{
+padding:15px;
+text-align:left;
+border-bottom:1px solid #eee;
+}
+
+.avatar{
+width:40px;
+height:40px;
+border-radius:50%;
+object-fit:cover;
+}
+
+.status{
+padding:6px 14px;
+border-radius:20px;
+color:white;
+font-size:13px;
+}
+
+.active{
+background:#22c55e;
+}
+
+.pending{
+background:#f59e0b;
+}
+
+.inactive{
+background:#ef4444;
+}
+
+/* Action buttons container */
+.action-buttons{
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap; /* keep buttons in a row */
+    align-items: center;
+}
+
+/* Edit and Delete buttons */
+.edit,
+.delete{
+    display: flex;
+    flex-direction: row;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    background: #f0f0f0;
+}
+
+.edit:hover{
+    background: #e0e0e0;
+}
+.add-btn:hover{
+    background: linear-gradient(45deg, #6a2fd1, #8b5cf6);
+}
+.delete:hover{
+background:#ffd4d4;
+}
+
+.pagination{
+margin-top:20px;
+display:flex;
+gap:10px;
+}
+
+.page-btn,
+.next-btn{
+padding:6px 12px;
+border:1px solid #ddd;
+background:white;
+cursor:pointer;
+border-radius:6px;
+}
+
+/* Responsive */
+
+@media (max-width: min(494px, 100%)){
+
+.controls{
+flex-direction:column;
+}
+
+th:nth-child(4),
+td:nth-child(4){
+display:none;
+}
+
+}
+@media (max-width: min(494px, 100%)){
+.action-buttons{
+    gap:5px;
+}
+}

@@ -6,6 +6,12 @@ const nextBtn = document.querySelector(".next-btn");
 
 let rows = Array.from(tableBody.querySelectorAll("tr"));
 
+// helper to refresh the cached rows list
+function updateRows() {
+    rows = Array.from(tableBody.querySelectorAll("tr"));
+}
+
+
 
 
 /* -------------------
@@ -29,14 +35,19 @@ newRow.innerHTML = `
 <td class="role">${role}</td>
 <td><span class="status active">Active</span></td>
 <td>
+<div class="action-buttons">
 <button class="edit">Edit</button>
 <button class="delete">Delete</button>
+</div>
 </td>
 `;
 
 tableBody.appendChild(newRow);
 
-rows = Array.from(tableBody.querySelectorAll("tr"));
+updateRows();
+// reapply current filter and update pagination
+filterTable();
+showPage(currentPage);
 
 });
 
@@ -48,17 +59,19 @@ DELETE USER
 
 document.addEventListener("click", function(e){
 
-if(e.target.classList.contains("delete")){
+if (e.target.classList.contains("delete")) {
+    if (confirm("Delete this user?")) {
+        const row = e.target.closest("tr");
+        row.remove();
 
-if(confirm("Delete this user?")){
+        updateRows();
+        // if current page is now past the end, step back
+        const totalPages = Math.ceil(rows.length / rowsPerPage) || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
 
-const row = e.target.closest("tr");
-row.remove();
-
-rows = Array.from(tableBody.querySelectorAll("tr"));
-
-}
-
+        filterTable();
+        showPage(currentPage);
+    }
 }
 
 });
@@ -160,6 +173,9 @@ row.style.display = matchSearch && matchRole ? "" : "none";
 
 });
 
+// when filters change, go back to first page
+currentPage = 1;
+showPage(currentPage);
 }
 
 
@@ -172,32 +188,33 @@ const rowsPerPage = 3;
 let currentPage = 1;
 
 function showPage(page){
+    // make sure we have the latest rows
+    updateRows();
+    // apply filters before paginating (filterTable may have been called already)
+    const visible = rows.filter(r => r.style.display !== "none");
 
-rows = Array.from(tableBody.querySelectorAll("tr"));
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
 
-const start = (page-1) * rowsPerPage;
-const end = start + rowsPerPage;
+    // hide everything first
+    rows.forEach(r => (r.style.display = "none"));
 
-rows.forEach((row,index)=>{
-
-row.style.display =
-(index >= start && index < end) ? "" : "none";
-
-});
-
+    // reveal only the slice of visible rows
+    visible.forEach((row, index) => {
+        if (index >= start && index < end) row.style.display = "";
+    });
 }
+
 
 showPage(currentPage);
 
-nextBtn.addEventListener("click", ()=>{
+nextBtn.addEventListener("click", () => {
+    // recalc using only visible rows after filtering
+    const totalPages = Math.ceil(rows.filter(r => r.style.display !== "none").length / rowsPerPage);
 
-const totalPages = Math.ceil(rows.length / rowsPerPage);
-
-if(currentPage < totalPages){
-
-currentPage++;
-showPage(currentPage);
-
-}
-
+    if (currentPage < totalPages) {
+        currentPage++;
+        showPage(currentPage);
+    }
 });
+ 
