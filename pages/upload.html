@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload - EventPro</title>
+    <link rel="stylesheet" href="../styles/upload.css">
+    <script src="https://kit.fontawesome.com/9ab2ab27be.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <main class="upload-wrapper">
+
+        <header class="upload-header">
+            <div class="icon"><i class="fa-solid fa-upload"></i></div>
+            <div>
+                <h1>Upload Files</h1>
+                <p>Select and upload the files of your choice</p>
+            </div>
+        </header>
+
+        <section class="drop-zone" id="dropZone">
+            <input type="file" id="fileInput" multiple hidden>
+
+            <button class="upload-btn" id="uploadBtn"><i class="fa-solid fa-upload"></i>Upload</button>
+
+            <p class="drop-text">Choose a file or drag & drop it here</p>
+
+            <small>Maximum of 500 MB file size</small>
+        </section>
+
+        <section class="upload-list" id="uploadList"></section>
+
+    </main>
+
+    <script src="../js/upload.js"></script>
+</body>
+</html>
