@@ -22,7 +22,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1.5rem 1rem;
-  background-color: #fff;
+  background-color: var(--color-white);
 }
 
 .ticket-card {
