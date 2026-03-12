@@ -1,119 +1,140 @@
-/*
-EventPro — You're All Set Screen
-youre-all-set.css
-*/
+/* ================================================
+   EventPro — You're All Set Screen
+   Mobile-first. Scales to tablet and desktop.
+   Base font size = 16px
+   ================================================ */
 
-*{
-margin: 0;
-padding: 0;
-box-sizing: border-box;
+:root {
+  --color-white:          #FFFFFF;
+  --color-text-primary:   #000000;
+  --color-text-muted:     #494949;
+  --color-success-dark:   #0A5240;
+  --color-success-hover:  #083D30;
+  --color-success-circle: #D1FAE5;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-display: flex;
-justify-content: center;
-align-items: center;
-min-height: 100vh;
-padding: 1.5rem 1rem;
-font-family: 'Poppins', sans-serif;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--color-white);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
 }
 
+/* ── Card ─────────────────────────────────────── */
 .card {
-display: flex;
-flex-direction: column;
-align-items: center;
-width: min(36.9375rem, 100%);
-padding: 4.625rem 1.5rem 2.5rem;
-background-color: #f3f3f3; /*var(--color-white)*/
-border-radius: 29px;
-border-style: inset #000000;
-gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(36.9375rem, 100%);        /* 591px ÷ 16 — spec */
+  padding: 4.625rem 1.5rem 2.5rem;
+  background-color: var(--color-white);
+  border-radius: 29px;                 /* always px */
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  gap: 1.5rem;
 }
 
-.check-circle{
-display: flex;
-justify-content: center;
-align-items: center;
-width: 10rem;
-height: 7rem;
-border-radius: 56px;
-background-color: var(--color-success-circle);
-padding: 2.5rem 2.125rem;
-flex-shrink: 0;
+/* ── Check circle ─────────────────────────────── */
+.check-circle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 7rem;                         /* 112px ÷ 16 — spec */
+  height: 7rem;                        /* 112px ÷ 16 — spec */
+  border-radius: 50%;                  /* always circular */
+  background-color: var(--color-success-circle);
+  flex-shrink: 0;
 }
 
 .check-circle img {
-width: 100%;
-height: auto;
-display: block;
+  width: 2.9375rem;                    /* 47px ÷ 16 — contained within circle */
+  height: auto;
+  display: block;
 }
 
+/* ── Card content ─────────────────────────────── */
 .card__content {
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 0.75rem;
-text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
 }
 
+/* ── Title ────────────────────────────────────── */
 .card__title {
-font-size: clamp(1.75rem, 5vw, 2.925rem);
-font-weight: 600;
-color: var(--color-text-primary);
-line-height: 1;
-letter-spacing: -0.02em;
-max-width: 13.125rem;
+  font-size: clamp(1.75rem, 5vw, 2.925rem);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  max-width: 13.125rem;
 }
 
+/* ── Confirmation message ─────────────────────── */
 .card__message {
-font-size: 0.8125rem;
-color: #494949; /* var(--color-text-muted)*/
-line-height: 1.6;
-max-width: 20rem;
-font-style: italic;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  max-width: 20rem;
+  font-style: italic;
 }
 
 .card__message strong {
-color: #000000;/*var(--color-text-primary)*/
-font-weight: 600;
-font-style: normal;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-style: normal;
 }
 
-.btn {
-width: min(27.9375rem, 100%);
-height: 4.99rem;
-padding: 1.4625rem 3.659rem;
-border: none;
-border-radius: 11px;
-font-family: 'Poppins', sans-serif;
-font-size: 0.8125rem;
-font-weight: 600;
-cursor: pointer;
-background-color: #0a5240;
-color: #ffffff;
-transition: opacity 0.2s ease;
+/* Button  */
+.btn--success {
+  width: min(21.75rem, 100%);          
+  height: 4.5rem;                     
+  padding: 1.4625rem 3.659rem;
+  border: none;
+  border-radius: 11px;                 
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: var(--color-success-dark);
+  color: var(--color-white);
+  transition: opacity 0.2s ease-out,
+              background-color 0.2s ease-out;
 }
 
-.btn:hover{
-    opacity: 0.88;
-    outline: 2px solid darkgreen;
-}
-
-.btn:focus-visible{
-    outline: 2px solid darkgreen;
-}
-
-/* .btn--success {
-background-color: var(--color-success-dark);
-color: var(--color-white);
-} */
-
-/* .btn--success:hover {
-opacity: 0.88;
+.btn--success:hover {
+  background-color: var(--color-success-hover);
 }
 
 .btn--success:focus-visible {
-outline: 2px solid var(--color-success-dark);
-outline-offset: 3px;
-} */
+  outline: 2px solid var(--color-success-dark);
+  outline-offset: 3px;
+}
 
+.btn--success:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/*  Tablet (768px+)  */
+@media (min-width: 48rem) {
+  .card {
+    padding: 4.625rem 2.5rem 3rem;
+  }
+}
+
+/* Desktop (1200px+) */
+@media (min-width: 75rem) {
+  body {
+    padding: 2rem;
+  }
+}
