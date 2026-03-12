@@ -47,7 +47,7 @@ body {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;              
+  gap: 1.5rem;              
 }
 
 .form-title {
@@ -61,7 +61,7 @@ body {
 .signup-form {
   display: flex;
   flex-direction: column;
-  gap: 2.875rem;              
+  gap: 1.5rem;              
 }
 
 .form-group {
@@ -79,7 +79,7 @@ body {
 
 .btn-primary {
   width: 100%;
-  height: 4.5rem;            
+  height: 4rem;            
   background-color: var(--color-primary);
   color: var(--color-white);
   border: none;
@@ -133,7 +133,7 @@ body {
     flex-direction: row;          
     align-items: center;
     justify-content: center;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 
   .form-card {
@@ -174,7 +174,7 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 2.5rem;
+    gap: 1.5rem;
   }
 
   .form-card {

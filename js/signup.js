@@ -15,11 +15,11 @@ const submitBtn       = document.getElementById('submitBtn');
 
 //  Validate on blur 
 firstNameInput.addEventListener('blur', () => {
-  validateName(firstNameInput, 'First name');
+  validateMinLength(firstNameInput, 2, 'First name must be at least 2 characters');
 });
 
 lastNameInput.addEventListener('blur', () => {
-  validateName(lastNameInput, 'Last name');
+  validateMinLength(lastNameInput, 2, 'Last name must be at least 2 characters');
 });
 
 emailInput.addEventListener('blur', () => {
@@ -54,8 +54,8 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   // Run all validations
-  const isFirstNameValid = validateName(firstNameInput, 'First name');
-  const isLastNameValid  = validateName(lastNameInput, 'Last name');
+  const isFirstNameValid = validateMinLength(firstNameInput, 2, 'First name must be at least 2 characters');
+  const isLastNameValid  = validateMinLength(lastNameInput, 2, 'Last name must be at least 2 characters');  
   const isEmailValid     = validateEmail(emailInput);
   const isPasswordValid  = validatePassword(passwordInput);
   const isConfirmValid   = validateMatch(confirmInput, passwordInput.value);
