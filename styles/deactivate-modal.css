@@ -7,11 +7,12 @@
   --color-danger: #D33029; /* deactivate button from design spec */
   --color-danger-hover: #B8251F;
   --color-text-primary: #000000;
-  --color-text-muted: #424857; /* NEUTRAL token */
+  --color-text-muted: #424B57; /* NEUTRAL token */
   --color-white: #FEFEFE; /* cancel button bg */
   --color-border: #cccccc;
   --color-overlay: rgba(0, 0, 0, 0.3);
   --color-close-hover: #f0f0f0;
+  --btn-cancel-hover: #f5f5f5;
 }
 
 * {
@@ -71,6 +72,11 @@ body {
 
 .close-btn:hover {
   background-color: var(--color-close-hover);
+}
+
+.close-btn:focus-visible {
+  outline: 2px solid var(--color-danger);
+  outline-offset: 3px;
 }
 
 .modal__icon {
@@ -134,6 +140,10 @@ body {
   border: 0.59px solid var(--color-border);
 }
 
+.btn--cancel:hover {
+  background-color: var(--btn-cancel-hover);
+}
+
 .btn--deactivate {
   background-color: var(--color-danger);
   color: var(--color-white);
@@ -142,6 +152,11 @@ body {
 
 .btn--deactivate:hover {
   background-color: var(--color-danger-hover);
+}
+
+.btn--deactivate:focus-visible {
+  outline: 2px solid var(--color-danger);
+  outline-offset: 3px;
 }
 
 .btn:disabled {
