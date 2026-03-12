@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const token   = typeof getStoredToken === "function" ? getStoredToken() : null;
   const eventId = new URLSearchParams(window.location.search).get("eventId");
 
-  // ── SVG strings ───────────────────────────────
+  //  SVG strings 
   const iconUnsaved = `
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       <path d="M12 21C12 21 4 13 4 8A5 5 0 0112 5a5 5 0 018 3c0 5-8 13-8 13z"
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
         stroke="#F97316" stroke-width="2"/>
     </svg>`;
 
-  // ── Register ───────────────────────────────────
+  // Register 
   // ⚠️ Endpoint not yet confirmed from backend
   // Update URL when Ezekiel confirms single-attendee register endpoint
   registerBtn?.addEventListener("click", async () => {
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── Share ──────────────────────────────────────
+  // ── Share 
   shareBtn?.addEventListener("click", async () => {
     const shareData = {
       title: "EventPro",
