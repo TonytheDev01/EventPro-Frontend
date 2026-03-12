@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EventPro — Sign Up</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="../styles/form-input.css" />
   <link rel="stylesheet" href="../styles/signup.css" />
 </head>
@@ -13,9 +14,16 @@
 
   <div class="page-wrapper">
 
-    <!-- ══ LEFT — Sign Up Form ══ -->
-    <div class="form-card">
+    <!-- TOP / RIGHT — Illustration  -->
+    <div class="illustration-card">
+      <img
+        src="../assets/images/image.png"
+        alt="Sign up illustration"
+      />
+    </div>
 
+    <!--  BOTTOM / LEFT — Sign Up Form  -->
+    <div class="form-card">
       <h1 class="form-title">Sign Up</h1>
 
       <form class="signup-form" id="signupForm" novalidate>
@@ -48,7 +56,15 @@
         <div class="form-group">
           <label for="email">Email Address</label>
           <div class="input-with-icon">
-            <span class="input-icon">✉</span>
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                  stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="22,6 12,13 2,6"
+                  stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
             <input
               type="email"
               id="email"
@@ -63,7 +79,15 @@
         <div class="form-group">
           <label for="password">Password</label>
           <div class="input-with-icon">
-            <span class="input-icon">🔒</span>
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"
+                  stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"
+                  stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
             <input
               type="password"
               id="password"
@@ -78,7 +102,15 @@
         <div class="form-group">
           <label for="confirmPassword">Confirm Password</label>
           <div class="input-with-icon">
-            <span class="input-icon">🔒</span>
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"
+                  stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"
+                  stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
             <input
               type="password"
               id="confirmPassword"
@@ -89,26 +121,23 @@
           <span class="helper-text"></span>
         </div>
 
-        <!-- Submit Button -->
+        <!-- Submit -->
         <button type="submit" class="btn-primary" id="submitBtn">
           Create Account
         </button>
 
-      </form>
+        <p class="signin-text">
+          Already have an account?
+          <a href="sign-in.html" class="signin-link">Sign in</a>
+        </p>
 
+      </form>
     </div>
 
-<!-- RIGHT — Illustration -->
-<div class="illustration-card">
-  <div class="illustration-inner">
-    <img
-      src="../assets/images/image.png"
-      alt="Sign Up illustration"
-    />
   </div>
-</div>
 
   <script src="../js/form-input.js"></script>
+  <script src="../js/services/auth-service.js"></script>
   <script src="../js/signup.js"></script>
 
 </body>

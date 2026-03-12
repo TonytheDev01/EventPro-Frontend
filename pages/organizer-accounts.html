@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organizer Accounts</title>
+<link rel="stylesheet" href="organizer-accounts.css">
+</head>
+<body>
+
+<div class="container">
+
+<header class="header">
+
+<button class="back-btn">←</button>
+<h2>Organizer Accounts</h2>
+
+</header>
+
+<div class="controls">
+
+<input type="text" id="searchInput" placeholder="Search by name or email">
+
+<select id="roleFilter">
+<option value="all">All Roles</option>
+<option value="Admin">Admin</option>
+<option value="Organizer">Organizer</option>
+<option value="Viewer">Viewer</option>
+</select>
+
+<button class="add-btn" id="addOrganizerBtn">+ Add Organizer</button>
+
+</div>
+
+<div class="table-container">
+
+<table id="usersTable">
+
+<thead>
+
+<tr>
+<th>Profile</th>
+<th>Name</th>
+<th>Email</th>
+<th>Role</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+<td><img src="images/user1.jpg" class="avatar"></td>
+<td class="name">John Doe</td>
+<td class="email">john@example.com</td>
+<td class="role">Admin</td>
+<td><span class="status active">Active</span></td>
+<td>
+<button class="edit">Edit</button>
+<button class="delete">Delete</button>
+</td>
+</tr>
+
+<tr>
+<td><img src="images/user2.jpg" class="avatar"></td>
+<td class="name">Jane Smith</td>
+<td class="email">jane@example.com</td>
+<td class="role">Organizer</td>
+<td><span class="status pending">Pending</span></td>
+<td>
+<button class="edit">Edit</button>
+<button class="delete">Delete</button>
+</td>
+</tr>
+
+<tr>
+<td><img src="images/user3.jpg" class="avatar"></td>
+<td class="name">Alice Brown</td>
+<td class="email">alice@example.com</td>
+<td class="role">Viewer</td>
+<td><span class="status inactive">Inactive</span></td>
+<td>
+<button class="edit">Edit</button>
+<button class="delete">Delete</button>
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<div class="pagination">
+
+<button class="page-btn">1</button>
+<button class="page-btn">2</button>
+<button class="page-btn">3</button>
+<button class="next-btn">Next →</button>
+
+</div>
+
+</div>
+
+<script src="organizer-accounts.js"></script>
+
+</body>
+</html>

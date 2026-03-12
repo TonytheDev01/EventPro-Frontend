@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EventPro — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/form-input.css" />
+  <link rel="stylesheet" href="../styles/sign-in.css" />
+</head>
+<body>
+
+  <div class="page-wrapper">
+
+
+        <!-- ══ RIGHT — Illustration ══ -->
+    <div class="illustration-card">
+      <img
+        src="../assets/images/image-login.jpg"
+        alt="Sign in illustration"
+      />
+    </div>
+
+
+    <!-- ══ LEFT — Sign In Form ══ -->
+    <div class="form-card">
+
+      <!-- Group 1 — Title + new user link -->
+      <div class="title-group">
+        <h1 class="form-title">Sign in</h1>
+        <p class="new-user-text">
+          New user?
+          <a href="signup.html" class="create-account-link">Create an account</a>
+        </p>
+      </div>
+
+      <form class="login-form" id="loginForm" novalidate>
+
+        <!-- Group 2 — Email and Password fields -->
+        <div class="fields-group">
+
+          <!-- Email -->
+          <div class="form-group">
+            <div class="input-with-icon">
+              <span class="input-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                    stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="22,6 12,13 2,6"
+                    stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <input
+                type="email"
+                id="email"
+                placeholder="Email Address"
+                autocomplete="email"
+              />
+            </div>
+            <span class="helper-text"></span>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <div class="input-with-icon">
+              <span class="input-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"
+                    stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"
+                    stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                id="togglePassword"
+                aria-label="Show password"
+              >
+                <!-- Eye open — default -->
+                <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                    stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3"
+                    stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <span class="helper-text"></span>
+          </div>
+
+        </div>
+
+        <!-- Forgot Password -->
+        <a href="forgot-password.html" class="forgot-password">
+          Forget password?
+        </a>
+
+        <!-- Login Button -->
+        <button type="submit" class="btn-login" id="loginBtn">
+          Login
+        </button>
+
+        <!-- Social Login Group -->
+        <div class="social-group">
+
+          <!-- Google -->
+          <button type="button" class="social-btn">
+            <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <!-- Facebook -->
+          <button type="button" class="social-btn">
+            <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/>
+            </svg>
+            Continue with Facebook
+          </button>
+
+          <!-- X (Twitter) -->
+          <button type="button" class="social-btn">
+            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            Continue with X
+          </button>
+
+          <!-- Apple -->
+          <button type="button" class="social-btn">
+            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4zm-3.01-17.3c.06 2.28-1.98 4.18-4.12 3.99-.29-2.2 1.98-4.25 4.12-3.99z"/>
+            </svg>
+            Continue with Apple
+          </button>
+
+        </div>
+
+        <!-- Privacy -->
+        <p class="privacy-text">
+          By signing in with an account, you agree to EventPro's<br>
+          <a href="#" class="privacy-link">Terms of service</a>     
+            and
+          <a href="#" class="privacy-link">Privacy Policy</a>
+        </p>
+
+      </form>
+
+    </div>
+
+  </div>
+
+  <script src="../js/form-input.js"></script>
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/sign-in.js"></script>
+
+</body>
+</html>
