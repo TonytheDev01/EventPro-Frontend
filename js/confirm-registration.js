@@ -110,8 +110,7 @@ if (!response.ok) {
 }
 
 // Save confirmation data for the success screen
-
-localStorage.setItem("registrationConfirmed", JSON.stringify(data));
+localStorage.setItem('eventpro_selected_event', JSON.stringify(eventData));
 
 // Navigate to success screen
 

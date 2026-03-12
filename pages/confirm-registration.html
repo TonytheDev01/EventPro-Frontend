@@ -1,87 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirm Your Registration — EventPro</title>
-    <link rel="stylesheet" href="../styles/confirm-registration.css">
-    <script src="https://kit.fontawesome.com/9ab2ab27be.js" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm Registration — EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../styles/confirm-registration.css">
 </head>
 <body>
 
-    
-
+  <div class="container">
     <div class="event-box">
 
-        <h1>Confirm Your Registration</h1>
-        <p class="subtitle">Please review the event details below before confirming.</p>
+      <!-- Page heading -->
+      <h1 class="page-title">Confirm Your Registration</h1>
+      <p class="subtitle">
+        Please review the event details below before confirming.
+      </p>
 
-        <!-- Event title — populated by JS -->
-        <h2 id="event-title">Loading...</h2>
+      <!-- Event title -->
+      <h2 class="event-title" id="event-title">Loading...</h2>
 
-        <div class="detail">
-            <div class="icon"><i class="fa-solid fa-calendar"></i></div>
-            <div class="info">
-                <p class="label">Date</p>
-                <p id="event-date">—</p>
-            </div>
+      <!-- Date -->
+      <div class="detail">
+        <div class="detail__icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"
+              stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="2" x2="16" y2="6"
+              stroke="#F97316" stroke-width="2" stroke-linecap="round"/>
+            <line x1="8" y1="2" x2="8" y2="6"
+              stroke="#F97316" stroke-width="2" stroke-linecap="round"/>
+            <line x1="3" y1="10" x2="21" y2="10"
+              stroke="#F97316" stroke-width="2" stroke-linecap="round"/>
+          </svg>
         </div>
-
-        <div class="divider"></div>
-
-        <div class="detail">
-            <div class="icon"><i class="fa-regular fa-clock"></i></div>
-            <div class="info">
-                <p class="label">Time</p>
-                <p id="event-time">—</p>
-            </div>
+        <div class="detail__info">
+          <p class="detail__label">Date</p>
+          <p class="detail__value" id="event-date">—</p>
         </div>
+      </div>
 
-        <div class="divider"></div>
+      <div class="divider"></div>
 
-        <div class="detail">
-            <div class="icon"><i class="fa-solid fa-location-dot"></i></div>
-            <div class="info">
-                <p class="label">Location</p>
-                <p id="event-location">—</p>
-            </div>
+      <!-- Time -->
+      <div class="detail">
+        <div class="detail__icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"
+              stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="12 6 12 12 16 14"
+              stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
-
-        <div class="divider"></div>
-
-        <div class="detail">
-            <div class="icon"><i class="fa-solid fa-ticket"></i></div>
-            <div class="info">
-                <p class="label">Ticket Type</p>
-                <p id="event-ticket-type">—</p>
-            </div>
+        <div class="detail__info">
+          <p class="detail__label">Time</p>
+          <p class="detail__value" id="event-time">—</p>
         </div>
+      </div>
 
-        <div class="divider"></div>
+      <div class="divider"></div>
 
-        <div class="detail">
-            <div class="icon"><i class="fa-solid fa-user"></i></div>
-            <div class="info">
-                <p class="label">Attendee</p>
-                <p id="event-attendee">—</p>
-            </div>
+      <!-- Location -->
+      <div class="detail">
+        <div class="detail__icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+              stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="10" r="3"
+              stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
-
-
-        <!-- Error message — hidden by default -->
-        <p class="error-message" id="errorMessage"></p>
-
-        <div class="buttons">
-            <button class="cancel-btn" id="cancelBtn">Cancel</button>
-            <button class="confirm-btn" id="confirmBtn">Confirm Registration</button>
+        <div class="detail__info">
+          <p class="detail__label">Location</p>
+          <p class="detail__value" id="event-location">—</p>
         </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Ticket Type -->
+      <div class="detail">
+        <div class="detail__icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z"
+              stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="detail__info">
+          <p class="detail__label">Ticket Type</p>
+          <p class="detail__value" id="event-ticket-type">—</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Attendee -->
+      <div class="detail">
+        <div class="detail__icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+              stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="7" r="4"
+              stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="detail__info">
+          <p class="detail__label">Attendee</p>
+          <p class="detail__value" id="event-attendee">—</p>
+        </div>
+      </div>
+
+      <!-- Error message — hidden by default -->
+      <p class="error-message" id="errorMessage"></p>
+
+      <!-- Buttons -->
+      <div class="buttons">
+        <button type="button" class="btn btn--cancel" id="cancelBtn">
+          Cancel
+        </button>
+        <button type="button" class="btn btn--confirm" id="confirmBtn">
+          Confirm Registration
+        </button>
+      </div>
 
     </div>
+  </div>
 
-    </div>
-
-    <script src="../js/services/auth-service.js"></script>
-    <script src="../js/confirm-registration.js"></script>
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/confirm-registration.js"></script>
 
 </body>
 </html>
