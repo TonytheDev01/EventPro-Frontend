@@ -1,158 +1,189 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EventPro — Create an Event</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="create-event.css"/>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EventPro — Create an Event</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="create-event.css" />
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="nav-left">
+        <img src="EventLogo.png" alt="EventPro Logo" class="nav-logo-icon" />
+        <span class="nav-logo-text">EventPro</span>
+      </div>
+      <div class="nav-links">
+        <a href="#">Discover Events</a>
+        <a href="#" class="active">Create Event</a>
+        <a href="#">My Events</a>
+      </div>
+      <div class="nav-avatar">
+        <div class="avatar-placeholder">U</div>
+      </div>
+    </nav>
 
-  <div class="page">
-    <div class="card">
-
-      <!-- BACK ARROW -->
-      <button class="back-arrow" id="backArrow" onclick="prevStep()">&#8592;</button>
+    <!-- PAGE -->
+    <div class="page">
+      <!-- TOP ROW: back arrow + hamburger -->
+      <div class="top-row">
+        <button class="back-arrow" onclick="history.back()">&#8592;</button>
+        <button class="hamburger">&#9776;</button>
+      </div>
 
       <!-- HEADING -->
       <div class="heading">
         <h1>Create an Event</h1>
-        <p class="subtitle">Ready to bring people together? Add your event details below.</p>
+        <p class="subtitle">
+          Ready to bring people together? Add your event details below.
+        </p>
       </div>
 
-      <!-- STEP 1 — Personal & Event Info -->
-      <div class="step" id="step1">
-
-        <div class="input-block">
-          <label for="firstName">First Name</label>
-          <input type="text" id="firstName" placeholder="First Name"/>
-        </div>
-
-        <div class="input-block">
-          <label for="lastName">Last Name</label>
-          <input type="text" id="lastName" placeholder="Last Name"/>
-        </div>
-
-        <div class="input-block">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" placeholder="Email Address"/>
-        </div>
-
-        <div class="input-block">
-          <label for="eventName">Event Name</label>
-          <input type="text" id="eventName" placeholder="Event Name"/>
-        </div>
-
-        <button class="btn-next" onclick="nextStep()">Next</button>
-
-      </div>
-
-      <!-- STEP 2 — Date, Time & Location -->
-      <div class="step hidden" id="step2">
-
-        <div class="input-block">
-          <label for="eventDate">Event Date (Local Date)</label>
-          <input type="date" id="eventDate" placeholder="Event Date (Local Date)"/>
-        </div>
-
-        <div class="input-block">
-          <label for="eventTime">Event Time (Local Time)</label>
-          <input type="time" id="eventTime" placeholder="Event Time (Local Time)"/>
-        </div>
-
-        <div class="input-block">
-          <label for="eventLocation">Event Location</label>
-          <input type="text" id="eventLocation" placeholder="Event Location"/>
-        </div>
-
-        <div class="input-block">
-          <label for="streetAddress">Street Address</label>
-          <input type="text" id="streetAddress" placeholder="Street Address"/>
-        </div>
-
-        <div class="btn-row">
-          <button class="btn-back" onclick="prevStep()">Back</button>
-          <button class="btn-next" onclick="nextStep()">Next</button>
-        </div>
-
-      </div>
-
-      <!-- STEP 3 — City, Region & Category -->
-      <div class="step hidden" id="step3">
-
-        <div class="input-block">
-          <label for="city">City</label>
-          <input type="text" id="city" placeholder="City"/>
-        </div>
-
-        <div class="input-block">
-          <label for="countryState">Country/State</label>
-          <input type="text" id="countryState" placeholder="Country/State"/>
-        </div>
-
-        <div class="input-block">
-          <label for="eventRegion">Select Event Region</label>
-          <div class="select-wrap">
-            <select id="eventRegion">
-              <option value="" disabled selected>Select Event Region</option>
-              <option value="north">North</option>
-              <option value="south">South</option>
-              <option value="east">East</option>
-              <option value="west">West</option>
-            </select>
-            <span class="select-arrow">&#8964;</span>
+      <!-- FORM -->
+      <form class="event-form" onsubmit="handleSubmit(event)">
+        <!-- Row 1: First Name + Last Name -->
+        <div class="form-row two-col">
+          <div class="input-block">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" placeholder="First Name" />
+          </div>
+          <div class="input-block">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" placeholder="Last Name" />
           </div>
         </div>
 
-        <div class="input-block">
-          <label for="eventCategory">Event Category</label>
-          <div class="select-wrap">
-            <select id="eventCategory">
-              <option value="" disabled selected>Category</option>
-              <option value="music">Music</option>
-              <option value="sports">Sports</option>
-              <option value="tech">Tech</option>
-              <option value="food">Food</option>
-              <option value="art">Art</option>
-              <option value="business">Business</option>
-            </select>
-            <span class="select-arrow">&#8964;</span>
+        <!-- Row 2: Email Address -->
+        <div class="form-row">
+          <div class="input-block">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="Email Address" />
           </div>
         </div>
 
-        <div class="btn-row">
-          <button class="btn-back" onclick="prevStep()">Back</button>
-          <button class="btn-next" onclick="nextStep()">Next</button>
-        </div>
-
-      </div>
-
-      <!-- STEP 4 — Banner & Others -->
-      <div class="step hidden" id="step4">
-
-        <div class="input-block">
-          <label for="eventBanner">Event Banner</label>
-          <div class="upload-wrap" onclick="document.getElementById('bannerInput').click()">
-            <span id="uploadLabel">Upload Image</span>
-            <span class="upload-icon">&#128444;</span>
-            <input type="file" id="bannerInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)"/>
+        <!-- Row 3: Event Name -->
+        <div class="form-row">
+          <div class="input-block">
+            <label for="eventName">Event Name</label>
+            <input type="text" id="eventName" placeholder="Event Name" />
           </div>
         </div>
 
-        <div class="input-block">
-          <label for="others">Others</label>
-          <textarea id="others" placeholder="Please include all necessary details for the event......"></textarea>
+        <!-- Row 4: Event Date + Event Time -->
+        <div class="form-row two-col">
+          <div class="input-block">
+            <label for="eventDate">Event Date (Local Date)</label>
+            <input type="date" id="eventDate" class="input-grey" />
+          </div>
+          <div class="input-block">
+            <label for="eventTime">Event Time (Local Time)</label>
+            <input type="time" id="eventTime" class="input-grey" />
+          </div>
         </div>
 
-        <button class="btn-create" onclick="handleSubmit()">Create Event</button>
+        <!-- Row 5: Event Location + Street Address + City -->
+        <div class="form-row three-col">
+          <div class="input-block">
+            <label for="eventLocation">Event Location</label>
+            <input
+              type="text"
+              id="eventLocation"
+              placeholder="Event Location"
+            />
+          </div>
+          <div class="input-block">
+            <label for="streetAddress">Street Address</label>
+            <input
+              type="text"
+              id="streetAddress"
+              placeholder="Street Address"
+            />
+          </div>
+          <div class="input-block">
+            <label for="city">City</label>
+            <input type="text" id="city" placeholder="City" />
+          </div>
+        </div>
 
-      </div>
+        <!-- Row 6: Country/State + Select Event Region -->
+        <div class="form-row two-col">
+          <div class="input-block">
+            <label for="countryState">Country/State</label>
+            <input type="text" id="countryState" placeholder="Country/State" />
+          </div>
+          <div class="input-block">
+            <label for="eventRegion">Select Event Region</label>
+            <div class="select-wrap">
+              <select id="eventRegion">
+                <option value="" disabled selected>Select Event Region</option>
+                <option value="north">North</option>
+                <option value="south">South</option>
+                <option value="east">East</option>
+                <option value="west">West</option>
+              </select>
+              <span class="select-arrow">&#8964;</span>
+            </div>
+          </div>
+        </div>
 
+        <!-- Row 7: Event Category + Event Banner -->
+        <div class="form-row two-col">
+          <div class="input-block">
+            <label for="eventCategory">Event Category</label>
+            <div class="select-wrap">
+              <select id="eventCategory">
+                <option value="" disabled selected>Category</option>
+                <option value="music">Music</option>
+                <option value="sports">Sports</option>
+                <option value="tech">Tech</option>
+                <option value="food">Food</option>
+                <option value="art">Art</option>
+                <option value="business">Business</option>
+              </select>
+              <span class="select-arrow">&#8964;</span>
+            </div>
+          </div>
+          <div class="input-block">
+            <label for="bannerInput">Event Banner</label>
+            <div
+              class="upload-wrap"
+              onclick="document.getElementById('bannerInput').click()"
+            >
+              <span id="uploadLabel">Upload Image</span>
+              <span class="upload-icon">&#128444;</span>
+              <input
+                type="file"
+                id="bannerInput"
+                accept="image/*"
+                style="display: none"
+                onchange="handleImageUpload(event)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 8: Others -->
+        <div class="form-row">
+          <div class="input-block">
+            <label for="others">Others</label>
+            <textarea
+              id="others"
+              placeholder="Please include all necessary details for the event......"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Row 9: Create Event Button -->
+        <div class="form-row">
+          <button type="submit" class="btn-create">Create Event</button>
+        </div>
+      </form>
     </div>
-  </div>
 
-  <script src="create-event.js"></script>
-
-</body>
+    <script src="create-event.js"></script>
+  </body>
 </html>

@@ -2,16 +2,16 @@
    CSS VARIABLES
 ============================================= */
 :root {
-  --green:         #1A3C2E;
-  --green-dark:    #122B20;
-  --white:         #FFFFFF;
-  --bg:            #F5F5F5;
-  --border:        #D0D0D0;
-  --text-main:     #1A1A1A;
-  --text-muted:    #999;
-  --input-bg:      #FFFFFF;
-  --input-disabled:#F0F0F0;
-  --shadow:        0 4px 32px rgba(0,0,0,0.08);
+  --green:        #1A3C2E;
+  --green-dark:   #122B20;
+  --white:        #FFFFFF;
+  --bg:           #FFFFFF;
+  --border:       #D0D0D0;
+  --text-main:    #1A1A1A;
+  --text-muted:   #999;
+  --input-bg:     #FFFFFF;
+  --input-grey:   #F0F0F0;
+  --shadow:       0 2px 16px rgba(0,0,0,0.06);
 }
 
 /* =============================================
@@ -29,6 +29,73 @@ body {
 }
 
 /* =============================================
+   NAVBAR
+============================================= */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background-color: #e6e6e6;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: contain; 
+}
+
+.nav-logo-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* Nav links — hidden on mobile */
+.nav-links {
+  display: none;
+  gap: 2rem;
+}
+
+.nav-links a {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--text-main);
+}
+
+.avatar-placeholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #C4A0E8;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+/* =============================================
    PAGE
 ============================================= */
 .page {
@@ -36,45 +103,36 @@ body {
   padding-left: 1rem;
   padding-right: 1rem;
   padding-bottom: 2rem;
-  min-height: 100vh;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  max-width: 960px;
+  margin: 0 auto;
 }
 
 /* =============================================
-   CARD — Mobile
+   TOP ROW
 ============================================= */
-.card {
-  background: var(--white);
-  border-radius: 1.25rem;
-  box-shadow: var(--shadow);
-  padding: 1.25rem 1rem;
-  width: 100%;
-  max-width: 420px;
+.top-row {
   display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  position: relative;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
 }
 
-/* =============================================
-   BACK ARROW
-============================================= */
 .back-arrow {
   background: none;
   border: none;
   font-size: 1.25rem;
   cursor: pointer;
   color: var(--text-main);
-  text-align: left;
-  width: fit-content;
   padding: 0;
-  display: none;
 }
 
-.back-arrow.visible {
-  display: block;
+.hamburger {
+  background: none; 
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--text-main);
+  padding: 0;
 }
 
 /* =============================================
@@ -90,7 +148,7 @@ h1 {
   font-size: 1.125rem;
   font-weight: 700;
   color: var(--text-main);
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .subtitle {
@@ -100,16 +158,21 @@ h1 {
 }
 
 /* =============================================
-   STEPS
+   FORM
 ============================================= */
-.step {
+.event-form {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
 }
 
-.step.hidden {
-  display: none;
+/* =============================================
+   FORM ROWS
+============================================= */
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 /* =============================================
@@ -123,7 +186,7 @@ h1 {
 
 label {
   font-size: 0.8125rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-main);
 }
 
@@ -155,10 +218,9 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(26,60,46,0.1);
 }
 
-/* Date and time inputs — light grey background like design */
-input[type="date"],
-input[type="time"] {
-  background: var(--input-disabled);
+/* Grey background for date and time inputs */
+input.input-grey {
+  background: var(--input-grey);
   color: var(--text-muted);
 }
 
@@ -208,6 +270,7 @@ select {
   cursor: pointer;
   background: var(--input-bg);
   transition: border-color 0.2s;
+  height: 46px;
 }
 
 .upload-wrap:hover {
@@ -221,13 +284,11 @@ select {
 
 .upload-icon {
   font-size: 1rem;
-  color: var(--text-muted);
 }
 
 /* =============================================
-   BUTTONS
+   BUTTON
 ============================================= */
-.btn-next,
 .btn-create {
   width: 100%;
   padding: 0.875rem;
@@ -243,68 +304,60 @@ select {
   letter-spacing: 0.02em;
 }
 
-.btn-next:hover,
 .btn-create:hover {
   background: var(--green-dark);
 }
 
-.btn-next:active,
 .btn-create:active {
   transform: scale(0.98);
-}
-
-.btn-back {
-  flex: 1;
-  padding: 0.875rem;
-  background: var(--white);
-  color: var(--text-main);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-  letter-spacing: 0.02em;
-}
-
-.btn-back:hover {
-  background: var(--bg);
-}
-
-.btn-back:active {
-  transform: scale(0.98);
-}
-
-/* =============================================
-   BUTTON ROW (Back + Next side by side)
-============================================= */
-.btn-row {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 0.25rem;
-}
-
-.btn-row .btn-next {
-  flex: 1;
 }
 
 /* =============================================
    DESKTOP — min-width: 768px
 ============================================= */
 @media (min-width: 768px) {
-  .page {
-    align-items: center;
+
+  /* Show nav links on desktop */
+  .nav-links {
+    display: flex;
   }
 
-  .card {
-    max-width: 480px;
-    padding: 1.25rem 2rem;
-    gap: 1.5rem;
+  .navbar {
+    padding: 0.75rem 2rem;
+  }
+
+  /* Hide hamburger on desktop */
+  .hamburger {
+    display: block;
+  }
+
+  .page {
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 
   h1 {
     font-size: 1.25rem;
     margin-bottom: 2rem;
+  }
+
+  /* Two column layout */
+  .form-row.two-col {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+
+  .form-row.two-col .input-block {
+    flex: 1;
+  }
+
+  /* Three column layout */
+  .form-row.three-col {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+
+  .form-row.three-col .input-block {
+    flex: 1;
   }
 }
