@@ -60,10 +60,11 @@ body {
     margin-bottom: 1.25rem;
     background: white;
     cursor: pointer;
+    transition: transform 0.2s ease;
 }
 
-.drop-zone {
-
+.drop-zone:active {
+    transform: scale(1.01); 
 }
 
 .upload-btn {
@@ -74,6 +75,7 @@ body {
     border-radius: 4px;
     cursor: pointer;
     margin-bottom: 0.625rem;
+    transition: transform 0.15s ease;
 }
 
 .uploadBtn-icon {
@@ -83,6 +85,10 @@ body {
 
 .upload-btn:hover {
     background-color: #f3f4f6;
+}
+
+.upload-btn:active {               
+    transform: scale(1.05); 
 }
 
 .drop-text {

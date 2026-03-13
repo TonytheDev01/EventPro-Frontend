@@ -12,7 +12,7 @@ fileInput.addEventListener("change", handleFiles);
 // Drag & drop events
 dropZone.addEventListener("dragover", (e) => {
   e.preventDefault(); // crucial for allowing drop
-  dropZone.style.borderColor = "#7c3aed";
+  dropZone.style.borderColor = "#6f00ff";
   e.dataTransfer.dropEffect = "copy"; // changes cursor to + instead of not-allowed
 });
 
