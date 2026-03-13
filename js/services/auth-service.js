@@ -12,11 +12,11 @@
 
 const BASE_URL = 'https://eventpro-fxfv.onrender.com/api';
 
-// Storage keys 
+// ── Storage keys 
 const TOKEN_KEY = 'eventpro_token';
 const USER_KEY  = 'eventpro_user';
 
-//  Internal helpers 
+// ── Internal helpers 
 
 /**
  * Returns standard headers for all requests.
@@ -32,13 +32,23 @@ function buildHeaders(requiresAuth = false) {
 }
 
 /**
- * Centralised fetch wrapper.
+ * Centralised fetch wrapper with 15s timeout.
  * Returns { success: true, data } or { success: false, message }.
  */
 async function request(endpoint, options = {}) {
+  // ── Abort after 15 seconds ─────────────────
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort(), 15000);
+
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, options);
-    const data     = await response.json();
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      ...options,
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    const data = await response.json();
 
     if (response.ok) {
       return { success: true, data };
@@ -48,7 +58,18 @@ async function request(endpoint, options = {}) {
       success: false,
       message: data.message || 'Something went wrong. Please try again.'
     };
+
   } catch (err) {
+    clearTimeout(timeoutId);
+
+    // Distinguish timeout from network error
+    if (err.name === 'AbortError') {
+      return {
+        success: false,
+        message: 'Request timed out. The server may be starting up — please try again in a moment.'
+      };
+    }
+
     return {
       success: false,
       message: 'Network error. Please check your connection and try again.'
@@ -108,12 +129,15 @@ async function verifyEmail(token) {
 
 /**
  * POST /auth/resend-verification
- * Resend the verification email to the logged-in user.
+ * Resend the verification email.
+ * User is not authenticated at this point — email sent in body.
+ * @param {string} email
  */
-async function resendVerification() {
+async function resendVerification(email) {
   return await request('/auth/resend-verification', {
     method:  'POST',
-    headers: buildHeaders(true)
+    headers: buildHeaders(),
+    body:    JSON.stringify({ email })
   });
 }
 
@@ -133,7 +157,7 @@ async function forgotPassword(email) {
 /**
  * POST /auth/reset-password/{token}
  * Reset password using the token from the reset email link.
- * @param {string} token   - reset token from email link
+ * @param {string} token    - reset token from email link
  * @param {string} password - new password
  */
 async function resetPassword(token, password) {
@@ -146,8 +170,7 @@ async function resetPassword(token, password) {
 
 /**
  * POST /auth/reset-password
- * Reset password for an already authenticated user
- * (knows current password, wants to change it).
+ * Reset password for an already authenticated user.
  * @param {string} currentPassword
  * @param {string} newPassword
  */
@@ -162,7 +185,6 @@ async function resetPasswordAuthenticated(currentPassword, newPassword) {
 /**
  * GET /auth/profile
  * Fetch the current logged-in user's profile from the server.
- * Use this to get fresh data — not the locally stored copy.
  */
 async function getUserProfile() {
   return await request('/auth/profile', {

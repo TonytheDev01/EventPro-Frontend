@@ -1,25 +1,29 @@
-<!-- || EVENTPRO THEME TOGGLE || -->
-
+<!-- ================================================
+  EventPro — Theme Toggle Component
+  This file is for isolated preview only.
+  Import theme-toggle.css and theme-toggle.js
+  into any page that needs dark mode support.
+  ================================================ -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Theme Toggle</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../styles/theme-toggle.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theme Toggle — EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../styles/theme-toggle.css">
 </head>
 <body>
 
-    <div class="theme-toggle">
-        <input type="checkbox" id="theme-toggle" />
+  <div class="theme-toggle">
+    <input type="checkbox" id="theme-toggle" />
+    <label for="theme-toggle" class="toggle-track" aria-label="Toggle dark mode">
+      <span class="toggle-thumb"></span>
+    </label>
+  </div>
 
-        <label for="theme-toggle" class="toggle-track">
-            <span class="toggle-thumb"></span>
-        </label>
-    </div>
-
-    <script src="../js/theme-toggle.js"></script>
+  <script src="../js/theme-toggle.js"></script>
 </body>
 </html>
