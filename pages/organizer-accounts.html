@@ -79,7 +79,35 @@
 
 </div>
 
-<script src="organizer-accounts.js"></script>
+  <div class="modal__field">
+    <label for="modalName">Full Name</label>
+    <input type="text" id="modalName" placeholder="Full Name" />
+  </div>
+
+  <div class="modal__field">
+    <label for="modalEmail">Email Address</label>
+    <input type="email" id="modalEmail" placeholder="Email Address" />
+  </div>
+
+  <div class="modal__field">
+    <label for="modalRole">Role</label>
+    <select id="modalRole">
+      <option value="organizer">Organizer</option>
+      <option value="admin">Admin</option>
+      <option value="user">User</option>
+    </select>
+  </div>
+
+  <p class="modal__error" id="modalError"></p>
+
+  <div class="modal__buttons">
+    <button type="button" class="btn btn--cancel" id="modalCancelBtn">Cancel</button>
+    <button type="button" class="btn btn--add" id="modalSaveBtn">Save</button>
+  </div>
+</div>
+
+<script src="../js/services/auth-service.js"></script> <script src="../js/organizer-accounts.js"></script>
+
 
 </body>
 </html>
