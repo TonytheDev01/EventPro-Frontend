@@ -5,107 +5,109 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Organizer Accounts</title>
 <link rel="stylesheet" href="organizer-accounts.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<div class="container">
+  <!-- ── Header ── -->
+  <header class="header">
+    <button type="button" class="back-btn" id="backBtn" aria-label="Go back">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+        xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M19 12H5M5 12l7 7M5 12l7-7"
+          stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <h1 class="header__title">Organizer Accounts</h1>
+  </header>
 
-<header class="header">
+  <!-- ── Controls ── -->
+  <div class="controls">
+    <div class="search-wrapper">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"
+          stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"
+          stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search by name or email"
+      />
+    </div>
 
-<button class="back-btn">←</button>
-<h2>Organizer Accounts</h2>
+    <select id="roleFilter">
+      <option value="all">All Roles</option>
+      <option value="organizer">Organizer</option>
+      <option value="admin">Admin</option>
+      <option value="user">User</option>
+    </select>
 
-</header>
+    <button type="button" class="btn btn--add" id="addOrganizerBtn">
+      + Add Organizer
+    </button>
+  </div>
 
-<div class="controls">
+  <!-- ── Table ── -->
+  <div class="table-container">
+    <table id="usersTable">
+      <thead>
+        <tr>
+          <th>Profile</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Populated by JS -->
+        <tr class="loading-row">
+          <td colspan="6">Loading organizers...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<input type="text" id="searchInput" placeholder="Search by name or email">
-
-<select id="roleFilter">
-<option value="all">All Roles</option>
-<option value="Admin">Admin</option>
-<option value="Organizer">Organizer</option>
-<option value="Viewer">Viewer</option>
-</select>
-
-<button class="add-btn" id="addOrganizerBtn">+ Add Organizer</button>
-
-</div>
-
-<div class="table-container">
-
-<table id="usersTable">
-
-<thead>
-
-<tr>
-<th>Profile</th>
-<th>Name</th>
-<th>Email</th>
-<th>Role</th>
-<th>Status</th>
-<th>Action</th>
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-<td><img src="images/user1.jpg" class="avatar"></td>
-<td class="name">John Doe</td>
-<td class="email">john@example.com</td>
-<td class="role">Admin</td>
-<td><span class="status active">Active</span></td>
-<td>
-<button class="edit">Edit</button>
-<button class="delete">Delete</button>
-</td>
-</tr>
-
-<tr>
-<td><img src="images/user2.jpg" class="avatar"></td>
-<td class="name">Jane Smith</td>
-<td class="email">jane@example.com</td>
-<td class="role">Organizer</td>
-<td><span class="status pending">Pending</span></td>
-<td>
-<button class="edit">Edit</button>
-<button class="delete">Delete</button>
-</td>
-</tr>
-
-<tr>
-<td><img src="images/user3.jpg" class="avatar"></td>
-<td class="name">Alice Brown</td>
-<td class="email">alice@example.com</td>
-<td class="role">Viewer</td>
-<td><span class="status inactive">Inactive</span></td>
-<td>
-<button class="edit">Edit</button>
-<button class="delete">Delete</button>
-</td>
-</tr>
-
-</tbody>
-
-</table>
+  <!-- ── Pagination ── -->
+  <div class="pagination" id="pagination"></div>
 
 </div>
 
+  <div class="modal__field">
+    <label for="modalName">Full Name</label>
+    <input type="text" id="modalName" placeholder="Full Name" />
+  </div>
 
-<div class="pagination">
+  <div class="modal__field">
+    <label for="modalEmail">Email Address</label>
+    <input type="email" id="modalEmail" placeholder="Email Address" />
+  </div>
 
-<button class="page-btn">1</button>
-<button class="page-btn">2</button>
-<button class="page-btn">3</button>
-<button class="next-btn">Next →</button>
+  <div class="modal__field">
+    <label for="modalRole">Role</label>
+    <select id="modalRole">
+      <option value="organizer">Organizer</option>
+      <option value="admin">Admin</option>
+      <option value="user">User</option>
+    </select>
+  </div>
 
+  <p class="modal__error" id="modalError"></p>
+
+  <div class="modal__buttons">
+    <button type="button" class="btn btn--cancel" id="modalCancelBtn">Cancel</button>
+    <button type="button" class="btn btn--add" id="modalSaveBtn">Save</button>
+  </div>
 </div>
 
-</div>
+<script src="../js/services/auth-service.js"></script> <script src="../js/organizer-accounts.js"></script>
 
-<script src="organizer-accounts.js"></script>
 
 </body>
 </html>
