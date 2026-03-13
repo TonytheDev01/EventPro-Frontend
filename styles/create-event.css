@@ -1,0 +1,438 @@
+/* ================================================
+   EventPro — Create Event Page
+   Mobile-first. Scales to tablet (48rem) and
+   desktop (75rem).
+   Primary theme: #062D23 (dark green)
+================================================ */
+
+:root {
+  --color-primary:       #062D23;
+  --color-primary-dark:  #041F18;
+  --color-primary-focus: rgba(6, 45, 35, 0.12);
+  --color-white:         #FFFFFF;
+  --color-bg:            #FFFFFF;
+  --color-bg-nav:        #F0F0F0;
+  --color-border:        #D0D0D0;
+  --color-text-dark:     #1A1A1A;
+  --color-text-muted:    #999999;
+  --color-input-bg:      #FFFFFF;
+  --color-input-grey:    #F0F0F0;
+  --color-error:         #E11727;
+  --color-avatar-bg:     #C4A0E8;
+  --color-shadow:        rgba(0, 0, 0, 0.06);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text-dark);
+  min-height: 100vh;
+}
+
+/* ── Navbar ───────────────────────────────────── */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-nav);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-logo-icon {
+  width: 2.25rem;  /* 36px ÷ 16 */
+  height: 2.25rem;
+  border-radius: 8px; /* always px */
+  flex-shrink: 0;
+}
+
+.nav-logo-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+/* Nav links — hidden on mobile */
+.nav-links {
+  display: none;
+  gap: 2rem;
+}
+
+.nav-links a {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease-out;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--color-text-dark);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar-placeholder {
+  width: 2.25rem;  /* 36px ÷ 16 */
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--color-avatar-bg);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Hamburger — visible mobile only */
+.hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-dark);
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: 6px; /* always px */
+  transition: background-color 0.2s ease-out;
+}
+
+.hamburger:hover {
+  background: var(--color-border);
+}
+
+.hamburger:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* ── Mobile nav drawer ────────────────────────── */
+.nav-drawer {
+  display: none;
+  flex-direction: column;
+  background: var(--color-bg-nav);
+  border-bottom: 1px solid var(--color-border);
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.nav-drawer.open {
+  display: flex;
+}
+
+.nav-drawer a {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.nav-drawer a.active {
+  color: var(--color-text-dark);
+}
+
+/* ── Page ─────────────────────────────────────── */
+.page {
+  padding: 1.5rem 1rem 2rem;
+  max-width: min(60rem, 100%); /* 960px ÷ 16 */
+  margin: 0 auto;
+}
+
+/* ── Top row ──────────────────────────────────── */
+.top-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.back-arrow {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-dark);
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: 6px; /* always px */
+  transition: background-color 0.2s ease-out;
+}
+
+.back-arrow:hover {
+  background: var(--color-input-grey);
+}
+
+.back-arrow:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* ── Heading ──────────────────────────────────── */
+.heading {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  font-size: clamp(1.125rem, 3vw, 1.5rem);
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+/* ── Form ─────────────────────────────────────── */
+.event-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Input blocks ─────────────────────────────── */
+.input-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+}
+
+label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.8125rem;
+  font-family: 'Poppins', sans-serif;
+  color: var(--color-text-dark);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px; /* always px */
+  outline: none;
+  transition: border-color 0.2s ease-out,
+              box-shadow 0.2s ease-out;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-focus);
+}
+
+input.input-grey {
+  background: var(--color-input-grey);
+  color: var(--color-text-muted);
+}
+
+/* ── Textarea ─────────────────────────────────── */
+textarea {
+  resize: vertical;
+  min-height: 6.25rem; /* 100px ÷ 16 */
+  line-height: 1.5;
+}
+
+/* ── Select wrap ──────────────────────────────── */
+.select-wrap {
+  position: relative;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 2rem;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-text-muted);
+}
+
+/* ── Upload wrap ──────────────────────────────── */
+.upload-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px; /* always px */
+  cursor: pointer;
+  background: var(--color-input-bg);
+  height: 2.875rem; /* 46px ÷ 16 */
+  transition: border-color 0.2s ease-out;
+}
+
+.upload-wrap:hover {
+  border-color: var(--color-primary);
+}
+
+.upload-wrap:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-focus);
+}
+
+.upload-wrap span {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+/* Hide native file input */
+#bannerInput {
+  display: none;
+}
+
+/* ── Inline error messages ────────────────────── */
+.input-error {
+  font-size: 0.75rem;
+  color: var(--color-error);
+  display: none;
+}
+
+.input-error.show {
+  display: block;
+}
+
+/* ── Global form error ────────────────────────── */
+.form-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  text-align: center;
+  display: none;
+}
+
+.form-error.show {
+  display: block;
+}
+
+/* ── Submit button ────────────────────────────── */
+.btn-create {
+  width: 100%;
+  height: 5rem;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 11px; /* spec — always px */
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background-color 0.2s ease-out,
+              opacity 0.2s ease-out;
+}
+
+.btn-create:hover {
+  background: var(--color-primary-dark);
+}
+
+.btn-create:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.btn-create:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Tablet (768px = 48rem) ──────────────────── */
+@media (min-width: 48rem) {
+  .navbar {
+    padding: 0.75rem 2rem;
+  }
+
+  /* Show nav links, hide hamburger */
+  .nav-links {
+    display: flex;
+  }
+
+  .hamburger {
+    display: none;
+  }
+
+  .nav-drawer {
+    display: none !important;
+  }
+
+  .page {
+    padding: 1.5rem 2rem 2rem;
+  }
+
+  .form-row.two-col {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+
+  .form-row.two-col .input-block {
+    flex: 1;
+  }
+
+  .form-row.three-col {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+
+  .form-row.three-col .input-block {
+    flex: 1;
+  }
+}
+
+/* ── Desktop (1200px = 75rem) ────────────────── */
+@media (min-width: 75rem) {
+  .page {
+    padding: 2rem 2.5rem 3rem;
+  }
+
+  h1 {
+    margin-bottom: 1rem;
+  }
+}
