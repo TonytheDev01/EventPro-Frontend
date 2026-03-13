@@ -1,165 +1,415 @@
+/* ================================================
+EventPro — Organizer Accounts
+Mobile-first. Scales to tablet and desktop.
+Base font size = 16px
+================================================ */
+
+:root {
+--color-primary: #6F00FF;
+--color-primary-hover: #5900CC;
+--color-accent: #F97316;
+--color-white: #FFFFFF;
+--color-bg-page: #F5F7FB;
+--color-text-dark: #222222;
+--color-text-muted: #6B7280;
+--color-border: #DDDDDD;
+--color-divider: #EEEEEE;
+--color-shadow: rgba(0, 0, 0, 0.05);
+--color-status-active: #22C55E;
+--color-status-pending: #F59E0B;
+--color-status-inactive:#EF4444;
+--color-btn-edit-bg: #F0F0F0;
+--color-btn-edit-hover: #E0E0E0;
+--color-btn-del-hover: #FFD4D4;
+--color-overlay: rgba(0, 0, 0, 0.4);
+}
+
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+body {
+font-family: 'Poppins', sans-serif;
+background: var(--color-bg-page);
+min-height: 100vh;
+padding: 1.5rem 1rem;
 }
 
-body{
-background:#f5f7fb;
-padding:40px;
-font-family: 'Poppins', 'Inter', sans-serif;
+/* ── Page wrapper ─────────────────────────────── */
+.page-wrapper {
+width: 100%;
+display: flex;
+justify-content: center;
 }
 
-.container{
-background:white;
-padding:30px;
-border-radius:12px;
-box-shadow:0 4px 20px rgba(0,0,0,0.05);
+/* ── Container / Card ─────────────────────────── /
+.container {
+background: var(--color-white);
+width: min(78.125rem, 100%); / 1250px ÷ 16 — spec /
+padding: 1.5rem 1rem;
+border-radius: 20px; / spec — always px /
+box-shadow: 0 4px 20px var(--color-shadow);
+display: flex;
+flex-direction: column;
+gap: 2.25rem; / 36px ÷ 16 — spec */
+
+
+/* ── Header ───────────────────────────────────── /
+.header {
+display: flex;
+align-items: center;
+gap: 1.5rem; / 24px ÷ 16 — spec /
+height: 5.25rem; / 84px ÷ 16 — spec */
+
+
+.back-btn {
+width: 3.75rem; /* 60px ÷ 16 — spec /
+height: 3.75rem; / 60px ÷ 16 — spec /
+display: flex;
+align-items: center;
+justify-content: center;
+background: var(--color-white);
+border: 1.5px solid var(--color-border);
+border-radius: 8px; / always px */
+cursor: pointer;
+flex-shrink: 0;
+transition: background-color 0.2s ease-out;
 }
 
-.header{
-display:flex;
-align-items:center;
-gap:15px;
-margin-bottom:25px;
+.back-btn:hover {
+background-color: var(--color-bg-page);
 }
 
-.back-btn{
-border:none;
-padding:8px 12px;
-border-radius:6px;
-cursor:pointer;
+.back-btn:focus-visible {
+outline: 2px solid var(--color-primary);
+outline-offset: 3px;
 }
 
-.controls{
-display:flex;
-gap:15px;
-flex-wrap:wrap;
-margin-bottom:20px;
+.header__title {
+font-size: clamp(1.25rem, 3vw, 1.5rem);
+font-weight: 700;
+color: var(--color-text-dark);
 }
 
-.controls input,
-.controls select{
-padding:10px;
-border:1px solid #ddd;
-border-radius:6px;
+/* ── Controls ─────────────────────────────────── */
+.controls {
+display: flex;
+flex-wrap: wrap;
+gap: 1rem;
+align-items: center;
 }
 
-.add-btn{
-background:linear-gradient(45deg,#7b3ff2,#9f67ff);
-color:white;
-border:none;
-padding:10px 16px;
-border-radius:8px;
-cursor:pointer;
+.search-wrapper {
+position: relative;
+flex: 1;
+min-width: 12rem;
 }
 
-.table-container{
-overflow-x:auto;
+.search-icon {
+position: absolute;
+left: 0.75rem;
+top: 50%;
+transform: translateY(-50%);
+pointer-events: none;
 }
 
-table{
-width:100%;
-border-collapse:collapse;
+.search-wrapper input {
+width: 100%;
+padding: 0.75rem 0.75rem 0.75rem 2.25rem;
+border: 1px solid var(--color-border);
+border-radius: 8px; /* always px */
+font-family: 'Poppins', sans-serif;
+font-size: 0.875rem;
+color: var(--color-text-dark);
+transition: border-color 0.2s ease-out;
 }
 
-thead{
-background:#f4f4f4;
+.search-wrapper input:focus {
+outline: none;
+border-color: var(--color-primary);
 }
 
-th,td{
-padding:15px;
-text-align:left;
-border-bottom:1px solid #eee;
+#roleFilter {
+padding: 0.75rem 1rem;
+border: 1px solid var(--color-border);
+border-radius: 8px; /* always px */
+font-family: 'Poppins', sans-serif;
+font-size: 0.875rem;
+color: var(--color-text-dark);
+background: var(--color-white);
+cursor: pointer;
+transition: border-color 0.2s ease-out;
 }
 
-.avatar{
-width:40px;
-height:40px;
-border-radius:50%;
-object-fit:cover;
+#roleFilter:focus {
+outline: none;
+border-color: var(--color-primary);
 }
 
-.status{
-padding:6px 14px;
-border-radius:20px;
-color:white;
-font-size:13px;
+/* ── Buttons ──────────────────────────────────── */
+.btn {
+font-family: 'Poppins', sans-serif;
+font-size: 0.875rem;
+font-weight: 600;
+cursor: pointer;
+border-radius: 8px; /* always px */
+transition: background-color 0.2s ease-out,
+opacity 0.2s ease-out;
 }
 
-.active{
-background:#22c55e;
+.btn--add {
+padding: 0.75rem 1rem;
+background: var(--color-primary);
+color: var(--color-white);
+border: none;
+white-space: nowrap;
 }
 
-.pending{
-background:#f59e0b;
+.btn--add:hover {
+background: var(--color-primary-hover);
 }
 
-.inactive{
-background:#ef4444;
+.btn--add:focus-visible {
+outline: 2px solid var(--color-primary);
+outline-offset: 3px;
 }
 
-/* Action buttons container */
-.action-buttons{
-    display: flex;
-    gap: 8px;
-    flex-wrap: nowrap; /* keep buttons in a row */
-    align-items: center;
+.btn--cancel {
+padding: 0.75rem 1rem;
+background: var(--color-white);
+color: var(--color-text-dark);
+border: 1.5px solid var(--color-border);
 }
 
-/* Edit and Delete buttons */
-.edit,
-.delete{
-    display: flex;
-    flex-direction: row;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 12px;
-    cursor: pointer;
-    background: #f0f0f0;
+.btn--cancel:hover {
+background: var(--color-bg-page);
 }
 
-.edit:hover{
-    background: #e0e0e0;
-}
-.add-btn:hover{
-    background: linear-gradient(45deg, #6a2fd1, #8b5cf6);
-}
-.delete:hover{
-background:#ffd4d4;
+/* ── Table container ──────────────────────────── */
+.table-container {
+border-radius: 20px; /* spec — always px */
+border: 1px solid var(--color-divider);
+overflow-x: auto;
+padding: 1.25rem 1rem; /* 20px / 16px ÷ 16 — spec */
 }
 
-.pagination{
-margin-top:20px;
-display:flex;
-gap:10px;
+table {
+width: 100%;
+border-collapse: collapse;
+}
+
+thead {
+background: var(--color-bg-page);
+}
+
+th {
+padding: 0.9375rem; /* 15px ÷ 16 */
+text-align: left;
+font-size: 0.875rem;
+font-weight: 600;
+color: var(--color-text-dark);
+border-bottom: 1px solid var(--color-divider);
+}
+
+td {
+padding: 0.9375rem;
+text-align: left;
+font-size: 0.875rem;
+font-weight: 400;
+color: var(--color-text-dark);
+border-bottom: 1px solid var(--color-divider);
+}
+
+/* ── Avatar initials ──────────────────────────── */
+.avatar {
+width: 2.5rem;
+height: 2.5rem;
+border-radius: 50%; /* always px equivalent */
+background: var(--color-primary);
+color: var(--color-white);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 0.875rem;
+font-weight: 600;
+}
+
+/* ── Status badges ────────────────────────────── */
+.status {
+padding: 0.375rem 0.875rem;
+border-radius: 20px; /* always px — pill */
+color: var(--color-white);
+font-size: 0.8125rem;
+font-weight: 500;
+display: inline-block;
+}
+
+.status--active { background: var(--color-status-active); }
+.status--pending { background: var(--color-status-pending); }
+.status--inactive { background: var(--color-status-inactive);}
+
+/* ── Action buttons ───────────────────────────── */
+.action-buttons {
+display: flex;
+gap: 0.5rem;
+align-items: center;
+}
+
+.btn-edit,
+.btn-delete {
+padding: 0.375rem 0.75rem;
+border: none;
+border-radius: 6px; /* always px */
+font-family: 'Poppins', sans-serif;
+font-size: 0.8125rem;
+font-weight: 500;
+cursor: pointer;
+background: var(--color-btn-edit-bg);
+transition: background-color 0.2s ease-out;
+}
+
+.btn-edit:hover { background: var(--color-btn-edit-hover); }
+.btn-delete:hover { background: var(--color-btn-del-hover); }
+
+.btn-edit:focus-visible,
+.btn-delete:focus-visible {
+outline: 2px solid var(--color-primary);
+outline-offset: 3px;
+}
+
+.loading-row td {
+text-align: center;
+color: var(--color-text-muted);
+padding: 2rem;
+}
+
+.pagination {
+display: flex;
+gap: 0.625rem;
+justify-content: flex-end;
+align-items: center;
 }
 
 .page-btn,
-.next-btn{
-padding:6px 12px;
-border:1px solid #ddd;
-background:white;
-cursor:pointer;
-border-radius:6px;
+.next-btn {
+padding: 0.375rem 0.75rem;
+border: 1px solid var(--color-border);
+background: var(--color-white);
+font-family: 'Poppins', sans-serif;
+font-size: 0.875rem;
+cursor: pointer;
+border-radius: 6px; /* always px */
+transition: background-color 0.2s ease-out,
+border-color 0.2s ease-out;
 }
 
-/* Responsive */
-
-@media (max-width: min(494px, 100%)){
-
-.controls{
-flex-direction:column;
+.page-btn:hover,
+.next-btn:hover {
+background: var(--color-bg-page);
+border-color: var(--color-primary);
 }
 
-th:nth-child(4),
-td:nth-child(4){
-display:none;
+.page-btn.active {
+background: var(--color-primary);
+color: var(--color-white);
+border-color: var(--color-primary);
 }
 
+.modal-overlay {
+position: fixed;
+inset: 0;
+background: var(--color-overlay);
+display: none;
+align-items: center;
+justify-content: center;
+z-index: 200;
+padding: 1rem;
 }
-@media (max-width: min(494px, 100%)){
-.action-buttons{
-    gap:5px;
+
+.modal-overlay.show {
+display: flex;
+}
+
+.modal {
+background: var(--color-white);
+width: min(30rem, 100%);
+border-radius: 16px; /* always px */
+padding: 2rem;
+display: flex;
+flex-direction: column;
+gap: 1.25rem;
+}
+
+.modal__title {
+font-size: 1.25rem;
+font-weight: 700;
+color: var(--color-text-dark);
+}
+
+.modal__field {
+display: flex;
+flex-direction: column;
+gap: 0.5rem;
+}
+
+.modal__field label {
+font-size: 0.875rem;
+font-weight: 500;
+color: var(--color-text-dark);
+}
+
+.modal__field input,
+.modal__field select {
+padding: 0.75rem 1rem;
+border: 1px solid var(--color-border);
+border-radius: 8px; /* always px */
+font-family: 'Poppins', sans-serif;
+font-size: 0.875rem;
+transition: border-color 0.2s ease-out;
+}
+
+.modal__field input:focus,
+.modal__field select:focus {
+outline: none;
+border-color: var(--color-primary);
+}
+
+.modal__error {
+font-size: 0.875rem;
+color: #E11727;
+display: none;
+}
+
+.modal__buttons {
+display: flex;
+gap: 0.75rem;
+justify-content: flex-end;
+}
+
+/* ── Tablet (768px+) */
+@media (min-width: 48rem) {
+body {
+padding: 2rem 1.5rem;
+}
+
+.container {
+padding: 2rem;
+}
+
+.controls {
+flex-wrap: nowrap;
+gap: 6.875rem;
+}
+}
+
+/* ── Desktop (1200px+) */
+@media (min-width: 75rem) {
+body {
+padding: 2.5rem 2rem;
+}
+
+.container {
+padding: 2.5rem;
 }
 }
