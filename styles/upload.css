@@ -76,6 +76,11 @@ body {
     margin-bottom: 0.625rem;
 }
 
+.uploadbtn-icon {
+    padding-right: 0.3125rem;
+    color: #6f00ff;
+}
+
 .upload-btn:hover {
     background-color: #f3f4f6;
 }
@@ -157,12 +162,14 @@ body {
     background: #e9ddff;
     color: #6f00ff;
     padding: 0.9375rem;
-    border-radius: 6px 8px;
+    border-radius: 6px;
     width: 2.5rem;
     height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 8px;
+    flex-shrink: 0;
 }
 
 .file-text strong {
