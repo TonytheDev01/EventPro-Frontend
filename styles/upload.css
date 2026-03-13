@@ -36,7 +36,7 @@ body {
 }
 
 .upload-header h1 {
-    font-size: 3rem;
+    font-size: 30px;
     font-weight: 600;
 }
 
@@ -59,6 +59,11 @@ body {
     border-radius: 10px;
     margin-bottom: 1.25rem;
     background: white;
+    cursor: pointer;
+}
+
+.drop-zone {
+
 }
 
 .upload-btn {
@@ -132,7 +137,62 @@ body {
     color: #18a32c;
 }
 
-/* Tablet */
+
+/* innerHTML styling in JS file */
+
+.upload-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.file-left {
+    display: flex;
+    gap: 0.625rem;
+    align-items: center;
+}
+
+.file-icon {
+    background: #e9ddff;
+    color: #6f00ff;
+    padding: 0.9375rem;
+    border-radius: 6px 8px;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-text strong {
+    font-size: 0.875rem;
+    display: block;
+}
+
+.file-text small {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.upload-status {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    margin-top: 0.3125rem;
+}
+
+.file-action {
+    cursor: pointer;
+    color: #666;
+}
+
+.file-action:hover {
+    color: red;
+}
+
+
+/* TABLET STYLING*/
 
 @media(min-width:768px) {
 
@@ -147,7 +207,7 @@ body {
 
 }
 
-/* Desktop */
+/* DESKTOP STYLING */
 
 @media(min-width:1024px){
 
