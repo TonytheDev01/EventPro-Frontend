@@ -1,0 +1,335 @@
+:root {
+  --color-primary: #062d23;
+  --color-primary-hover: #041f19;
+  --color-accent: #f97316;
+  --color-text-dark: #222222;
+  --color-text-muted: #555555;
+  --color-text-nav: #333333;
+  --color-white: #ffffff;
+  --color-bg-page: #f4f4f4;
+  --color-border: #cccccc;
+  --color-border-nav: #eeeeee;
+  --color-error: #e11727;
+  --color-active-nav: #062d23;
+  --color-logo-bg: #062d23;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: "Poppins", sans-serif;
+  background: var(--color-bg-page);
+  color: var(--color-text-dark);
+  min-height: 100vh;
+}
+/* --Nav Bar-- */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.125rem 1.5rem 2.5625rem; /*24/18/24/41px ÷ 16 — spec */
+  background: var(--color-white);
+  border-bottom: 1px solid var(--color-border-nav);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo {
+  width: 2rem;
+  height: 2rem;
+  background: var(--color-logo-bg);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px; /* always px */
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text-dark);
+}
+
+/* Nav links — hidden on mobile */
+.nav-links {
+  display: none;
+  gap: 1.25rem;
+}
+
+.nav-links a {
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-nav);
+  transition: color 0.2s ease-out;
+}
+
+.nav-links a:hover {
+  color: var(--color-active-nav);
+}
+
+.nav-links a.active {
+  color: var(--color-active-nav);
+  font-weight: 600;
+}
+
+.nav-links.show {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 4.5rem;
+  left: 0;
+  width: 100%;
+  background: var(--color-white);
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border-nav);
+  z-index: 99;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/*  User avatar — shows initials */
+.avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%; /*always px equivalent for circles */
+  background: var(--color-primary);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.menu-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* --Page-- */
+.page {
+  max-width: min(80rem, 100%); /*1280px ÷ 16 — spec */
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+/* ── Top actions — back button ────────────────── */
+.top-actions {
+  margin-bottom: 1rem;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* ── Form header ──────────────────────────────── */
+.form-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem;
+}
+
+.form-header h1 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+.form-header p {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}
+
+/* --Form Card-- */
+.form-card {
+  background: var(--color-white);
+  padding: 1.5rem;
+  border-radius: 10px; /*always px */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --Form Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem; /*20px ÷ 16 — spec */
+}
+
+/* ── Each field ───────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field--full {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-dark);
+}
+
+/* --Inputs, selects, textarea */
+input,
+select,
+textarea {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--color-text-dark);
+  padding: 0.8125rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px; /*always px */
+  background: var(--color-white);
+  transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+  width: 100%;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(6, 45, 35, 0.1);
+}
+
+input[type="file"] {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+textarea {
+  min-height: 5.625rem; /* 90px ÷ 16 */
+  resize: vertical;
+}
+
+/* --Error Message-- */
+.error-message {
+  font-size: 1.5rem; /*24px ÷ 16 — spec*/
+  font-weight: 400;
+  color: var(--color-error);
+  text-align: center;
+  letter-spacing: 0.05em; /*5% — spec*/
+  line-height: 0.9456rem; /*15.13px ÷ 16 — spec */
+  display: none;
+}
+
+/* --Submit Button-- */
+.btn-submit {
+  width: 100%;
+  height: 5rem; /*80px ÷ 16 — spec*/
+  padding: 1rem 3.659rem; /*16px / 58.55px ÷ 16 — spec*/
+  border: none;
+  border-radius: 11px; /*0.8px — spec, always px */
+  font-family: "Poppins", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  transition: background-color 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.btn-submit:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn-submit:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Tablet (768px+) ─────────────────────────── */
+@media (min-width: 48rem) {
+  .nav-links {
+    display: flex;
+    flex-direction: row;
+    position: static;
+    width: auto;
+    padding: 0;
+    border: none;
+  }
+
+  .menu-btn {
+    display: none;
+  }
+
+  .page {
+    padding: 1.5rem;
+  }
+
+  .form-card {
+    padding: 1.75rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ── Desktop (1200px+) ───────────────────────── */
+@media (min-width: 75rem) {
+  .page {
+    padding: 2rem 1.5rem;
+  }
+
+  .form-card {
+    padding: 2rem;
+  }
+
+  .form-header h1 {
+    font-size: 2rem;
+  }
+}
