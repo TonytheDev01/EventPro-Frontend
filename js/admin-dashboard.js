@@ -1,58 +1,32 @@
 // ================================================
 //  EventPro — Admin Dashboard
 //  js/admin-dashboard.js
-//  Depends on: js/services/auth-service.js
-//
-//  Endpoints used:
-//  GET /dashboard/stats
-//  GET /events?limit=6&sort=recent
-//  GET /events/organizer/my-events (fallback)
+//  Depends on:
+//    js/services/auth-service.js
+//    js/utils/load-components.js
 // ================================================
 
 const API = 'https://eventpro-fxfv.onrender.com/api';
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-  // ── Auth guard — admin only ───────────────────
+  //  Auth guard — redirect if not logged in 
   requireAuth();
 
+  // ── Role guard — admin only 
   const user = getStoredUser();
-
-  // Redirect non-admins away from this page
-  if (user && user.role !== 'admin') {
+  if (user?.role !== 'admin') {
     window.location.href = '../pages/organizer-dashboard.html';
     return;
   }
 
-  // ── Topbar username ───────────────────────────
-  const usernameEl = document.getElementById('topbarUsername');
-  if (usernameEl && user) {
-    usernameEl.textContent = user.firstName || user.email || 'Admin';
-  }
+  // Load sidebar + topbar 
+  // Must come BEFORE any DOM queries for sidebar/topbar elements.
+  // load-components.js handles: injection, active link,
+  // role-admin class, topbar username, and mobile toggle wiring.
+  await loadDashboardComponents('dashboard');
 
-  // ── Mobile sidebar toggle ─────────────────────
-  const sidebar        = document.getElementById('sidebar');
-  const overlay        = document.getElementById('sidebarOverlay');
-  const hamburgerBtn   = document.getElementById('hamburgerBtn');
-  const sidebarClose   = document.getElementById('sidebarClose');
-
-  function openSidebar() {
-    sidebar.classList.add('open');
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeSidebar() {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  hamburgerBtn?.addEventListener('click', openSidebar);
-  sidebarClose?.addEventListener('click', closeSidebar);
-  overlay?.addEventListener('click', closeSidebar);
-
-  // ── Fetch all dashboard data in parallel ───────
+  //  Fetch dashboard data in parallel 
   const token = getStoredToken();
   const headers = {
     'Content-Type':  'application/json',
@@ -60,36 +34,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   const [statsResult, eventsResult] = await Promise.allSettled([
-    apiFetch(`${API}/dashboard/stats`, headers),
+    apiFetch(`${API}/dashboard/stats`,          headers),
     apiFetch(`${API}/events?limit=6&sort=recent`, headers),
   ]);
 
-  // ── Render stat cards ─────────────────────────
+  //  Render all sections 
   renderStatCards(statsResult);
-
-  // ── Render recent events table ────────────────
   renderRecentEvents(eventsResult);
-
-  // ── Render top organizers ─────────────────────
   renderTopOrganizers(eventsResult);
-
-  // ── Render attendance chart ────────────────────
   renderAttendanceChart(statsResult);
 
 });
 
-// ── API helper ────────────────────────────────────
+//  API HELPER
+
 async function apiFetch(url, headers) {
-  const response = await fetch(url, {
+  const res = await fetch(url, {
     method: 'GET',
     headers,
     signal: AbortSignal.timeout(15000),
   });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json();
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
-// ── Stat cards ────────────────────────────────────
+//  STAT CARDS
+
 function renderStatCards(result) {
   const container = document.getElementById('statCards');
   if (!container) return;
@@ -99,10 +69,10 @@ function renderStatCards(result) {
   let totalRevenue = '--';
 
   if (result.status === 'fulfilled') {
-    const d = result.value;
-    totalEvents  = (d.totalEvents  ?? d.total_events  ?? '--').toLocaleString();
-    totalAttend  = (d.totalAttendees ?? d.total_attendees ?? '--').toLocaleString();
-    const rev    = d.totalRevenue ?? d.total_revenue ?? null;
+    const d     = result.value;
+    totalEvents = (d.totalEvents   ?? d.total_events   ?? '--').toLocaleString();
+    totalAttend = (d.totalAttendees ?? d.total_attendees ?? '--').toLocaleString();
+    const rev   = d.totalRevenue   ?? d.total_revenue   ?? null;
     totalRevenue = rev !== null ? `₦${Number(rev).toLocaleString()}` : 'N/A';
   }
 
@@ -154,7 +124,8 @@ function renderStatCards(result) {
   `;
 }
 
-// ── Recent Events table ───────────────────────────
+//  RECENT EVENTS TABLE
+
 function renderRecentEvents(result) {
   const tbody = document.getElementById('recentEventsBody');
   if (!tbody) return;
@@ -188,18 +159,21 @@ function renderRecentEvents(result) {
         <td>${escHtml(ev.name ?? ev.title ?? 'Unnamed')}</td>
         <td>${date}</td>
         <td>${count}</td>
-        <td><span class="badge badge-${status.toLowerCase()}">${capitalise(status)}</span></td>
+        <td>
+          <span class="badge badge-${status.toLowerCase()}">
+            ${capitalise(status)}
+          </span>
+        </td>
       </tr>`;
   }).join('');
 }
 
-// ── Top Organizers list ───────────────────────────
+//  TOP ORGANIZERS
+
 function renderTopOrganizers(result) {
   const container = document.getElementById('topOrganizersList');
   if (!container) return;
 
-  // Use events data to derive organizers OR fall back to placeholders
-  // (pending GET /admin/users endpoint from Ezekiel)
   if (result.status === 'rejected') {
     container.innerHTML = '<p class="empty-state">Unable to load organizers.</p>';
     return;
@@ -207,19 +181,20 @@ function renderTopOrganizers(result) {
 
   const events = result.value?.events ?? result.value?.data ?? result.value ?? [];
 
-  // Deduplicate organizers from events
+  // Deduplicate organizers derived from events
+  // (pending dedicated GET /admin/users endpoint from backend)
   const seen = new Set();
   const organizers = [];
 
   events.forEach(ev => {
-    const id   = ev.organizerId ?? ev.organizer?.id ?? ev.organizer;
-    const name = ev.organizerName ?? ev.organizer?.name ?? 'Unknown Organizer';
+    const id   = ev.organizerId    ?? ev.organizer?.id   ?? ev.organizer;
+    const name = ev.organizerName  ?? ev.organizer?.name ?? 'Unknown Organizer';
     if (id && !seen.has(id)) {
       seen.add(id);
       organizers.push({
         id,
         name,
-        sub:    ev.organizer?.email ?? 'John Doe',
+        sub:    ev.organizer?.email  ?? '',
         status: ev.organizer?.status ?? ev.status ?? 'active',
       });
     }
@@ -231,40 +206,50 @@ function renderTopOrganizers(result) {
   }
 
   container.innerHTML = organizers.slice(0, 5).map(org => {
-    const initials = org.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    const status   = org.status ?? 'active';
+    const initials = org.name
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+    const status = org.status ?? 'active';
+
     return `
       <div class="organizer-item"
         role="button" tabindex="0"
         onclick="window.location.href='../pages/organizer-management.html'"
-        onkeydown="if(event.key==='Enter')window.location.href='../pages/organizer-management.html'">
+        onkeydown="if(event.key==='Enter')
+          window.location.href='../pages/organizer-management.html'">
         <div class="organizer-avatar">${initials}</div>
         <div class="organizer-info">
           <p class="organizer-name">${escHtml(org.name)}</p>
           <p class="organizer-sub">${escHtml(org.sub)}</p>
         </div>
         <div class="organizer-right">
-          <span class="badge badge-${status.toLowerCase()}">${capitalise(status)}</span>
-          <svg class="organizer-chevron" width="16" height="16" viewBox="0 0 24 24"
-            fill="none" aria-hidden="true">
+          <span class="badge badge-${status.toLowerCase()}">
+            ${capitalise(status)}
+          </span>
+          <svg class="organizer-chevron" width="16" height="16"
+            viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M9 18l6-6-6-6" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round"/>
           </svg>
         </div>
       </div>`;
   }).join('');
 }
 
-// ── Attendance Chart ──────────────────────────────
+//  ATTENDANCE CHART
+
 function renderAttendanceChart(result) {
   const canvas = document.getElementById('attendanceChart');
   if (!canvas || typeof Chart === 'undefined') return;
 
-  // Build month labels + data
-  // If backend provides chart data use it, else use sample shape
-  let labels      = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
-  let registered  = [800, 950, 1100, 1050, 1300, 1600, 2000, 2500];
-  let checkedIn   = [600, 700, 850,  900,  1000, 1200, 1500, 1900];
+  // Fallback shape data — replaced if backend provides chart object
+  let labels     = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
+  let registered = [800, 950, 1100, 1050, 1300, 1600, 2000, 2500];
+  let checkedIn  = [600, 700,  850,  900, 1000, 1200, 1500, 1900];
 
   if (result.status === 'fulfilled') {
     const chart = result.value?.attendanceChart ?? result.value?.chart ?? null;
@@ -281,36 +266,33 @@ function renderAttendanceChart(result) {
       labels,
       datasets: [
         {
-          label:           'Registered',
-          data:            registered,
-          borderColor:     '#6F00FF',
-          backgroundColor: 'rgba(111, 0, 255, 0.08)',
-          borderWidth:     2.5,
-          pointRadius:     3,
+          label:            'Registered',
+          data:             registered,
+          borderColor:      '#6F00FF',
+          backgroundColor:  'rgba(111, 0, 255, 0.08)',
+          borderWidth:      2.5,
+          pointRadius:      3,
           pointHoverRadius: 5,
-          tension:         0.4,
-          fill:            true,
+          tension:          0.4,
+          fill:             true,
         },
         {
-          label:           'Checked In',
-          data:            checkedIn,
-          borderColor:     '#F97316',
-          backgroundColor: 'rgba(249, 115, 22, 0.06)',
-          borderWidth:     2.5,
-          pointRadius:     3,
+          label:            'Checked In',
+          data:             checkedIn,
+          borderColor:      '#F97316',
+          backgroundColor:  'rgba(249, 115, 22, 0.06)',
+          borderWidth:      2.5,
+          pointRadius:      3,
           pointHoverRadius: 5,
-          tension:         0.4,
-          fill:            true,
+          tension:          0.4,
+          fill:             true,
         },
       ],
     },
     options: {
       responsive:          true,
       maintainAspectRatio: false,
-      interaction: {
-        mode:      'index',
-        intersect: false,
-      },
+      interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: {
           position: 'top',
@@ -324,24 +306,24 @@ function renderAttendanceChart(result) {
         },
         tooltip: {
           backgroundColor: '#1A1A1A',
-          titleFont:  { family: 'Poppins', size: 12 },
-          bodyFont:   { family: 'Poppins', size: 12 },
-          padding:    10,
-          cornerRadius: 8,
+          titleFont:       { family: 'Poppins', size: 12 },
+          bodyFont:        { family: 'Poppins', size: 12 },
+          padding:         10,
+          cornerRadius:    8,
         },
       },
       scales: {
         x: {
-          grid:  { display: false },
-          ticks: { font: { family: 'Poppins', size: 11 }, color: '#6B7280' },
+          grid:   { display: false },
+          ticks:  { font: { family: 'Poppins', size: 11 }, color: '#6B7280' },
           border: { display: false },
         },
         y: {
           beginAtZero: true,
-          grid:  { color: '#F3F4F6' },
+          grid:   { color: '#F3F4F6' },
           ticks: {
-            font: { family: 'Poppins', size: 11 },
-            color: '#6B7280',
+            font:     { family: 'Poppins', size: 11 },
+            color:    '#6B7280',
             callback: v => v.toLocaleString(),
           },
           border: { display: false },
@@ -351,7 +333,8 @@ function renderAttendanceChart(result) {
   });
 }
 
-// ── Utilities ─────────────────────────────────────
+//  UTILITIES
+
 function formatDate(raw) {
   try {
     return new Date(raw).toLocaleDateString('en-GB', {
@@ -370,7 +353,7 @@ function capitalise(str) {
 function escHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;')
+    .replace(/"/g,  '&quot;');
 }
