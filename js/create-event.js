@@ -10,9 +10,6 @@
 //  backend — the user is already authenticated.
 //  They are pre-filled from getStoredUser() and
 //  remain read-only display fields only.
-//
-//  ⚠️  Banner upload via FormData pending Ezekiel
-//  confirmation. Currently sending JSON only.
 // ================================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -158,26 +155,18 @@ document.addEventListener('DOMContentLoaded', () => {
     return valid;
   }
 
-  // ── Submit ────────────────────────────────────
+  // ── Submit
   submitBtn.addEventListener('click', async () => {
     if (!validate()) return;
 
     const payload = {
-      name:        document.getElementById('eventName').value.trim(),
-      date:        document.getElementById('eventDate').value,
-      time:        document.getElementById('eventTime').value,
-      location:    document.getElementById('eventLocation').value.trim(),
-      address:     document.getElementById('streetAddress').value.trim(),
-      city:        document.getElementById('city').value.trim(),
-      state:       document.getElementById('countryState').value.trim(),
-      region:      document.getElementById('eventRegion').value,
-      category:    document.getElementById('eventCategory').value,
-      description: document.getElementById('eventDescription').value.trim(),
-    };
-
-    // ⚠️ Banner upload via FormData is pending
-    // Ezekiel's confirmation on multipart handling.
-    // Currently sending JSON payload only.
+  title:             document.getElementById('eventName').value.trim(),
+  description:       document.getElementById('eventDescription').value.trim(),
+  date:              document.getElementById('eventDate').value,
+  location:          document.getElementById('eventLocation').value.trim(),
+  expectedAttendees: 0,
+  status:            'draft',
+};
 
     setLoading(true);
 
