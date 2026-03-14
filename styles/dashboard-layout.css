@@ -1,0 +1,560 @@
+/* ================================================
+   EventPro — Dashboard Shared Layout
+   styles/dashboard-layout.css
+
+   Figma specs:
+   Sidebar:  312px wide | 1024px min-height
+             gap 44px (logo → nav) | bg #6F00FF
+   Nav card: gap 24px between links
+   Topbar:   1128px wide (auto) | 76px tall
+             padding 12px top/bottom | 4px left/right
+             gap 12px between controls
+
+   Used by all 11 dashboard screens.
+   Import this FIRST in every dashboard page CSS.
+   ================================================ */
+
+:root {
+  /* ── Brand ────────────────────────────────── */
+  --color-primary:       #6F00FF;
+  --color-primary-hover: #5800CC;
+  --color-primary-light: rgba(111, 0, 255, 0.08);
+  --color-primary-focus: rgba(111, 0, 255, 0.18);
+  --color-accent:        #F97316;
+  --color-danger:        #E11727;
+
+  /* ── Status colours ───────────────────────── */
+  --color-success-bg:    #DCFCE7;
+  --color-success-text:  #166534;
+  --color-warning-bg:    #FEF9C3;
+  --color-warning-text:  #854D0E;
+  --color-pending-bg:    #E0E7FF;
+  --color-pending-text:  #3730A3;
+
+  /* ── Layout — exact Figma values ─────────── */
+  --sidebar-width:       19.5rem;   /* 312px  */
+  --sidebar-gap:         2.75rem;   /* 44px   */
+  --sidebar-nav-gap:     1.5rem;    /* 24px   */
+  --topbar-height:       4.75rem;   /* 76px   */
+  --topbar-pad-y:        0.75rem;   /* 12px   */
+  --topbar-pad-x:        0.25rem;   /* 4px    */
+  --topbar-gap:          0.75rem;   /* 12px   */
+
+  /* ── Surfaces ─────────────────────────────── */
+  --color-sidebar-bg:    #6F00FF;
+  --color-topbar-bg:     #FFFFFF;
+  --color-page-bg:       #F5F6FA;
+  --color-card-bg:       #FFFFFF;
+  --color-white:         #FFFFFF;
+
+  /* ── Text ─────────────────────────────────── */
+  --color-text-dark:     #1A1A1A;
+  --color-text-muted:    #6B7280;
+  --color-text-sidebar:  #FFFFFF;
+
+  /* ── Borders ──────────────────────────────── */
+  --color-border:        #E5E7EB;
+  --color-border-light:  #F3F4F6;
+
+  /* ── Shadows ──────────────────────────────── */
+  --shadow-card:         0 1px 4px rgba(0, 0, 0, 0.08);
+  --shadow-modal:        0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--color-page-bg);
+  color: var(--color-text-dark);
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ════════════════════════════════════════════════
+   DASHBOARD SHELL
+   ════════════════════════════════════════════════ */
+.dashboard-shell {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ════════════════════════════════════════════════
+   SIDEBAR
+   Figma: 312 × 1024 | gap 44px | #6F00FF
+   ════════════════════════════════════════════════ */
+.sidebar {
+  width: var(--sidebar-width);         /* 312px */
+  min-height: 100vh;
+  background: var(--color-sidebar-bg); /* #6F00FF */
+  display: flex;
+  flex-direction: column;
+  gap: var(--sidebar-gap);             /* 44px logo → nav */
+  padding: 2rem 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 200;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Logo row: icon + "EventPro" text ────────── */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;             /* 10px between icon and text */
+  padding: 0 1.5rem;
+}
+
+.sidebar-logo-icon {
+  width: 2.25rem;            /* 36px — small rounded icon */
+  height: 2.25rem;
+  border-radius: 10px;       /* matches the rounded-square shape */
+  object-fit: cover;
+  flex-shrink: 0;
+  display: block;
+}
+
+.sidebar-logo-text {
+  font-size: 1.125rem;       /* 18px */
+  font-weight: 700;
+  color: var(--color-white);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* ── Nav card: gap 24px ──────────────────────── */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sidebar-nav-gap);  /* 24px */
+  padding: 0 1rem;
+}
+
+/* ── Nav links ───────────────────────────────── */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-sidebar);
+  text-decoration: none;
+  transition: background-color 0.18s ease-out,
+              color            0.18s ease-out;
+  white-space: nowrap;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-link:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
+}
+
+/* Active — white pill, purple icon + text */
+.sidebar-link.active {
+  background: var(--color-white);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Admin-only: hidden by default,
+   shown when JS adds body.role-admin */
+.sidebar-admin-only {
+  display: none;
+}
+
+body.role-admin .sidebar-admin-only {
+  display: flex;
+}
+
+/* Mobile close button */
+.sidebar-close {
+  display: none;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  align-self: flex-end;
+  margin: auto 1rem 0;
+}
+
+.sidebar-close:hover {
+  color: var(--color-white);
+}
+
+/* Mobile overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 190;
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+
+/* ════════════════════════════════════════════════
+   MAIN AREA (offset sidebar width on tablet+)
+   ════════════════════════════════════════════════ */
+.dashboard-main {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ════════════════════════════════════════════════
+   TOPBAR
+   Figma: 1128px (auto) × 76px
+          padding 12px top/bottom | 4px left/right
+          gap 12px
+   ════════════════════════════════════════════════ */
+.topbar {
+  height: var(--topbar-height);                 /* 76px */
+  background: var(--color-topbar-bg);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--topbar-pad-y) var(--topbar-pad-x); /* 12px 4px */
+  gap: var(--topbar-gap);                       /* 12px */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar-welcome {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+  padding-left: 1rem;
+  flex: 1;
+}
+
+.topbar-username {
+  font-weight: 600;
+}
+
+.topbar-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--topbar-gap);     /* 12px — matches Figma */
+  padding-right: 1rem;
+  flex-shrink: 0;
+}
+
+/* Hamburger — mobile only */
+.topbar-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-dark);
+  padding: 0.25rem;
+  border-radius: 6px;
+  align-items: center;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease-out;
+}
+
+.topbar-hamburger:hover {
+  background: var(--color-border-light);
+}
+
+.topbar-hamburger:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Icon buttons */
+.topbar-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+  transition: background-color 0.18s ease-out,
+              color            0.18s ease-out;
+}
+
+.topbar-icon-btn:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.topbar-icon-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Bell — purple per Figma */
+.topbar-bell {
+  color: var(--color-primary);
+}
+
+/* Notification dot */
+.topbar-bell-dot {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-danger);
+  border: 2px solid var(--color-white);
+}
+
+/* ════════════════════════════════════════════════
+   PAGE CONTENT
+   ════════════════════════════════════════════════ */
+.dashboard-content {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.page-title {
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 0.25rem;
+}
+
+.page-breadcrumb {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.page-breadcrumb a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+/* ── Shared card ─────────────────────────────── */
+.card {
+  background: var(--color-card-bg);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border-light);
+}
+
+/* ── Section header ──────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+/* ── Analytics / action badge ────────────────── */
+.btn-analytics {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  border: none;
+  border-radius: 6px;
+  padding: 0.3125rem 0.75rem;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.18s ease-out;
+}
+
+.btn-analytics:hover {
+  background: var(--color-primary-focus);
+}
+
+/* ── Status badges ───────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1875rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-completed  { background: #DCFCE7; color: #166534; }
+.badge-upcoming   { background: #FEF9C3; color: #854D0E; }
+.badge-pending    { background: #E0E7FF; color: #3730A3; }
+.badge-active     { background: #DCFCE7; color: #166534; }
+.badge-verified   { background: #FEF3C7; color: #92400E; }
+.badge-cancelled  { background: #FEE2E2; color: #991B1B; }
+
+/* ── Spinner ─────────────────────────────────── */
+.spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 1.5rem auto;
+  display: block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Shared primary button ───────────────────── */
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.18s ease-out,
+              opacity          0.18s ease-out;
+}
+
+.btn-primary:hover { background: var(--color-primary-hover); }
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Shared modal ────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-out;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal {
+  background: var(--color-white);
+  border-radius: 16px;
+  padding: 2rem;
+  width: min(30rem, calc(100vw - 2rem));
+  box-shadow: var(--shadow-modal);
+  transform: translateY(1rem);
+  transition: transform 0.2s ease-out;
+}
+
+.modal-overlay.open .modal {
+  transform: translateY(0);
+}
+
+/* ── Shared toast ────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(2rem);
+  background: #1A1A1A;
+  color: var(--color-white);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out,
+              transform 0.25s ease-out;
+  z-index: 9999;
+  white-space: nowrap;
+}
+
+.toast.show    { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { background: #166534; }
+.toast.error   { background: var(--color-danger); }
+
+/* ════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════ */
+
+/* ── Tablet 48rem (768px) ────────────────────── */
+@media (min-width: 48rem) {
+  .topbar-hamburger { display: none; }
+  .sidebar-close    { display: none; }
+}
+
+/* ── Mobile below 48rem ──────────────────────── */
+@media (max-width: 47.9375rem) {
+  /* Sidebar hidden off-screen, slides in on open */
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease-out;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-close {
+    display: flex;
+  }
+
+  /* Main fills full width */
+  .dashboard-main {
+    margin-left: 0;
+  }
+
+  .topbar-hamburger {
+    display: flex;
+  }
+}
+
+/* ── Desktop 75rem (1200px) ──────────────────── */
+@media (min-width: 75rem) {
+  .dashboard-content {
+    padding: 2rem;
+  }
+}
