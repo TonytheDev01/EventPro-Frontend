@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../styles/dashboard-layout.css" />
+  <link rel="stylesheet" href="../styles/admin-dashboard.css" />
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
+    defer></script>
+</head>
+<body>
+
+<div class="dashboard-shell">
+
+  <!--
+    ╔══════════════════════════════════════════╗
+    ║  SIDEBAR SLOT                            ║
+    ║  dashboard-sidebar.html is fetched from  ║
+    ║  components/ and injected here by        ║
+    ║  loadDashboardComponents('dashboard')    ║
+    ║  in admin-dashboard.js                   ║
+    ╚══════════════════════════════════════════╝
+  -->
+  <div id="sidebarSlot"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="dashboard-main">
+
+    <!--
+      ╔══════════════════════════════════════════╗
+      ║  TOPBAR SLOT                             ║
+      ║  dashboard-topbar.html is fetched from   ║
+      ║  components/ and injected here by        ║
+      ║  loadDashboardComponents()               ║
+      ╚══════════════════════════════════════════╝
+    -->
+    <div id="topbarSlot"></div>
+
+    <main class="dashboard-content">
+
+      <!-- Heading -->
+      <div class="page-heading">
+        <h1 class="page-title">Admin Dashboard</h1>
+        <p class="page-breadcrumb">
+          <span class="breadcrumb-parent">Admin</span>
+          <span class="breadcrumb-sep"> / </span>
+          <a href="../pages/admin-dashboard.html"
+            class="breadcrumb-current">Dashboard</a>
+        </p>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stat-cards" id="statCards">
+        <div class="stat-card skeleton" aria-hidden="true"></div>
+        <div class="stat-card skeleton" aria-hidden="true"></div>
+        <div class="stat-card skeleton" aria-hidden="true"></div>
+      </div>
+
+      <!-- Middle grid -->
+      <div class="dashboard-grid">
+
+        <div class="card">
+          <div class="section-header">
+            <h2 class="section-title">Recent Events</h2>
+            <a href="../pages/attendees.html?tab=events"
+              class="btn-analytics">Event Analytics</a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Date</th>
+                  <th>Attendees</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="recentEventsBody">
+                <tr><td colspan="4">
+                  <div class="spinner" role="status"
+                    aria-label="Loading events"></div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-header">
+            <h2 class="section-title">Top Organizers</h2>
+            <a href="../pages/organizer-management.html"
+              class="btn-analytics">Event Analytics</a>
+          </div>
+          <div id="topOrganizersList">
+            <div class="spinner" role="status"
+              aria-label="Loading organizers"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Attendance chart -->
+      <div class="card chart-card">
+        <h2 class="section-title chart-title">Attendance Overview</h2>
+        <div class="chart-wrap">
+          <canvas id="attendanceChart"
+            aria-label="Monthly attendance overview chart"
+            role="img"></canvas>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+<!--
+  Load order is critical:
+  1. auth-service.js   → requireAuth, getStoredUser, getStoredToken
+  2. load-components.js → loadDashboardComponents()
+  3. admin-dashboard.js → calls loadDashboardComponents('dashboard')
+-->
+<script src="../js/services/auth-service.js"></script>
+<script src="../js/utils/load-components.js"></script>
+<script src="../js/admin-dashboard.js"></script>
+
+</body>
+</html>
