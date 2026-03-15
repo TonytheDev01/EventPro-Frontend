@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports | EventPro</title> <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<!-- Sidebar injected by loadDashboardComponents() -->
+<div id="sidebarSlot"></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="dashboard-main">
+
+  <!-- Topbar injected by loadDashboardComponents() -->
+  <div id="topbarSlot"></div>
+
+  <main class="dashboard-content">
+
+    <!-- Page heading -->
+    <div class="page-heading">
+      <h1 class="page-title">Reports</h1>
+      <p class="page-breadcrumb">
+        <span class="breadcrumb-parent">Admin</span>
+        <span class="breadcrumb-sep"> / </span>
+        <a href="../pages/admin-report.html" class="breadcrumb-current">Reports</a>
+      </p>
+    </div>
+
+    <!-- Report card -->
+    <section class="report-card" aria-labelledby="report-title">
+
+      <h2 class="report-card__title" id="report-title">Summary Report</h2>
+
+      <!-- Event meta — populated by JS -->
+      <div class="report-card__meta">
+        <p class="report-card__meta-item">
+          <strong>Event:</strong>
+          <span id="metaEvent">—</span>
+        </p>
+        <p class="report-card__meta-item">
+          <strong>Date:</strong>
+          <span id="metaDate">—</span>
+        </p>
+        <p class="report-card__meta-item">
+          <strong>Organizer:</strong>
+          <span id="metaOrganizer">—</span>
+        </p>
+      </div>
+
+      <!-- Stat list — populated by JS -->
+      <ul class="stat-list" id="statList" role="list">
+        <!-- skeleton placeholders -->
+        <li class="stat-item skeleton-row" aria-hidden="true"></li>
+        <li class="stat-item skeleton-row" aria-hidden="true"></li>
+        <li class="stat-item skeleton-row" aria-hidden="true"></li>
+        <li class="stat-item skeleton-row" aria-hidden="true"></li>
+        <li class="stat-item skeleton-row" aria-hidden="true"></li>
+      </ul>
+
+      <!-- Attendance timeline chart -->
+      <div class="chart-section">
+        <h3 class="chart-title">Attendees Timeline Chart</h3>
+        <div class="chart-wrap">
+          <canvas id="attendanceChart"
+            aria-label="Attendees timeline chart"
+            role="img"></canvas>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="report-card__actions">
+        <button class="btn btn--primary" type="button" id="btn-pdf">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          Download PDF Report
+        </button>
+        <button class="btn btn--outline" type="button" id="btn-csv">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          Export CSV
+        </button>
+      </div>
+
+    </section>
+  </main>
+</div>
+<script src="../js/services/auth-service.js"></script> <script src="../js/utils/load-components.js"></script> <script src="../js/admin-report.js"></script>
+
+  </body>
+</html>

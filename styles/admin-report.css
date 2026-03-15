@@ -1,0 +1,269 @@
+/* ── Report card ─────────────────────────────── */
+.report-card {
+  background: var(--color-card-bg);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border-light);
+  padding: 1.75rem 1.5rem;
+  min-width: 0;
+}
+
+.report-card__title {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 0.875rem;
+}
+
+/* ── Meta section ────────────────────────────── */
+.report-card__meta {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.report-card__meta-item {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.report-card__meta-item:last-child {
+  margin-bottom: 0;
+}
+
+.report-card__meta-item strong {
+  color: var(--color-text-dark);
+  font-weight: 600;
+}
+
+/* ── Stat list ───────────────────────────────── */
+.stat-list {
+  list-style: none;
+  margin-bottom: 0.5rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--color-border);
+  min-width: 0;
+}
+
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.stat-item__left {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+/* ── Icon circles ────────────────────────────── */
+.stat-item__icon {
+  width: 2.375rem;
+  height: 2.375rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-item__icon svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  fill: var(--color-white);
+}
+
+/* Using CSS variables where possible,
+  custom values only where no token exists */
+.stat-item__icon--attendees {
+  background-color: var(--color-primary);
+}
+.stat-item__icon--vip {
+  background-color: #f5a623;
+}
+.stat-item__icon--regular {
+  background-color: var(--color-text-muted);
+}
+.stat-item__icon--checkin {
+  background-color: #00bfa5;
+}
+.stat-item__icon--pending {
+  background-color: var(--color-accent);
+}
+
+.stat-item__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-dark);
+  white-space: nowrap;
+}
+
+.stat-item__value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+  min-width: 2.25rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Skeleton loading rows ───────────────────── */
+.skeleton-row {
+  height: 3.25rem;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--color-border-light) 25%,
+    var(--color-border) 50%,
+    var(--color-border-light) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ── Chart section ───────────────────────────── */
+.chart-section {
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.chart-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 16rem;
+}
+
+.chart-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── Actions row ─────────────────────────────── */
+.report-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* ── Buttons ─────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.btn:hover {
+  opacity: 0.88;
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.btn--primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: 0 0.25rem 0.75rem rgba(111, 0, 255, 0.25);
+}
+
+.btn--primary:hover {
+  background-color: var(--color-primary-hover);
+  opacity: 1;
+}
+
+.btn--outline {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+}
+
+.btn--outline svg {
+  fill: var(--color-primary);
+}
+
+.btn--outline:hover {
+  background-color: var(--color-primary-light);
+  opacity: 1;
+}
+
+/* ════════════════════════════════════════════════
+  RESPONSIVE
+  ════════════════════════════════════════════════ */
+
+/* Mobile below 480px */
+@media (max-width: 30rem) {
+  .report-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .report-card__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+/* Tablet 768px+ */
+@media (min-width: 48rem) {
+  .report-card {
+    padding: 2rem 1.875rem;
+  }
+
+  .chart-wrap {
+    height: 20rem;
+  }
+}

@@ -188,6 +188,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = await response.json();
 
+      if (!response.ok) {
+        showError(
+          data.message || "*Error: Could not create event. Please try again.*"
+        );
+        submitBtn.textContent = "Create Event";
+        submitBtn.disabled = false;
+        return;
+      }
+
+      // Store created event for next screen
+      localStorage.setItem("eventpro_created_event", JSON.stringify(data));
+
+      // Redirect to organizer dashboard
+      window.location.href = "../pages/organizer-dashboard.html";
+    } catch (err) {
+      showError(
+        "*Network error — please check your connection and try again.*"
+      );
+      submitBtn.textContent = "Create Event";
+      submitBtn.disabled = false;
+    }
+  });
+});
       if (response.ok) {
         result = { success: true, data };
       } else {
