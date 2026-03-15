@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendees | EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../styles/dashboard-layout.css" />
+  <link rel="stylesheet" href="../styles/attendees.css" />
+</head>
+<body>
+
+  <div class="dashboard-shell">
+
+    <!-- Sidebar injected by loadDashboardComponents() -->
+    <div id="sidebarSlot"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="dashboard-main">
+
+      <!-- Topbar injected by loadDashboardComponents() -->
+      <div id="topbarSlot"></div>
+
+      <main class="dashboard-content">
+
+        <!-- ══ HEADER — 1036×99 | gap 8px ══════════ -->
+        <div class="att-header">
+          <div class="att-header__left">
+            <h1 class="att-header__title">Attendees</h1>
+            <p class="att-header__event" id="eventNameDisplay">—</p>
+            <p class="att-header__desc">Manage all event attendees and check-in status</p>
+          </div>
+          <p class="page-breadcrumb">
+            <span class="breadcrumb-parent">Admin</span>
+            <span class="breadcrumb-sep"> / </span>
+            <a href="../pages/admin-dashboard.html" class="breadcrumb-current">
+              Attendees
+            </a>
+          </p>
+        </div>
+
+        <!-- ══ CONTROLS + STATS — 1036×100 | gap 20px ══ -->
+        <div class="att-controls-wrap">
+
+          <!-- Row 1: Filters + Actions -->
+          <div class="att-controls">
+            <div class="att-filters">
+              <select id="filterTicketType" class="att-select">
+                <option value="">All Ticket Types</option>
+                <option value="VIP">VIP</option>
+                <option value="Regular">Regular</option>
+              </select>
+              <select id="filterStatus" class="att-select">
+                <option value="">All Statuses</option>
+                <option value="checked-in">Checked-In</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+            <div class="att-actions">
+              <button type="button" class="btn-add" id="addAttendeeBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24"
+                  fill="none" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14"
+                    stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round"/>
+                </svg>
+                Add Attendees
+              </button>
+              <button type="button" class="btn-export" id="exportCsvBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24"
+                  fill="none" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <polyline points="7 10 12 15 17 10"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="12" y1="15" x2="12" y2="3"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Export CSV
+              </button>
+            </div>
+          </div>
+
+          <!-- Row 2: Stats -->
+          <div class="att-stats">
+            <span class="att-stat">
+              Total Attendees: <strong id="statTotal">—</strong>
+            </span>
+            <span class="att-stat-divider"></span>
+            <span class="att-stat">
+              Checked-In: <strong id="statCheckedIn">—</strong>
+            </span>
+            <span class="att-stat-divider"></span>
+            <span class="att-stat">
+              Pending: <strong id="statPending">—</strong>
+            </span>
+          </div>
+
+        </div><!-- /.att-controls-wrap -->
+
+        <!-- ══ TABLE CARD — 1036×613 ════════════════ -->
+        <div class="att-table-card">
+
+          <!-- Table — header 45px, rows 42px -->
+          <div class="att-table-wrap">
+            <table class="att-table" id="attendeeTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Ticket Type</th>
+                  <th>Ticket ID</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="attendeeTableBody">
+                <tr>
+                  <td colspan="8">
+                    <div class="spinner" role="status"
+                      aria-label="Loading attendees"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Footer — 1036×64 | space-between | p 20px 11px | border-top -->
+          <div class="att-table-footer">
+            <p class="att-footer-count" id="footerCount">
+              Showing — of — attendees
+            </p>
+            <nav class="att-pagination" id="pagination"
+              aria-label="Attendees pagination">
+            </nav>
+          </div>
+
+        </div><!-- /.att-table-card -->
+
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- Script load order — do NOT change -->
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/utils/load-components.js"></script>
+  <script src="../js/attendees.js"></script>
+
+</body>
+</html>
