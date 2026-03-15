@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Dashboard | EventPro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles/dashboard-layout.css" />
+    <link rel="stylesheet" href="../styles/organizer-dashboard.css" />
+  </head>
+  <body>
+    <div class="dashboard-shell">
+      <!-- Sidebar injected by loadDashboardComponents() -->
+      <div id="sidebarSlot"></div>
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+      <div class="dashboard-main">
+        <!-- Topbar injected by loadDashboardComponents() -->
+        <div id="topbarSlot"></div>
+
+        <main class="dashboard-content">
+          <!-- Page heading -->
+          <div class="org-heading">
+            <div class="org-heading__left">
+              <h1 class="org-heading__title">My Dashboard</h1>
+              <p class="org-heading__sub">
+                Organizer
+                <span class="org-heading__sep"> / </span>
+                <a
+                  href="../pages/organizer-dashboard.html"
+                  class="org-heading__current"
+                  >Dashboard</a
+                >
+              </p>
+            </div>
+          </div>
+
+          <!-- Figma divider line -->
+          <hr class="org-divider" />
+
+          <!-- Stat cards -->
+          <div class="stat-cards-row">
+            <!-- Card 1: Total Events (with calendar image) -->
+            <div class="stat-card-org" id="cardTotalEvents">
+              <div class="stat-card-org__img-wrap">
+                <img
+                  src="../assets/images/calendar.png"
+                  alt="Calendar"
+                  class="stat-card-org__img"
+                  onerror="
+                    this.style.display = 'none';
+                    document.getElementById('calFallback').style.display =
+                      'flex';
+                  "
+                />
+                <!-- SVG fallback if image missing -->
+                <span
+                  id="calFallback"
+                  class="stat-card-org__img-fallback"
+                  style="display: none"
+                >
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                    <rect
+                      x="3"
+                      y="4"
+                      width="18"
+                      height="18"
+                      rx="2"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    />
+                    <path
+                      d="M16 2v4M8 2v4M3 10h18"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </span>
+              </div>
+              <p class="stat-card-org__label">Total Events</p>
+              <p class="stat-card-org__value" id="totalEventsVal">—</p>
+              <div class="stat-card-org__trend" id="totalEventsTrend">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 19V5M5 12l7-7 7 7"
+                    stroke="#11886A"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span id="totalEventsTrendVal">—</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Tickets Sold -->
+            <div class="stat-card-org" id="cardTicketsSold">
+              <p class="stat-card-org__label">Tickets Sold</p>
+              <p class="stat-card-org__value" id="ticketsSoldVal">—</p>
+              <div class="stat-card-org__trend" id="ticketsSoldTrend">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 19V5M5 12l7-7 7 7"
+                    stroke="#11886A"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span id="ticketsSoldTrendVal">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom grid -->
+          <div class="org-bottom-grid">
+            <!-- Recent Events card -->
+            <div class="org-card" id="recentEventsCard">
+              <div class="org-card__header">
+                <h2 class="org-card__title">Recent Events</h2>
+                <a
+                  href="../pages/attendees.html?tab=events"
+                  class="org-card__see-all"
+                  id="seeAllBtn"
+                >
+                  See All
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M5 12h14M13 6l6 6-6 6"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </a>
+              </div>
+              <div class="org-table-wrap">
+                <table class="org-table">
+                  <thead>
+                    <tr>
+                      <th>Event</th>
+                      <th>Date</th>
+                      <th>#Registered</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentEventsBody">
+                    <tr>
+                      <td colspan="4">
+                        <div
+                          class="spinner"
+                          role="status"
+                          aria-label="Loading events"
+                        ></div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Top Organizers card -->
+            <div class="org-card" id="topOrganizersCard">
+              <div class="org-card__header">
+                <h2 class="org-card__title">Top Organizers</h2>
+                <a
+                  href="../pages/organizer-management.html"
+                  class="btn-analytics"
+                  >Event Analytics</a
+                >
+              </div>
+              <div class="org-organizers-list" id="topOrganizersList">
+                <div
+                  class="spinner"
+                  role="status"
+                  aria-label="Loading organizers"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+    <!-- Script load order — do NOT change -->
+    <script src="../js/services/auth-service.js"></script>
+    <script src="../js/utils/load-components.js"></script>
+    <script src="../js/organizer-dashboard.js"></script>
+  </body>
+</html>

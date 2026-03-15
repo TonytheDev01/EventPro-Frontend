@@ -1,0 +1,397 @@
+/* ================================================
+   EventPro — Organizer Dashboard
+   styles/organizer-dashboard.css
+   Extends: styles/dashboard-layout.css
+
+   Figma specs (converted to rem at 16px base):
+   Heading:     230×45   | top 93  | Poppins 600 30px
+   Subtitle:    183×24   | top 140 | Poppins 300 16px
+   Divider:     1027.5px | top 186 | 1px border
+   Stat card:   318×280  | top 225 | radius 14px
+   Cal image:   96×96
+   Label:       17px Poppins 600
+   Number:      57px tall → font-size 3rem
+   Trend:       164×24   | gap 18px | color #11886A
+   Recent card: 603×373  | radius 15px
+   Top Org card:413×373  | radius 15px
+   Org row:     40px tall | gap 99px
+   Avatar:      40×40
+   Badge+chev:  gap 8px
+   ================================================ */
+
+/* ── Page heading ────────────────────────────── */
+.org-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.org-heading__title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3vw, 1.875rem); /* 30px */
+  line-height: 1;
+  color: var(--color-text-dark);
+  margin-bottom: 0.5rem;
+}
+
+/* Breadcrumb: "Organizer / Dashboard" */
+.org-heading__sub {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.org-heading__sep {
+  color: var(--color-text-muted);
+}
+
+.org-heading__current {
+  color: var(--color-primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.org-heading__current:hover {
+  text-decoration: underline;
+}
+
+/* ── Divider ─────────────────────────────────── */
+.org-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0 0 1.5rem;
+}
+
+/* ════════════════════════════════════════════════
+   STAT CARDS ROW
+   Figma: two cards side by side, 318px each
+   ════════════════════════════════════════════════ */
+.stat-cards-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Individual stat card ────────────────────── */
+.stat-card-org {
+  background: var(--color-card-bg);
+  border-radius: 0.875rem;             /* 14px */
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem 2rem;
+  min-height: 17.5rem;                 /* 280px */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;        /* always top-aligned */
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Remove the --no-img variant — no longer needed */
+.stat-card-org__img-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.625rem;
+}
+
+.stat-card-org__img {
+  width: 6rem;                         /* 96px */
+  height: 6rem;
+  object-fit: contain;
+  display: block;
+}
+
+.stat-card-org__img-fallback {
+  width: 6rem;
+  height: 6rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  opacity: 0.6;
+}
+
+/* Calendar image wrapper — 96×96 centred */
+.stat-card-org__label {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.0625rem;                /* 17px */
+  line-height: 1;
+  color: var(--color-text-dark);
+  margin-bottom: 0.75rem;
+}
+
+/* Dynamic number — maps to Figma 57px height */
+.stat-card-org__value {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--color-text-dark);
+  margin-bottom: 0.875rem;
+}
+
+/* Trend row — gap 18px, color #11886A */
+.stat-card-org__trend {
+  display: flex;
+  align-items: center;
+  gap: 1.125rem;                       /* 18px */
+  font-family: 'Poppins', sans-serif;
+  font-weight: 300;
+  font-size: 1rem;                     /* 16px */
+  color: #11886A;
+  min-height: 1.5rem;                  /* 24px */
+}
+
+.stat-card-org__trend span {
+  font-weight: 300;
+  font-size: 1rem;
+  color: #11886A;
+}
+
+/* ════════════════════════════════════════════════
+   BOTTOM GRID
+   Recent Events 603px (3fr) | Top Organizers 413px (2fr)
+   ════════════════════════════════════════════════ */
+.org-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+/* ── Shared card base ────────────────────────── */
+.org-card {
+  background: var(--color-card-bg);
+  border-radius: 0.9375rem;            /* 15px */
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-card);
+  padding: 1.25rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ── Card header ─────────────────────────────── */
+.org-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.org-card__title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+/* See All link */
+.org-card__see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.18s ease-out;
+}
+
+.org-card__see-all:hover { opacity: 0.75; }
+
+/* ── Recent Events table ─────────────────────── */
+.org-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.org-table {
+  width: 100%;
+  min-width: 30rem;                    /* keeps columns readable */
+  border-collapse: collapse;
+}
+
+.org-table th {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-border-light);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.org-table td {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--color-text-dark);
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--color-border-light);
+  white-space: nowrap;
+}
+
+.org-table tr:last-child td { border-bottom: none; }
+
+.org-table td:first-child {
+  white-space: normal;
+  min-width: 8rem;
+}
+
+/* Empty / error state */
+.org-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+/* ── Top Organizers list ─────────────────────── */
+/* Figma: each row 40px tall, gap 99px between name and badge */
+.org-organizers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.org-organizer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.5rem;                  /* 40px */
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.15s ease-out;
+}
+
+.org-organizer-item:hover {
+  background: var(--color-border-light);
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+/* Avatar — 40×40 */
+.org-organizer-avatar {
+  width: 2.5rem;                       /* 40px */
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  letter-spacing: 0.03em;
+}
+
+.org-organizer-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.org-organizer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.org-organizer-name {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.org-organizer-sub {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Badge + chevron — gap 8px */
+.org-organizer-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;                         /* 8px */
+  flex-shrink: 0;
+}
+
+.org-organizer-chevron {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════ */
+
+/* Mobile — below 640px: stat cards stack */
+@media (max-width: 40rem) {
+  .stat-cards-row {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card-org {
+    min-height: auto;
+    padding: 1.5rem;
+  }
+
+  .stat-card-org__value {
+    font-size: 2.25rem;
+  }
+}
+
+/* Tablet 768px+ — bottom grid two columns */
+@media (min-width: 48rem) {
+  .org-bottom-grid {
+    /* 603:413 ≈ 3:2 ratio */
+    grid-template-columns: 3fr 2fr;
+  }
+}
+
+/* Tablet — keep stat cards side by side but tighter */
+@media (min-width: 40rem) and (max-width: 64rem) {
+  .stat-card-org__value {
+    font-size: 2.5rem;
+  }
+
+  .stat-card-org {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+/* Desktop 1200px+ */
+@media (min-width: 75rem) {
+  .stat-cards-row {
+    /* Cap each card close to Figma 318px */
+    grid-template-columns: repeat(2, minmax(0, 19.875rem));
+  }
+}
