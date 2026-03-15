@@ -26,6 +26,43 @@ body {
   min-height: 100vh;
 }
 /* --Nav Bar-- */
+/* ================================================
+   EventPro — Create Event Page
+   Mobile-first. Scales to tablet (48rem) and
+   desktop (75rem).
+   Primary theme: #062D23 (dark green)
+
+:root {
+  --color-primary:       #062D23;
+  --color-primary-dark:  #041F18;
+  --color-primary-focus: rgba(6, 45, 35, 0.12);
+  --color-white:         #FFFFFF;
+  --color-bg:            #FFFFFF;
+  --color-bg-nav:        #F0F0F0;
+  --color-border:        #D0D0D0;
+  --color-text-dark:     #1A1A1A;
+  --color-text-muted:    #999999;
+  --color-input-bg:      #FFFFFF;
+  --color-input-grey:    #F0F0F0;
+  --color-error:         #E11727;
+  --color-avatar-bg:     #C4A0E8;
+  --color-shadow:        rgba(0, 0, 0, 0.06);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text-dark);
+  min-height: 100vh;
+}
+
+/* ── Navbar ───────────────────────────────────── */
 .navbar {
   display: flex;
   align-items: center;
@@ -33,6 +70,9 @@ body {
   padding: 1.5rem 1.125rem 1.5rem 2.5625rem; /*24/18/24/41px ÷ 16 — spec */
   background: var(--color-white);
   border-bottom: 1px solid var(--color-border-nav);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-nav);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -60,6 +100,16 @@ body {
 .brand {
   font-weight: 700;
   font-size: 1rem;
+.nav-logo-icon {
+  width: 2.25rem;  /* 36px ÷ 16 */
+  height: 2.25rem;
+  border-radius: 8px; /* always px */
+  flex-shrink: 0;
+}
+
+.nav-logo-text {
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--color-text-dark);
 }
 
@@ -97,6 +147,20 @@ body {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--color-border-nav);
   z-index: 99;
+  gap: 2rem;
+}
+
+.nav-links a {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease-out;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--color-text-dark);
 }
 
 .nav-right {
