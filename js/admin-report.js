@@ -1,81 +1,392 @@
+// ================================================
+// EventPro — Admin Reports
+// js/admin-report.js
+// Depends on:
+//   js/services/auth-service.js
+//   js/utils/load-components.js
+//
+// Endpoints used:
+//   GET /reports/summary  ← stats + meta
+//   GET /reports/timeline ← chart data
+// ================================================
+
+const API = "https://eventpro-fxfv.onrender.com/api";
+
 document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Auth guard first
+  // ── Auth guard ────────────────────────────────
   requireAuth();
-  // 2. Load shared sidebar + topbar
-  // 'dashboard' = the tab that lights up active on the sidebar
-  await loadDashboardComponents("dashboard");
-  // 3. Your page logic below
-  // ...
-  (function () {
-    "use strict";
 
-    // --- Elements ---
-    const btnPdf = document.getElementById("btn-pdf");
-    const btnCsv = document.getElementById("btn-csv");
+  // ── Role guard — admin only ───────────────────
+  const user = getStoredUser();
+  if (user?.role !== "admin") {
+    window.location.href = "../pages/organizer-dashboard.html";
+    return;
+  }
 
-    // --- Helpers ---
+  // ── Load shared sidebar + topbar ──────────────
+  await loadDashboardComponents("reports");
 
-    /**
-     * Collects all stat rows into an array of objects.
-     * Useful for generating CSV data from the live DOM.
-    /** */
-    function getReportData() {
-      const rows = document.querySelectorAll(".stat-item");
-      return Array.from(rows).map(function (row) {
-        return {
-          label: row.querySelector(".stat-item__label").textContent.trim(),
-          value: row.querySelector(".stat-item__value").textContent.trim(),
-        };
-      });
-    }
+  // ── Fetch report data ─────────────────────────
+  const token = getStoredToken();
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`, // Fix: added backticks
+  };
 
-    /**
-     * Converts an array of objects to a CSV string.
-     * @param {Array<{label: string, value: string}>} data
-     * @returns {string}
-     */
-    function toCSV(data) {
-      const header = "Category,Count";
-      const rows = data.map(function (item) {
-        return item.label + "," + item.value;
-      });
-      return [header].concat(rows).join("\n");
-    }
+  const [summaryResult, timelineResult] = await Promise.allSettled([
+    _apiFetch(`${API}/reports/summary`, headers), // Fix: added backticks
+    _apiFetch(`${API}/reports/timeline`, headers), // Fix: added backticks
+  ]);
 
-    /**
-     * Triggers a file download in the browser.
-     * @param {string} filename
-     * @param {string} content
-     * @param {string} mimeType
-     */
-    function downloadFile(filename, content, mimeType) {
-      const blob = new Blob([content], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
+  _renderMeta(summaryResult);
+  _renderStats(summaryResult);
+  _renderChart(timelineResult);
 
-    // --- Button: Export CSV ---
-    if (btnCsv) {
-      btnCsv.addEventListener("click", function () {
-        const data = getReportData();
-        const csvData = toCSV(data);
-        downloadFile("summary-report.csv", csvData, "text/csv");
-      });
-    }
+  // ── Wire action buttons ───────────────────────
+  document.getElementById("btn-csv")?.addEventListener("click", _exportCSV);
 
-    // --- Button: Download PDF ---
-    // Wire this up to the PDF generation library (e.g. jsPDF).
-    // For now it alerts so you know the click is working.
-    if (btnPdf) {
-      btnPdf.addEventListener("click", function () {
-        alert("PDF download: connect your PDF library here (e.g. jsPDF).");
-      });
-    }
-  })();
+  document.getElementById("btn-pdf")?.addEventListener("click", _exportPDF);
 });
+
+// ════════════════════════════════════════════════
+// API HELPER
+// ════════════════════════════════════════════════
+
+async function _apiFetch(url, headers) {
+  const res = await fetch(url, {
+    method: "GET",
+    headers,
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`); // Fix: added backticks
+  return res.json();
+}
+
+// ════════════════════════════════════════════════
+// RENDER — META
+// ════════════════════════════════════════════════
+
+function _renderMeta(result) {
+  if (result.status !== "fulfilled") return;
+  const d = result.value;
+
+  _setText("metaEvent", d.eventName ?? d.event?.name ?? "—");
+  _setText("metaDate", d.eventDate ? _fmtDate(d.eventDate) : "—");
+  _setText("metaOrganizer", d.organizerName ?? d.organizer?.name ?? "—");
+}
+
+// ════════════════════════════════════════════════
+// RENDER — STAT LIST
+// ════════════════════════════════════════════════
+
+// Stat config — icon class + label + data key
+const _STAT_CONFIG = [
+  {
+    cls: "attendees",
+    label: "Total Attendees",
+    keys: ["totalAttendees", "total_attendees"],
+    icon: _iconAttendees(),
+  },
+  {
+    cls: "vip",
+    label: "VIP Tickets",
+    keys: ["vipTickets", "vip_tickets"],
+    icon: _iconVip(),
+  },
+  {
+    cls: "regular",
+    label: "Regular",
+    keys: ["regularTickets", "regular_tickets"],
+    icon: _iconRegular(),
+  },
+  {
+    cls: "checkin",
+    label: "Checked-In",
+    keys: ["checkedIn", "checked_in"],
+    icon: _iconCheckin(),
+  },
+  { cls: "pending", label: "Pending", keys: ["pending"], icon: _iconPending() },
+];
+
+function _renderStats(result) {
+  const list = document.getElementById("statList");
+  if (!list) return;
+
+  const d = result.status === "fulfilled" ? result.value : null;
+
+  list.innerHTML = _STAT_CONFIG
+    .map((cfg) => {
+      const value = d ? _pick(d, cfg.keys) ?? "—" : "—";
+      // Fix: added backticks to the entire template literal string
+      return `
+      <li class="stat-item">
+        <div class="stat-item__left">
+          <span class="stat-item__icon stat-item__icon--${
+            cfg.cls
+          }" aria-hidden="true">
+            ${cfg.icon}
+          </span>
+          <span class="stat-item__label">${cfg.label}</span>
+        </div>
+        <span class="stat-item__value">${
+          typeof value === "number" ? value.toLocaleString() : value
+        }</span>
+      </li>`;
+    })
+    .join("");
+}
+
+// ════════════════════════════════════════════════
+// RENDER — CHART
+// ════════════════════════════════════════════════
+
+function _renderChart(result) {
+  const canvas = document.getElementById("attendanceChart");
+  if (!canvas || typeof Chart === "undefined") return;
+
+  // Fallback shape data if API not ready
+  let labels = ["Mar 28", "Mar 29", "Mar 30", "Mar 31", "Apr 1"];
+  let total = [170, 300, 130, 250, 270];
+  let checkedIn = [120, 220, 100, 180, 200];
+
+  if (result.status === "fulfilled") {
+    const d = result.value;
+    labels = d.labels ?? labels;
+    total = d.total ?? d.registered ?? total;
+    checkedIn = d.checkedIn ?? d.checked_in ?? checkedIn;
+  }
+
+  new Chart(canvas, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Total",
+          data: total,
+          borderColor: "#6F00FF",
+          backgroundColor: "rgba(111,0,255,0.08)",
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0.4,
+          fill: true,
+        },
+        {
+          label: "Checked-In",
+          data: checkedIn,
+          borderColor: "#00BFA5",
+          backgroundColor: "rgba(0,191,165,0.06)",
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0.4,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: {
+          position: "top",
+          align: "end",
+          labels: {
+            font: { family: "Poppins", size: 12 },
+            boxWidth: 12,
+            boxHeight: 12,
+            padding: 16,
+          },
+        },
+        tooltip: {
+          backgroundColor: "#1A1A1A",
+          titleFont: { family: "Poppins", size: 12 },
+          bodyFont: { family: "Poppins", size: 12 },
+          padding: 10,
+          cornerRadius: 8,
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { family: "Poppins", size: 11 }, color: "#6B7280" },
+          border: { display: false },
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: "#F3F4F6" },
+          ticks: {
+            font: { family: "Poppins", size: 11 },
+            color: "#6B7280",
+            callback: (v) => v.toLocaleString(),
+          },
+          border: { display: false },
+        },
+      },
+    },
+  });
+}
+
+// ════════════════════════════════════════════════
+// EXPORT — CSV
+// ════════════════════════════════════════════════
+
+function _exportCSV() {
+  const rows = document.querySelectorAll(".stat-item:not(.skeleton-row)");
+  if (!rows.length) {
+    _showToast("No data to export.", "error");
+    return;
+  }
+
+  const lines = ["Category,Count"];
+  rows.forEach((row) => {
+    const label =
+      row.querySelector(".stat-item__label")?.textContent.trim() ?? "";
+    const value =
+      row.querySelector(".stat-item__value")?.textContent.trim() ?? "";
+    if (label) lines.push(`${label},${value}`); // Fix: added backticks
+  });
+
+  _downloadFile("summary-report.csv", lines.join("\n"), "text/csv");
+  _showToast("CSV exported successfully.", "success");
+}
+
+// ════════════════════════════════════════════════
+// EXPORT — PDF via jsPDF
+// ════════════════════════════════════════════════
+
+function _exportPDF() {
+  if (typeof window.jspdf === "undefined") {
+    _showToast("PDF library not loaded yet. Please wait.", "error");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Title
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("EventPro — Summary Report", 14, 20);
+
+  // Meta
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  const event = document.getElementById("metaEvent")?.textContent ?? "—";
+  const date = document.getElementById("metaDate")?.textContent ?? "—";
+  const organizer =
+    document.getElementById("metaOrganizer")?.textContent ?? "—";
+
+  doc.text(`Event: ${event}`, 14, 32); // Fix: added backticks
+  doc.text(`Date: ${date}`, 14, 39); // Fix: added backticks
+  doc.text(`Organizer: ${organizer}`, 14, 46); // Fix: added backticks
+
+  // Divider
+  doc.setDrawColor(229, 231, 235);
+  doc.line(14, 51, 196, 51);
+
+  // Stat rows
+  doc.setFontSize(11);
+  let y = 62;
+
+  document.querySelectorAll(".stat-item:not(.skeleton-row)").forEach((row) => {
+    const label =
+      row.querySelector(".stat-item__label")?.textContent.trim() ?? "";
+    const value =
+      row.querySelector(".stat-item__value")?.textContent.trim() ?? "";
+    if (!label) return;
+    doc.setFont("helvetica", "normal");
+    doc.text(label, 14, y);
+    doc.setFont("helvetica", "bold");
+    doc.text(value, 180, y, { align: "right" });
+    y += 10;
+  });
+
+  // Footer
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(107, 114, 128);
+  doc.text(
+    // Fix: added backticks
+    `Generated ${new Date().toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    })}`,
+    14,
+    285
+  );
+
+  doc.save("summary-report.pdf");
+  _showToast("PDF downloaded successfully.", "success");
+}
+
+// ════════════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════════════
+
+function _downloadFile(filename, content, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function _pick(obj, keys) {
+  for (const k of keys) {
+    if (obj[k] !== undefined && obj[k] !== null) return obj[k];
+  }
+  return null;
+}
+
+function _setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val ?? "—";
+}
+
+function _fmtDate(raw) {
+  try {
+    return new Date(raw).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return String(raw);
+  }
+}
+
+function _showToast(message, type = "") {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+  toast.textContent = message;
+  toast.className = `toast show ${type}`.trim(); // Fix: added backticks
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => {
+    toast.className = "toast";
+  }, 3500);
+}
+
+// ── SVG icons (inline, avoids extra fetch) ────────
+function _iconAttendees() {
+  return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>`; // Fix: added backticks
+}
+function _iconVip() {
+  return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>`; // Fix: added backticks
+}
+function _iconRegular() {
+  return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 12c0-1.1.9-2 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v4c1.1 0 2 .9 2 2s-.9 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2z"/></svg>`; // Fix: added backticks
+}
+function _iconCheckin() {
+  return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>`; // Fix: added backticks
+}
+function _iconPending() {
+  return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm.5 5v5.25l4.5 2.67-.75 1.23L11 13V7h1.5z"/></svg>`; // Fix: added backticks
+}

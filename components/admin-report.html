@@ -3,158 +3,89 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Report Card —EventPro</title>
+    <title>Reports | EventPro</title> <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<!-- Sidebar injected by loadDashboardComponents() -->
+<div id="sidebarSlot"></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="../styles/dashboard-layout.css" />
-    <link rel="stylesheet" href="../styles/admin-report.css" />
-  </head>
+<div class="dashboard-main">
 
-  <body>
-    <div class="dashboard-shell">
-      <div id="sidebarSlot"></div>
-      <div class="sidebar-overlay" id="sidebarOverlay"></div>
-      <div class="dashboard-main">
-        <div id="topbarSlot"></div>
-        <main class="dashboard-content">
-          <div class="page-heading">
-            <h1 class="page-title">Admin Report Card —EventPro</h1>
-            <p class="page-breadcrumb">
-              <span class="breadcrumb-parent">Section</span>
-              <span class="breadcrumb-sep"> / </span>
-              <a href="#" class="breadcrumb-current">Page</a>
-            </p>
-          </div>
-          <section class="report-card" aria-labelledby="report-title">
-            <h2 class="report-card__title" id="report-title">Summary Report</h2>
+  <!-- Topbar injected by loadDashboardComponents() -->
+  <div id="topbarSlot"></div>
 
-            <div class="report-card__meta">
-              <p class="report-card__meta-item">
-                <strong>Event:</strong> Tech Innovator Conference, Convention
-                Center, Los Angeles, CA
-              </p>
-              <p class="report-card__meta-item">
-                <strong>Date:</strong> 28 March, 2026
-              </p>
-              <p class="report-card__meta-item">
-                <strong>Organizer:</strong> Smith Joy
-              </p>
-            </div>
+  <main class="dashboard-content">
 
-            <ul class="stat-list" role="list">
-              <li class="stat-item">
-                <div class="stat-item__left">
-                  <span
-                    class="stat-item__icon stat-item__icon--attendees"
-                    aria-hidden="true"
-                  >
-                    <svg viewBox="0 0 24 24" fill="#fff">
-                      <path
-                        d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
-                      />
-                    </svg>
-                  </span>
-                  <span class="stat-item__label">Total Attendees</span>
-                </div>
-                <span class="stat-item__value">312</span>
-              </li>
-
-              <li class="stat-item">
-                <div class="stat-item__left">
-                  <span
-                    class="stat-item__icon stat-item__icon--vip"
-                    aria-hidden="true"
-                  >
-                    <svg viewBox="0 0 24 24" fill="#fff">
-                      <path
-                        d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-                      />
-                    </svg>
-                  </span>
-                  <span class="stat-item__label">VIP Tickets</span>
-                </div>
-                <span class="stat-item__value">150</span>
-              </li>
-
-              <li class="stat-item">
-                <div class="stat-item__left">
-                  <span
-                    class="stat-item__icon stat-item__icon--regular"
-                    aria-hidden="true"
-                  >
-                    <svg viewBox="0 0 24 24" fill="#fff">
-                      <path
-                        d="M20 12c0-1.1.9-2 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v4c1.1 0 2 .9 2 2s-.9 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2zm-5.5 4.5l-2.5-1.5-2.5 1.5.7-2.8-2.2-1.9 2.9-.3 1.1-2.7 1.1 2.7 2.9.3-2.2 1.9.7 2.8z"
-                      />
-                    </svg>
-                  </span>
-                  <span class="stat-item__label">Regular</span>
-                </div>
-                <span class="stat-item__value">162</span>
-              </li>
-
-              <li class="stat-item">
-                <div class="stat-item__left">
-                  <span
-                    class="stat-item__icon stat-item__icon--checkin"
-                    aria-hidden="true"
-                  >
-                    <svg viewBox="0 0 24 24" fill="#fff">
-                      <path
-                        d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"
-                      />
-                    </svg>
-                  </span>
-                  <span class="stat-item__label">Checked-In</span>
-                </div>
-                <span class="stat-item__value">200</span>
-              </li>
-
-              <li class="stat-item">
-                <div class="stat-item__left">
-                  <span
-                    class="stat-item__icon stat-item__icon--pending"
-                    aria-hidden="true"
-                  >
-                    <svg viewBox="0 0 24 24" fill="#fff">
-                      <path
-                        d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm.5 5v5.25l4.5 2.67-.75 1.23L11 13V7h1.5z"
-                      />
-                    </svg>
-                  </span>
-                  <span class="stat-item__label">Pending</span>
-                </div>
-                <span class="stat-item__value">112</span>
-              </li>
-            </ul>
-
-            <div class="report-card__actions">
-              <button class="btn btn--primary" type="button" id="btn-pdf">
-                <svg viewBox="0 0 24 24" fill="#fff">
-                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
-                </svg>
-                Download PDF Report
-              </button>
-
-              <button class="btn btn--outline" type="button" id="btn-csv">
-                <svg viewBox="0 0 24 24">
-                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
-                </svg>
-                Export CSV
-              </button>
-            </div>
-          </section>
-        </main>
-      </div>
+    <!-- Page heading -->
+    <div class="page-heading">
+      <h1 class="page-title">Reports</h1>
+      <p class="page-breadcrumb">
+        <span class="breadcrumb-parent">Admin</span>
+        <span class="breadcrumb-sep"> / </span>
+        <a href="../pages/admin-report.html" class="breadcrumb-current">Reports</a>
+      </p>
     </div>
-    <div class="toast" id="toast" role="alert" aria-live="polite"></div>
-    <script src="../js/services/auth-service.js"></script>
-    <script src="../js/utils/load-components.js"></script>
-    <script src="../js/admin-report.js"></script>
+
+    <!-- Report card -->
+    <section class="report-card" aria-labelledby="report-title">
+
+      <h2 class="report-card__title" id="report-title">Summary Report</h2>
+
+      <!-- Event meta — populated by JS -->
+      <div class="report-card__meta">
+        <p class="report-card__meta-item">
+          <strong>Event:</strong>
+          <span id="metaEvent">—</span>
+        </p>
+        <p class="report-card__meta-item">
+          <strong>Date:</strong>
+          <span id="metaDate">—</span>
+        </p>
+        <p class="report-card__meta-item">
+          <strong>Organizer:</strong>
+          <span id="metaOrganizer">—</span>
+        </p>
+      </div>
+
+      <!-- Stat list — populated by JS -->
+      <ul class="stat-list" id="statList" role="list">
+        <!-- skeleton placeholders -->
+        <li class="stat-item skeleton-row" aria-hidden="true"></li>
+        <li class="stat-item skeleton-row" aria-hidden="true"></li>
+        <li class="stat-item skeleton-row" aria-hidden="true"></li>
+        <li class="stat-item skeleton-row" aria-hidden="true"></li>
+        <li class="stat-item skeleton-row" aria-hidden="true"></li>
+      </ul>
+
+      <!-- Attendance timeline chart -->
+      <div class="chart-section">
+        <h3 class="chart-title">Attendees Timeline Chart</h3>
+        <div class="chart-wrap">
+          <canvas id="attendanceChart"
+            aria-label="Attendees timeline chart"
+            role="img"></canvas>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="report-card__actions">
+        <button class="btn btn--primary" type="button" id="btn-pdf">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          Download PDF Report
+        </button>
+        <button class="btn btn--outline" type="button" id="btn-csv">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          Export CSV
+        </button>
+      </div>
+
+    </section>
+  </main>
+</div>
+<script src="../js/services/auth-service.js"></script> <script src="../js/utils/load-components.js"></script> <script src="../js/admin-report.js"></script>
+
   </body>
 </html>
