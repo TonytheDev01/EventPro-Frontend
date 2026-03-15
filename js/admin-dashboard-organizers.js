@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // 1. Redirect if not logged in 
     requireAuth(); 
 // 2. Load sidebar + topbar — ALWAYS before anything else 
-    await loadDashboardComponents('YOUR_PAGE_KEY'); 
+    await loadDashboardComponents('organizers'); 
 
 // 3. Page Logic
     //  CONFIG
