@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendees Ticket Details | EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../styles/dashboard-layout.css" />
+  <link rel="stylesheet" href="../styles/ticket-details.css" />
+  <!-- QRCode.js — synchronous so it's ready when JS runs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+  <div class="dashboard-shell">
+
+    <div id="sidebarSlot"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="dashboard-main">
+
+      <div id="topbarSlot"></div>
+
+      <main class="dashboard-content">
+
+        <!-- ══ HEADER — 1036×99 | gap 8px ═════════ -->
+        <div class="td-header">
+          <div class="td-header__left">
+            <h1 class="td-header__title">Attendees Ticket Details</h1>
+            <p class="td-header__context" id="eventContext">—</p>
+            <p class="td-header__sub">View ticket information and check-in status.</p>
+          </div>
+          <button type="button" class="btn-back" id="backBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24"
+              fill="none" aria-hidden="true">
+              <path d="M19 12H5M5 12l7 7M5 12l7-7"
+                stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back
+          </button>
+        </div>
+
+        <!-- ── Loading state ──────────────────────── -->
+        <div class="td-loading" id="pageLoading">
+          <div class="spinner" role="status" aria-label="Loading ticket"></div>
+        </div>
+
+        <!-- ── Error state ────────────────────────── -->
+        <div class="td-error" id="pageError" hidden>
+          <p id="pageErrorMsg">No ticket data found.</p>
+          <a href="../pages/attendees.html"
+            class="btn-primary" style="margin-top:1rem;display:inline-block">
+            Back to Attendees
+          </a>
+        </div>
+
+        <!-- ══ CARDS WRAPPER — 1036×613 | gap 20px ═ -->
+        <div class="td-grid" id="detailGrid" hidden>
+
+          <!-- ── LEFT: two stacked cards — 514×610 | gap 20px ── -->
+          <div class="td-left">
+
+            <!-- Card 1: Attendee Information — 514×295 | r16 | p20 -->
+            <div class="td-card">
+              <h2 class="td-card__title">Attendee Information</h2>
+              <div class="td-divider"></div>
+              <dl class="td-info-list">
+                <div class="td-info-row">
+                  <dt>Name:</dt>
+                  <dd id="infoName">—</dd>
+                </div>
+                <div class="td-info-row">
+                  <dt>Phone number:</dt>
+                  <dd id="infoPhone">—</dd>
+                </div>
+                <div class="td-info-row">
+                  <dt>Email:</dt>
+                  <dd id="infoEmail">—</dd>
+                </div>
+              </dl>
+            </div>
+
+            <!-- Card 2: Ticket Information — 514×295 | r16 | p20 -->
+            <div class="td-card">
+              <h2 class="td-card__title">Ticket Information</h2>
+              <div class="td-divider"></div>
+              <dl class="td-info-list">
+                <div class="td-info-row">
+                  <dt>Event:</dt>
+                  <dd id="ticketEvent">—</dd>
+                </div>
+                <div class="td-info-row">
+                  <dt>Ticket Type:</dt>
+                  <dd id="ticketType">—</dd>
+                </div>
+                <div class="td-info-row">
+                  <dt>Ticket ID:</dt>
+                  <dd id="ticketId">—</dd>
+                </div>
+                <div class="td-info-row">
+                  <dt>Purchase Date:</dt>
+                  <dd id="ticketPurchaseDate">—</dd>
+                </div>
+                <div class="td-info-row">
+                  <dt>Status:</dt>
+                  <dd id="ticketStatus">—</dd>
+                </div>
+              </dl>
+            </div>
+
+          </div><!-- /.td-left -->
+
+          <!-- ── RIGHT: ONE card — 501×613 | r16 ────── -->
+          <div class="td-right">
+
+            <!-- Section 1: QR — 501×340 | p8 | border-bottom -->
+            <div class="td-qr-section">
+              <h2 class="td-card__title">QR Scan</h2>
+              <div class="td-qr-body">
+                <div class="td-qr-canvas-wrap">
+                  <div id="qrCanvas"></div>
+                </div>
+                <div class="td-qr-ref-row">
+                  <span class="td-qr-ref-label">Ticket Ref:</span>
+                  <span class="td-qr-ref-value" id="qrRefValue">—</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 2: Actions — 501×273 | p38 top/bottom 28 left/right -->
+            <div class="td-action-section">
+
+              <!-- Row: Download + Send SMS -->
+              <div class="td-action-row">
+                <button type="button" class="btn-outline" id="downloadBtn">
+                  <svg width="15" height="15" viewBox="0 0 24 24"
+                    fill="none" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <polyline points="7 10 12 15 17 10"
+                      stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="12" y1="15" x2="12" y2="3"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  Download Ticket
+                </button>
+
+                <button type="button" class="btn-primary-action" id="smsBtn">
+                  <svg width="15" height="15" viewBox="0 0 24 24"
+                    fill="none" aria-hidden="true">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
+                      stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Send SMS
+                </button>
+              </div>
+
+              <!-- Edit Attendee -->
+              <button type="button" class="btn-outline btn-block" id="editBtn">
+                <svg width="15" height="15" viewBox="0 0 24 24"
+                  fill="none" aria-hidden="true">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Edit Attendee
+              </button>
+
+              <!-- Mark as Checked-In -->
+              <button type="button" class="btn-checkin btn-block" id="checkinBtn">
+                <svg width="15" height="15" viewBox="0 0 24 24"
+                  fill="none" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"
+                    stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span id="checkinBtnLabel">Mark as Checked-In</span>
+              </button>
+
+            </div><!-- /.td-action-section -->
+
+          </div><!-- /.td-right -->
+
+        </div><!-- /.td-grid -->
+
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/utils/load-components.js"></script>
+  <script src="../js/ticket-details.js"></script>
+
+</body>
+</html>
