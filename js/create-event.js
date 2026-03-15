@@ -5,11 +5,10 @@
 //
 //  POST /events — create a new event
 //
-//  NOTE: firstName, lastName, emailAddress fields
-//  are present in the form but are NOT sent to the
-//  backend — the user is already authenticated.
-//  They are pre-filled from getStoredUser() and
-//  remain read-only display fields only.
+//  NOTE: firstName, lastName, emailAddress are
+//  pre-filled read-only from getStoredUser().
+//  They are NOT sent to the backend — user is
+//  already authenticated via JWT.
 // ================================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,37 +16,29 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Auth guard ────────────────────────────────
   requireAuth();
 
-  // ── Pre-fill name + email from stored user ────
+  // ── Pre-fill user fields ──────────────────────
   const user = getStoredUser();
 
   if (user) {
     const firstNameEl = document.getElementById('firstName');
     const lastNameEl  = document.getElementById('lastName');
     const emailEl     = document.getElementById('emailAddress');
+    const navAvatar   = document.getElementById('navAvatar');
 
-    if (firstNameEl) {
-      firstNameEl.value    = user.firstName || '';
-      firstNameEl.readOnly = true;
-    }
-    if (lastNameEl) {
-      lastNameEl.value    = user.lastName || '';
-      lastNameEl.readOnly = true;
-    }
-    if (emailEl) {
-      emailEl.value    = user.email || '';
-      emailEl.readOnly = true;
-    }
+    if (firstNameEl) { firstNameEl.value = user.firstName || ''; }
+    if (lastNameEl)  { lastNameEl.value  = user.lastName  || ''; }
+    if (emailEl)     { emailEl.value     = user.email     || ''; }
 
-    // ── Avatar initials ──────────────────────
-    const navAvatar = document.getElementById('navAvatar');
     if (navAvatar) {
-      const initials =
-        `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase();
+      const initials = [
+        user.firstName?.charAt(0) || '',
+        user.lastName?.charAt(0)  || '',
+      ].join('').toUpperCase() || '?';
       navAvatar.textContent = initials;
     }
   }
 
-  // ── Elements ──────────────────────────────────
+  // ── Element refs ──────────────────────────────
   const backBtn      = document.getElementById('backBtn');
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const navDrawer    = document.getElementById('navDrawer');
@@ -58,125 +49,136 @@ document.addEventListener('DOMContentLoaded', () => {
   const formError    = document.getElementById('formError');
 
   // ── Back button ───────────────────────────────
-  backBtn.addEventListener('click', () => window.history.back());
+  backBtn?.addEventListener('click', () => window.history.back());
 
-  // ── Hamburger (mobile only) ───────────────────
-  hamburgerBtn.addEventListener('click', () => {
+  // ── Hamburger toggle ──────────────────────────
+  hamburgerBtn?.addEventListener('click', () => {
     const isOpen = navDrawer.classList.toggle('open');
     navDrawer.setAttribute('aria-hidden', String(!isOpen));
   });
 
-  // ── Banner file upload ────────────────────────
-  uploadWrap.addEventListener('click', () => bannerInput.click());
+  // ── Banner upload ─────────────────────────────
+  uploadWrap?.addEventListener('click', () => bannerInput?.click());
 
-  uploadWrap.addEventListener('keydown', (e) => {
+  uploadWrap?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      bannerInput.click();
+      bannerInput?.click();
     }
   });
 
-  bannerInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) uploadLabel.textContent = file.name;
+  bannerInput?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (file && uploadLabel) uploadLabel.textContent = file.name;
   });
 
   // ── Error helpers ─────────────────────────────
-  function showFieldError(errorId, message) {
+  function _showFieldError(errorId, message) {
     const el = document.getElementById(errorId);
     if (!el) return;
     el.textContent = message;
     el.classList.add('show');
-    const sibling = el.parentElement.querySelector('input, select, textarea');
-    if (sibling) sibling.style.borderColor = 'var(--color-error)';
+    const input = el.closest('.input-block')
+      ?.querySelector('input, select, textarea');
+    if (input) input.style.borderColor = 'var(--color-error)';
   }
 
-  function clearFieldError(errorId) {
+  function _clearFieldError(errorId) {
     const el = document.getElementById(errorId);
     if (!el) return;
     el.textContent = '';
     el.classList.remove('show');
-    const sibling = el.parentElement.querySelector('input, select, textarea');
-    if (sibling) sibling.style.borderColor = '';
+    const input = el.closest('.input-block')
+      ?.querySelector('input, select, textarea');
+    if (input) input.style.borderColor = '';
   }
 
-  function clearAllErrors() {
+  function _clearAllErrors() {
     [
       'firstNameError', 'lastNameError', 'emailAddressError',
       'eventNameError', 'eventDateError', 'eventTimeError',
       'eventLocationError', 'streetAddressError', 'cityError',
       'countryStateError', 'eventRegionError', 'eventCategoryError',
       'bannerError', 'eventDescriptionError',
-    ].forEach(clearFieldError);
+    ].forEach(_clearFieldError);
 
-    formError.textContent = '';
-    formError.classList.remove('show');
+    if (formError) {
+      formError.textContent = '';
+      formError.classList.remove('show');
+    }
   }
 
-  function showGlobalError(message) {
-    formError.textContent = `*Error: ${message}`;
+  function _showGlobalError(message) {
+    if (!formError) return;
+    formError.textContent = message;
     formError.classList.add('show');
+    formError.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  function setLoading(loading) {
+  function _setLoading(loading) {
+    if (!submitBtn) return;
     submitBtn.disabled    = loading;
     submitBtn.textContent = loading ? 'Creating Event...' : 'Create Event';
   }
 
   // ── Validation ────────────────────────────────
-  function validate() {
+  function _validate() {
     let valid = true;
-    clearAllErrors();
+    _clearAllErrors();
 
     const required = [
-      { id: 'eventName',     errId: 'eventNameError',     msg: 'Event name is required.'           },
-      { id: 'eventDate',     errId: 'eventDateError',     msg: 'Event date is required.'           },
-      { id: 'eventTime',     errId: 'eventTimeError',     msg: 'Event time is required.'           },
-      { id: 'eventLocation', errId: 'eventLocationError', msg: 'Event location is required.'       },
-      { id: 'streetAddress', errId: 'streetAddressError', msg: 'Street address is required.'       },
-      { id: 'city',          errId: 'cityError',          msg: 'City is required.'                 },
-      { id: 'countryState',  errId: 'countryStateError',  msg: 'Country / State is required.'      },
-      { id: 'eventRegion',   errId: 'eventRegionError',   msg: 'Please select an event region.'    },
-      { id: 'eventCategory', errId: 'eventCategoryError', msg: 'Please select an event category.'  },
+      { id: 'eventName',     errId: 'eventNameError',     msg: 'Event name is required.'          },
+      { id: 'eventDate',     errId: 'eventDateError',     msg: 'Event date is required.'          },
+      { id: 'eventTime',     errId: 'eventTimeError',     msg: 'Event time is required.'          },
+      { id: 'eventLocation', errId: 'eventLocationError', msg: 'Event location is required.'      },
+      { id: 'streetAddress', errId: 'streetAddressError', msg: 'Street address is required.'      },
+      { id: 'city',          errId: 'cityError',          msg: 'City is required.'                },
+      { id: 'countryState',  errId: 'countryStateError',  msg: 'Country / State is required.'     },
+      { id: 'eventRegion',   errId: 'eventRegionError',   msg: 'Please select an event region.'   },
+      { id: 'eventCategory', errId: 'eventCategoryError', msg: 'Please select an event category.' },
     ];
 
     required.forEach(({ id, errId, msg }) => {
-      const value = document.getElementById(id)?.value?.trim();
-      if (!value) {
-        showFieldError(errId, msg);
+      const val = document.getElementById(id)?.value?.trim();
+      if (!val) {
+        _showFieldError(errId, msg);
         valid = false;
       }
     });
 
     if (!valid) {
-      showGlobalError('Please fill all columns');
+      _showGlobalError('Please fill in all required fields.');
     }
 
     return valid;
   }
 
-  // ── Submit
-  submitBtn.addEventListener('click', async () => {
-    if (!validate()) return;
+  // ── Submit ────────────────────────────────────
+  submitBtn?.addEventListener('click', async () => {
+    if (!_validate()) return;
 
+    // Build payload — only send event fields, NOT user info
     const payload = {
-  title:             document.getElementById('eventName').value.trim(),
-  description:       document.getElementById('eventDescription').value.trim(),
-  date:              document.getElementById('eventDate').value,
-  location:          document.getElementById('eventLocation').value.trim(),
-  expectedAttendees: 0,
-  status:            'draft',
-};
+      title:         document.getElementById('eventName')?.value.trim(),
+      description:   document.getElementById('eventDescription')?.value.trim(),
+      date:          document.getElementById('eventDate')?.value,
+      time:          document.getElementById('eventTime')?.value,
+      location:      document.getElementById('eventLocation')?.value.trim(),
+      streetAddress: document.getElementById('streetAddress')?.value.trim(),
+      city:          document.getElementById('city')?.value.trim(),
+      countryState:  document.getElementById('countryState')?.value.trim(),
+      region:        document.getElementById('eventRegion')?.value,
+      category:      document.getElementById('eventCategory')?.value,
+      status:        'draft',
+    };
 
-    setLoading(true);
-
-    let result;
+    _setLoading(true);
 
     try {
       const response = await fetch(
         'https://eventpro-fxfv.onrender.com/api/events',
         {
-          method: 'POST',
+          method:  'POST',
           headers: {
             'Content-Type':  'application/json',
             'Authorization': `Bearer ${getStoredToken()}`,
@@ -188,57 +190,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        showError(
-          data.message || "*Error: Could not create event. Please try again.*"
-        );
-        submitBtn.textContent = "Create Event";
-        submitBtn.disabled = false;
-        return;
-      }
-
-      // Store created event for next screen
-      localStorage.setItem("eventpro_created_event", JSON.stringify(data));
-
-      // Redirect to organizer dashboard
-      window.location.href = "../pages/organizer-dashboard.html";
-    } catch (err) {
-      showError(
-        "*Network error — please check your connection and try again.*"
-      );
-      submitBtn.textContent = "Create Event";
-      submitBtn.disabled = false;
-    }
-  });
-});
       if (response.ok) {
-        result = { success: true, data };
+        // Store created event for reference on next screen
+        localStorage.setItem('eventpro_created_event', JSON.stringify(data));
+
+        // Redirect by role
+        const currentUser = getStoredUser();
+        window.location.href = currentUser?.role === 'admin'
+          ? '../pages/admin-dashboard.html'
+          : '../pages/attendees.html';
+
       } else {
-        result = {
-          success: false,
-          message: data.message || 'Failed to create event. Please try again.',
-        };
+        _showGlobalError(
+          data.message || 'Failed to create event. Please try again.'
+        );
+        _setLoading(false);
       }
+
     } catch (err) {
-      result = {
-        success: false,
-        message:
-          err.name === 'TimeoutError'
-            ? 'Request timed out. The server may be starting up — please try again.'
-            : 'Network error. Please check your connection and try again.',
-      };
-    }
-
-    setLoading(false);
-
-    if (result.success) {
-      localStorage.setItem(
-        'eventpro_created_event',
-        JSON.stringify(result.data)
+      _showGlobalError(
+        err.name === 'TimeoutError'
+          ? 'Request timed out. The server may be starting up — please try again.'
+          : 'Network error. Please check your connection and try again.'
       );
-      window.location.href = '../pages/organizer-dashboard.html';
-    } else {
-      showGlobalError(result.message);
+      _setLoading(false);
     }
   });
 
