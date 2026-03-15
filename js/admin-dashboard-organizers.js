@@ -1,3 +1,10 @@
+document.addEventListener('DOMContentLoaded', async () => { 
+// 1. Redirect if not logged in 
+    requireAuth(); 
+// 2. Load sidebar + topbar — ALWAYS before anything else 
+    await loadDashboardComponents('YOUR_PAGE_KEY'); 
+
+// 3. Page Logic
     //  CONFIG
     const API_BASE = window.APP_CONFIG?.apiBase ?? '/api';
 
@@ -182,3 +189,6 @@
       d.textContent = str;
       return d.innerHTML;
     }}
+
+});    
+    

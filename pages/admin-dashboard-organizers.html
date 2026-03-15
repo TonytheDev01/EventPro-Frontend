@@ -4,14 +4,31 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Organizer Profile Review - EventPro</title>
+    <link rel="stylesheet" href="../styles/dashboard-layout.css">
     <link rel="stylesheet" href="../styles/admin-dashboard-organizers.css">
 </head>
 <body>
 
-  <main id="app">
+  <div class="dashboard-shell">
+    <div id="sidebarSlot"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="dashboard-main">
+
+      <div id="topbarSlot"></div>
+
+      <main class="dashboard-content">
+
+        <div class="page-heading">
+          <h1 class="page-title">Organizer Management</h1>
+          <p class="page">
+
+          </p>
+        </div>
+
+        <div id="app">
 
   <header class="page-header">
-      <h1>Organizer Management</h1>
       <nav class="breadcrumb" aria-label="Breadcrumb">
         <a href="#">Admin</a>
         <span>›</span>
@@ -109,10 +126,16 @@
       </article>
 
     </div>
-  </main>
+  </div>
 
   <div id="toast" role="alert" aria-live="assertive"></div>
+      </main>
+    </div>
+  </div>
 
+  
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/utils/load-components.js"></script>
   <script src="../js/admin-dashboard-organizers.js"></script>
 </body>
 </html>
