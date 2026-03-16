@@ -82,7 +82,7 @@ const _SIDEBAR_HTML = `
       <span>Attendees</span>
     </a>
 
-    <a href="../pages/admin-reports.html" class="sidebar-link" data-page="reports">
+    <a href="../pages/admin-report.html" class="sidebar-link" data-page="reports">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
         <path d="M8 17V13M12 17V9M16 17V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -218,7 +218,7 @@ function _setReportsLink(slot, user) {
   if (!link) return;
   link.href = user?.role === 'organizer'
     ? '../pages/organizer-reports.html'
-    : '../pages/admin-reports.html';
+    : '../pages/admin-report.html';
 }
 
 // ── Mobile sidebar toggle ─────────────────────────
