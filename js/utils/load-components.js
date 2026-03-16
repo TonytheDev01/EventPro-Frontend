@@ -4,9 +4,27 @@
 //
 //  Sidebar + topbar HTML are embedded directly
 //  as JS strings — no fetch, no file, no cache.
+//
+//  HOW TO USE:
+//  1. HTML slots needed:
+//       <div id="sidebarSlot"></div>
+//       <div class="sidebar-overlay" id="sidebarOverlay"></div>
+//       <div id="topbarSlot"></div>  ← inside .dashboard-main
+//
+//  2. Script load order (bottom of body):
+//       <script src="../js/services/auth-service.js"></script>
+//       <script src="../js/utils/load-components.js"></script>
+//       <script src="../js/your-page.js"></script>
+//
+//  3. First line of your page JS:
+//       await loadDashboardComponents('KEY');
+//
+//  PAGE KEYS:
+//  'dashboard' | 'events' | 'checkin' |
+//  'organizers' | 'attendees' | 'reports' | 'settings'
 // ================================================
 
-//  Sidebar HTML 
+// ── Sidebar HTML ──────────────────────────────────
 const _SIDEBAR_HTML = `
 <aside class="sidebar" id="sidebar">
 
@@ -99,7 +117,7 @@ const _SIDEBAR_HTML = `
 
 </aside>`;
 
-//  Topbar HTML 
+// ── Topbar HTML ───────────────────────────────────
 const _TOPBAR_HTML = `
 <header class="topbar" id="topbar">
   <button type="button" class="topbar-hamburger" id="hamburgerBtn" aria-label="Open menu">
@@ -130,13 +148,15 @@ const _TOPBAR_HTML = `
   </div>
 </header>`;
 
+// ════════════════════════════════════════════════
 //  PUBLIC — call this from every dashboard page
+// ════════════════════════════════════════════════
 async function loadDashboardComponents(activePage) {
   _loadSidebar(activePage);
   _loadTopbar();
 }
 
-//  Sidebar 
+// ── Sidebar ───────────────────────────────────────
 function _loadSidebar(activePage) {
   const slot = document.getElementById('sidebarSlot');
   if (!slot) return;
@@ -162,7 +182,7 @@ function _loadSidebar(activePage) {
   _wireSidebarToggle();
 }
 
-//  Topbar 
+// ── Topbar ────────────────────────────────────────
 function _loadTopbar() {
   const slot = document.getElementById('topbarSlot');
   if (!slot) return;
@@ -192,7 +212,7 @@ function _loadTopbar() {
   _wireSidebarToggle();
 }
 
-//  Reports link per role 
+// ── Reports link per role ─────────────────────────
 function _setReportsLink(slot, user) {
   const link = slot.querySelector('[data-page="reports"]');
   if (!link) return;
@@ -201,7 +221,7 @@ function _setReportsLink(slot, user) {
     : '../pages/admin-reports.html';
 }
 
-//  Mobile sidebar toggle 
+// ── Mobile sidebar toggle ─────────────────────────
 function _wireSidebarToggle() {
   const sidebar   = document.getElementById('sidebar');
   const overlay   = document.getElementById('sidebarOverlay');
