@@ -4,44 +4,45 @@
 //  Depends on:
 //    js/services/auth-service.js
 //    js/utils/load-components.js
+//
+//  Endpoints used:
+//  GET /dashboard/stats
+//  GET /events?limit=6&sort=recent
+//  GET /admin/organizers?limit=5   ← now uses real endpoint
 // ================================================
 
 const API = 'https://eventpro-fxfv.onrender.com/api';
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-  //  Auth guard — redirect if not logged in 
   requireAuth();
 
-  // ── Role guard — admin only 
   const user = getStoredUser();
   if (user?.role !== 'admin') {
     window.location.href = '../pages/sign-in.html';
     return;
   }
 
-  // Load sidebar + topbar 
-  // Must come BEFORE any DOM queries for sidebar/topbar elements.
-  // load-components.js handles: injection, active link,
-  // role-admin class, topbar username, and mobile toggle wiring.
+  //  Load sidebar + topbar 
   await loadDashboardComponents('dashboard');
 
-  //  Fetch dashboard data in parallel 
-  const token = getStoredToken();
+  //  Fetch all data in parallel 
+  const token   = getStoredToken();
   const headers = {
     'Content-Type':  'application/json',
     'Authorization': `Bearer ${token}`,
   };
 
-  const [statsResult, eventsResult] = await Promise.allSettled([
-    apiFetch(`${API}/dashboard/stats`,          headers),
+  const [statsResult, eventsResult, organizersResult] = await Promise.allSettled([
+    apiFetch(`${API}/dashboard/stats`,            headers),
     apiFetch(`${API}/events?limit=6&sort=recent`, headers),
+    apiFetch(`${API}/admin/organizers?limit=5`,   headers), // ← real endpoint
   ]);
 
   //  Render all sections 
   renderStatCards(statsResult);
   renderRecentEvents(eventsResult);
-  renderTopOrganizers(eventsResult);
+  renderTopOrganizers(organizersResult);  // ← now uses organizers data
   renderAttendanceChart(statsResult);
 
 });
@@ -59,6 +60,8 @@ async function apiFetch(url, headers) {
 }
 
 //  STAT CARDS
+//  GET /dashboard/stats returns: { totalUsers, totalEvents }
+//  Gracefully handles missing fields with '--'
 
 function renderStatCards(result) {
   const container = document.getElementById('statCards');
@@ -71,7 +74,7 @@ function renderStatCards(result) {
   if (result.status === 'fulfilled') {
     const d     = result.value;
     totalEvents = (d.totalEvents   ?? d.total_events   ?? '--').toLocaleString();
-    totalAttend = (d.totalAttendees ?? d.total_attendees ?? '--').toLocaleString();
+    totalAttend = (d.totalAttendees ?? d.totalUsers     ?? '--').toLocaleString();
     const rev   = d.totalRevenue   ?? d.total_revenue   ?? null;
     totalRevenue = rev !== null ? `₦${Number(rev).toLocaleString()}` : 'N/A';
   }
@@ -156,7 +159,7 @@ function renderRecentEvents(result) {
     const status = ev.status ?? 'pending';
     return `
       <tr>
-        <td>${escHtml(ev.name ?? ev.title ?? 'Unnamed')}</td>
+        <td>${escHtml(ev.title ?? ev.name ?? 'Unnamed')}</td>
         <td>${date}</td>
         <td>${count}</td>
         <td>
@@ -169,6 +172,8 @@ function renderRecentEvents(result) {
 }
 
 //  TOP ORGANIZERS
+//  Now uses GET /admin/organizers — Swagger confirmed
+//  Response: { organizers: [...], pagination, summary }
 
 function renderTopOrganizers(result) {
   const container = document.getElementById('topOrganizersList');
@@ -179,26 +184,7 @@ function renderTopOrganizers(result) {
     return;
   }
 
-  const events = result.value?.events ?? result.value?.data ?? result.value ?? [];
-
-  // Deduplicate organizers derived from events
-  // (pending dedicated GET /admin/users endpoint from backend)
-  const seen = new Set();
-  const organizers = [];
-
-  events.forEach(ev => {
-    const id   = ev.organizerId    ?? ev.organizer?.id   ?? ev.organizer;
-    const name = ev.organizerName  ?? ev.organizer?.name ?? 'Unknown Organizer';
-    if (id && !seen.has(id)) {
-      seen.add(id);
-      organizers.push({
-        id,
-        name,
-        sub:    ev.organizer?.email  ?? '',
-        status: ev.organizer?.status ?? ev.status ?? 'active',
-      });
-    }
-  });
+  const organizers = result.value?.organizers ?? [];
 
   if (!organizers.length) {
     container.innerHTML = '<p class="empty-state">No organizers yet.</p>';
@@ -206,13 +192,14 @@ function renderTopOrganizers(result) {
   }
 
   container.innerHTML = organizers.slice(0, 5).map(org => {
-    const initials = org.name
-      .split(' ')
+    const name     = `${org.firstName ?? ''} ${org.lastName ?? ''}`.trim()
+      || 'Unknown Organizer';
+    const initials = name.split(' ')
       .map(w => w[0])
       .join('')
       .slice(0, 2)
       .toUpperCase();
-    const status = org.status ?? 'active';
+    const status   = org.isVerified ? 'verified' : 'pending';
 
     return `
       <div class="organizer-item"
@@ -222,11 +209,11 @@ function renderTopOrganizers(result) {
           window.location.href='../pages/organizer-management.html'">
         <div class="organizer-avatar">${initials}</div>
         <div class="organizer-info">
-          <p class="organizer-name">${escHtml(org.name)}</p>
-          <p class="organizer-sub">${escHtml(org.sub)}</p>
+          <p class="organizer-name">${escHtml(name)}</p>
+          <p class="organizer-sub">${escHtml(org.email ?? '')}</p>
         </div>
         <div class="organizer-right">
-          <span class="badge badge-${status.toLowerCase()}">
+          <span class="badge badge-${status}">
             ${capitalise(status)}
           </span>
           <svg class="organizer-chevron" width="16" height="16"
@@ -246,7 +233,7 @@ function renderAttendanceChart(result) {
   const canvas = document.getElementById('attendanceChart');
   if (!canvas || typeof Chart === 'undefined') return;
 
-  // Fallback shape data — replaced if backend provides chart object
+  // Fallback shape — replaced if backend provides chart data
   let labels     = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
   let registered = [800, 950, 1100, 1050, 1300, 1600, 2000, 2500];
   let checkedIn  = [600, 700,  850,  900, 1000, 1200, 1500, 1900];
@@ -338,9 +325,7 @@ function renderAttendanceChart(result) {
 function formatDate(raw) {
   try {
     return new Date(raw).toLocaleDateString('en-GB', {
-      day:   'numeric',
-      month: 'short',
-      year:  'numeric',
+      day: 'numeric', month: 'short', year: 'numeric',
     });
   } catch { return raw; }
 }
