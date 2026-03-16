@@ -19,9 +19,9 @@
     --success: #0B5B47;
     --danger: #EF4444;
     --input-border:#D1D5DB;
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
+    --radius-sm: 0.375rem;
+    --radius-md: 0.625rem;
+    --radius-lg: 0.875rem;
     --shadow-card: 0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
     --font: 'Poppins', 'Inter', sans-serif;
     }
