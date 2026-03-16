@@ -2,165 +2,187 @@
 //  EventPro — Verify Email
 //  js/verify-email.js
 //  Depends on: js/services/auth-service.js
+//
+//  The page always shows exactly the Figma design.
+//  All logic runs invisibly — feedback appears only
+//  in the button text and the hidden #veStatus line.
+//
+//  FLOW 1 — Token in URL (?token=abc123)
+//    User clicked the email link.
+//    → Calls POST /auth/verify-email { token }
+//    → Success → redirects to sign-in.html
+//    → Failure → shows error in #veStatus
+//      + button becomes "Resend Verification Mail"
 // ================================================
 
 const BASE_URL = 'https://eventpro-fxfv.onrender.com/api';
 
-// ── State elements ────────────────────────────────
-const stateVerifying = document.getElementById('stateVerifying');
-const stateSuccess   = document.getElementById('stateSuccess');
-const stateDefault   = document.getElementById('stateDefault');
-const stateError     = document.getElementById('stateError');
-const maskedEmailEl  = document.getElementById('maskedEmail');
-const resendBtn      = document.getElementById('resendBtn');
-const retryResendBtn = document.getElementById('retryResendBtn');
-const errorMsgEl     = document.getElementById('errorMsg');
-
-// ── Helpers ───────────────────────────────────────
-function showState(name) {
-  ['stateVerifying', 'stateSuccess', 'stateDefault', 'stateError']
-    .forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.hidden = id !== name;
-    });
-}
-
-function maskEmail(email) {
-  if (!email || !email.includes('@')) return 'your email';
-  const [local, domain] = email.split('@');
-  return local.charAt(0) + '***@' + domain;
-}
-
-// ── Read URL params ───────────────────────────────
+const resendBtn    = document.getElementById('resendBtn');
+const maskedEmailEl = document.getElementById('maskedEmail');
+const statusEl     = document.getElementById('veStatus');
+const pendingEmail = localStorage.getItem('eventpro_pending_email');
 const params       = new URLSearchParams(window.location.search);
 const tokenFromUrl = params.get('token');
-const pendingEmail = localStorage.getItem('eventpro_pending_email');
 
-// ════════════════════════════════════════════════
-//  FLOW 1 — Token in URL → verify automatically
-// ════════════════════════════════════════════════
+//  Show masked email 
+if (maskedEmailEl && pendingEmail) {
+  maskedEmailEl.textContent = _maskEmail(pendingEmail);
+}
+
+//  FLOW 1 — Token present → verify automatically
 if (tokenFromUrl) {
-  showState('stateVerifying');
+  // Button shows verifying state while request runs
+  if (resendBtn) {
+    resendBtn.textContent = 'Verifying…';
+    resendBtn.disabled    = true;
+  }
   _verifyToken(tokenFromUrl);
 }
 
-// ════════════════════════════════════════════════
-//  FLOW 2 — No token → show waiting state
-// ════════════════════════════════════════════════
+//  FLOW 2 — No token → wire resend button
 else {
-  showState('stateDefault');
-
-  // Show masked email
-  if (maskedEmailEl) {
-    maskedEmailEl.textContent = maskEmail(pendingEmail);
-  }
-
-  // Wire resend button
-  _wireResendBtn(resendBtn);
+  _wireResend();
 }
 
-// Wire retry resend button on error state
-_wireResendBtn(retryResendBtn);
-
-// ════════════════════════════════════════════════
 //  VERIFY TOKEN
-// ════════════════════════════════════════════════
 async function _verifyToken(token) {
   try {
-    const response = await fetch(`${BASE_URL}/auth/verify-email`, {
+    const res  = await fetch(`${BASE_URL}/auth/verify-email`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ token }),
       signal:  AbortSignal.timeout(15000),
     });
 
-    const data = await response.json();
+    const data = await res.json();
 
-    if (response.ok) {
-      // Clean up pending email
+    if (res.ok) {
       localStorage.removeItem('eventpro_pending_email');
-      showState('stateSuccess');
 
-      // Auto-redirect to sign-in after 3 seconds
+      // Show success inline then redirect
+      if (resendBtn) {
+        resendBtn.textContent = '✓ Verified! Redirecting…';
+        resendBtn.disabled    = true;
+      }
+      _showStatus('Email verified successfully!', 'success');
+
       setTimeout(() => {
         window.location.href = '../pages/sign-in.html';
-      }, 3000);
+      }, 2000);
 
     } else {
-      if (errorMsgEl) {
-        errorMsgEl.textContent =
-          data.message || 'The verification link is invalid or has expired.';
+      // Token failed — show error, re-enable resend
+      _showStatus(
+        data.message || 'Link is invalid or expired. Request a new one.',
+        'error'
+      );
+      if (resendBtn) {
+        resendBtn.textContent = 'Resend Verification Mail';
+        resendBtn.disabled    = false;
       }
-      showState('stateError');
+      _wireResend();
     }
 
   } catch (err) {
-    if (errorMsgEl) {
-      errorMsgEl.textContent = err.name === 'TimeoutError'
+    _showStatus(
+      err.name === 'TimeoutError'
         ? 'Request timed out. Please try again.'
-        : 'Network error. Please check your connection and try again.';
+        : 'Network error. Please check your connection.',
+      'error'
+    );
+    if (resendBtn) {
+      resendBtn.textContent = 'Resend Verification Mail';
+      resendBtn.disabled    = false;
     }
-    showState('stateError');
+    _wireResend();
   }
 }
 
-// ════════════════════════════════════════════════
-//  RESEND VERIFICATION EMAIL
-// ════════════════════════════════════════════════
-function _wireResendBtn(btn) {
-  if (!btn) return;
+//  RESEND
+function _wireResend() {
+  if (!resendBtn) return;
+  // Guard against wiring twice
+  if (resendBtn._wired) return;
+  resendBtn._wired = true;
 
-  let cooldownTimer = null;
+  let cooldown = null;
 
-  btn.addEventListener('click', async () => {
+  resendBtn.addEventListener('click', async () => {
+    const email = pendingEmail
+      || prompt('Enter the email address you signed up with:')?.trim();
+
+    if (!email) return;
 
     if (!pendingEmail) {
-      btn.textContent = 'No email found — please sign up again';
-      return;
+      localStorage.setItem('eventpro_pending_email', email);
     }
 
-    // Loading state
-    btn.textContent = 'Sending…';
-    btn.disabled    = true;
+    resendBtn.textContent = 'Sending…';
+    resendBtn.disabled    = true;
+    _clearStatus();
 
     try {
-      const response = await fetch(
-        `${BASE_URL}/auth/resend-verification`,
-        {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ email: pendingEmail }),
-          signal:  AbortSignal.timeout(15000),
-        }
-      );
+      const res  = await fetch(`${BASE_URL}/auth/resend-verification`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email }),
+        signal:  AbortSignal.timeout(15000),
+      });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
-        btn.textContent = data.message || 'Failed — please try again';
-        btn.disabled    = false;
+      if (!res.ok) {
+        _showStatus(data.message || 'Failed. Please try again.', 'error');
+        resendBtn.textContent = 'Resend Verification Mail';
+        resendBtn.disabled    = false;
         return;
       }
 
       // Success — 30s cooldown
-      btn.textContent = '✓ Email sent!';
-      let seconds = 30;
+      _showStatus('Verification email sent!', 'success');
+      let s = 30;
+      resendBtn.textContent = `Resend in ${s}s`;
 
-      cooldownTimer = setInterval(() => {
-        seconds -= 1;
-        btn.textContent = `Resend in ${seconds}s`;
-        if (seconds <= 0) {
-          clearInterval(cooldownTimer);
-          btn.textContent = 'Resend Verification Mail';
-          btn.disabled    = false;
+      cooldown = setInterval(() => {
+        s -= 1;
+        resendBtn.textContent = `Resend in ${s}s`;
+        if (s <= 0) {
+          clearInterval(cooldown);
+          resendBtn.textContent = 'Resend Verification Mail';
+          resendBtn.disabled    = false;
+          _clearStatus();
         }
       }, 1000);
 
     } catch (err) {
-      btn.textContent = err.name === 'TimeoutError'
-        ? 'Timed out — try again'
-        : 'Network error — try again';
-      btn.disabled = false;
+      _showStatus(
+        err.name === 'TimeoutError'
+          ? 'Timed out. Please try again.'
+          : 'Network error. Please try again.',
+        'error'
+      );
+      resendBtn.textContent = 'Resend Verification Mail';
+      resendBtn.disabled    = false;
     }
   });
+}
+
+//  UTILITIES
+
+function _maskEmail(email) {
+  if (!email?.includes('@')) return 'your email';
+  const [local, domain] = email.split('@');
+  return `${local[0]}***@${domain}`;
+}
+
+function _showStatus(msg, type) {
+  if (!statusEl) return;
+  statusEl.textContent = msg;
+  statusEl.className   = `ve-status show show--${type}`;
+}
+
+function _clearStatus() {
+  if (!statusEl) return;
+  statusEl.textContent = '';
+  statusEl.className   = 've-status';
 }
