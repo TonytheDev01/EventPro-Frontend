@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Role guard — admin only 
   const user = getStoredUser();
   if (user?.role !== 'admin') {
-    window.location.href = '../pages/organizer-dashboard.html';
+    window.location.href = '../pages/sign-in.html';
     return;
   }
 
