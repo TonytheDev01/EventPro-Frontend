@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Preference | EventPro</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/global.css">
+    <link rel="stylesheet" href="../styles/role-selection.css">
+</head>
+<body>
+    <main class="role-container">
+        <header class="role-header">
+            <h1 class="role-title">Role Preference</h1>
+            <p class="role-subtitle">Select your preferred role to continue.</p>
+        </header>
+
+        <div class="role-card">
+            <div class="role-options">
+                
+                <label class="role-option role-option--selected" for="attendee">
+                    <input type="radio" name="role" id="attendee" checked hidden>
+                    <div class="role-option__icon"></div>
+                    <div class="role-option__info">
+                        <h3 class="role-option__name">An Attendee</h3>
+                        <p class="role-option__desc">Continue as an attendee</p>
+                    </div>
+                    <div class="role-option__check">
+                        <img src="../assets/icons/check-circle.svg" alt="selected">
+                    </div>
+                </label>
+
+                <label class="role-option" for="organiser">
+                    <input type="radio" name="role" id="organiser" hidden>
+                    <div class="role-option__icon"></div>
+                    <div class="role-option__info">
+                        <h3 class="role-option__name">An Organiser</h3>
+                        <p class="role-option__desc">Continue as an organiser</p>
+                    </div>
+                    <div class="role-option__check">
+                        <div class="role-option__circle"></div>
+                    </div>
+                </label>
+
+                <label class="role-option" for="vendor">
+                    <input type="radio" name="role" id="vendor" hidden>
+                    <div class="role-option__icon"></div>
+                    <div class="role-option__info">
+                        <h3 class="role-option__name">A Vendor</h3>
+                        <p class="role-option__desc">Continue as a vendor</p>
+                    </div>
+                    <div class="role-option__check">
+                        <div class="role-option__circle"></div>
+                    </div>
+                </label>
+
+            </div>
+
+            <button type="button" class="btn-continue" id="continueBtn">
+                Continue
+            </button>
+        </div>
+    </main>
+
+    <script src="../js/role-selection.js"></script>
+</body>
+</html>
