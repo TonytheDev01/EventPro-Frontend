@@ -12,11 +12,11 @@
 
 const BASE_URL = 'https://eventpro-fxfv.onrender.com/api';
 
-// ── Storage keys 
+//  Storage keys 
 const TOKEN_KEY = 'eventpro_token';
 const USER_KEY  = 'eventpro_user';
 
-// ── Internal helpers 
+//  Internal helpers 
 
 /**
  * Returns standard headers for all requests.
@@ -36,14 +36,13 @@ function buildHeaders(requiresAuth = false) {
  * Returns { success: true, data } or { success: false, message }.
  */
 async function request(endpoint, options = {}) {
-  // ── Abort after 15 seconds ─────────────────
   const controller = new AbortController();
   const timeoutId  = setTimeout(() => controller.abort(), 15000);
 
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       ...options,
-      signal: controller.signal
+      signal: controller.signal,
     });
 
     clearTimeout(timeoutId);
@@ -56,23 +55,22 @@ async function request(endpoint, options = {}) {
 
     return {
       success: false,
-      message: data.message || 'Something went wrong. Please try again.'
+      message: data.message || 'Something went wrong. Please try again.',
     };
 
   } catch (err) {
     clearTimeout(timeoutId);
 
-    // Distinguish timeout from network error
     if (err.name === 'AbortError') {
       return {
         success: false,
-        message: 'Request timed out. The server may be starting up — please try again in a moment.'
+        message: 'Request timed out. The server may be starting up — please try again in a moment.',
       };
     }
 
     return {
       success: false,
-      message: 'Network error. Please check your connection and try again.'
+      message: 'Network error. Please check your connection and try again.',
     };
   }
 }
@@ -82,13 +80,13 @@ async function request(endpoint, options = {}) {
 /**
  * POST /auth/signup
  * Register a new user.
- * @param {Object} payload - { firstName, lastName, email, password, phone? }
+ * @param {Object} payload - { firstName, lastName, email, password }
  */
 async function signupUser(payload) {
   return await request('/auth/signup', {
     method:  'POST',
     headers: buildHeaders(),
-    body:    JSON.stringify(payload)
+    body:    JSON.stringify(payload),
   });
 }
 
@@ -103,7 +101,7 @@ async function loginUser(email, password) {
   const result = await request('/auth/login', {
     method:  'POST',
     headers: buildHeaders(),
-    body:    JSON.stringify({ email, password })
+    body:    JSON.stringify({ email, password }),
   });
 
   if (result.success) {
@@ -116,28 +114,27 @@ async function loginUser(email, password) {
 
 /**
  * POST /auth/verify-email
- * Verify email address with the token sent to the user's inbox.
- * @param {string} token - verification token from email link
+ * Verify email address with token from email link.
+ * @param {string} token
  */
 async function verifyEmail(token) {
   return await request('/auth/verify-email', {
     method:  'POST',
     headers: buildHeaders(),
-    body:    JSON.stringify({ token })
+    body:    JSON.stringify({ token }),
   });
 }
 
 /**
  * POST /auth/resend-verification
  * Resend the verification email.
- * User is not authenticated at this point — email sent in body.
  * @param {string} email
  */
 async function resendVerification(email) {
   return await request('/auth/resend-verification', {
     method:  'POST',
     headers: buildHeaders(),
-    body:    JSON.stringify({ email })
+    body:    JSON.stringify({ email }),
   });
 }
 
@@ -150,27 +147,28 @@ async function forgotPassword(email) {
   return await request('/auth/forgot-password', {
     method:  'POST',
     headers: buildHeaders(),
-    body:    JSON.stringify({ email })
+    body:    JSON.stringify({ email }),
   });
 }
 
 /**
  * POST /auth/reset-password/{token}
- * Reset password using the token from the reset email link.
- * @param {string} token    - reset token from email link
- * @param {string} password - new password
+ * Reset password using token from reset email link.
+ * FIX: Swagger requires { newPassword } not { password }
+ * @param {string} token       - reset token from email link
+ * @param {string} newPassword - new password
  */
-async function resetPassword(token, password) {
+async function resetPassword(token, newPassword) {
   return await request(`/auth/reset-password/${token}`, {
     method:  'POST',
     headers: buildHeaders(),
-    body:    JSON.stringify({ password })
+    body:    JSON.stringify({ newPassword }),  
   });
 }
 
 /**
  * POST /auth/reset-password
- * Reset password for an already authenticated user.
+ * Reset password for an authenticated user.
  * @param {string} currentPassword
  * @param {string} newPassword
  */
@@ -178,18 +176,18 @@ async function resetPasswordAuthenticated(currentPassword, newPassword) {
   return await request('/auth/reset-password', {
     method:  'POST',
     headers: buildHeaders(true),
-    body:    JSON.stringify({ currentPassword, newPassword })
+    body:    JSON.stringify({ currentPassword, newPassword }),
   });
 }
 
 /**
  * GET /auth/profile
- * Fetch the current logged-in user's profile from the server.
+ * Fetch the current logged-in user's profile.
  */
 async function getUserProfile() {
   return await request('/auth/profile', {
     method:  'GET',
-    headers: buildHeaders(true)
+    headers: buildHeaders(true),
   });
 }
 
@@ -202,10 +200,10 @@ async function updateUserProfile(payload) {
   const result = await request('/auth/profile', {
     method:  'PUT',
     headers: buildHeaders(true),
-    body:    JSON.stringify(payload)
+    body:    JSON.stringify(payload),
   });
 
-  // Keep local storage in sync if update succeeds
+  // Keep localStorage in sync on success
   if (result.success && result.data.user) {
     storeUser(result.data.user);
   }
@@ -215,34 +213,18 @@ async function updateUserProfile(payload) {
 
 //  LOCAL STORAGE UTILITIES
 
-/**
- * Store JWT token in localStorage.
- * @param {string} token
- */
 function storeToken(token) {
   localStorage.setItem(TOKEN_KEY, token);
 }
 
-/**
- * Store user object in localStorage.
- * @param {Object} user
- */
 function storeUser(user) {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
-/**
- * Retrieve stored JWT token.
- * @returns {string|null}
- */
 function getStoredToken() {
   return localStorage.getItem(TOKEN_KEY);
 }
 
-/**
- * Retrieve stored user object.
- * @returns {Object|null}
- */
 function getStoredUser() {
   try {
     const user = localStorage.getItem(USER_KEY);
@@ -262,10 +244,6 @@ function logoutUser() {
   window.location.href = '../pages/sign-in.html';
 }
 
-/**
- * Check if a user is currently logged in.
- * @returns {boolean}
- */
 function isLoggedIn() {
   return !!getStoredToken() && !!getStoredUser();
 }

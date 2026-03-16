@@ -3,8 +3,6 @@
 //  js/create-event.js
 //  Depends on: js/services/auth-service.js
 //
-//  POST /events — create a new event
-//
 //  NOTE: firstName, lastName, emailAddress are
 //  pre-filled read-only from getStoredUser().
 //  They are NOT sent to the backend — user is
@@ -13,10 +11,10 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ── Auth guard ────────────────────────────────
+  // Auth guard 
   requireAuth();
 
-  // ── Pre-fill user fields ──────────────────────
+  //  Pre-fill user fields 
   const user = getStoredUser();
 
   if (user) {
@@ -38,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ── Element refs ──────────────────────────────
+  // Element refs 
   const backBtn      = document.getElementById('backBtn');
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const navDrawer    = document.getElementById('navDrawer');
@@ -48,16 +46,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const submitBtn    = document.getElementById('submitBtn');
   const formError    = document.getElementById('formError');
 
-  // ── Back button ───────────────────────────────
+  // Back button 
   backBtn?.addEventListener('click', () => window.history.back());
 
-  // ── Hamburger toggle ──────────────────────────
+  //  Hamburger toggle 
   hamburgerBtn?.addEventListener('click', () => {
     const isOpen = navDrawer.classList.toggle('open');
     navDrawer.setAttribute('aria-hidden', String(!isOpen));
   });
 
-  // ── Banner upload ─────────────────────────────
+  // Banner upload 
   uploadWrap?.addEventListener('click', () => bannerInput?.click());
 
   uploadWrap?.addEventListener('keydown', (e) => {
@@ -72,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (file && uploadLabel) uploadLabel.textContent = file.name;
   });
 
-  // ── Error helpers ─────────────────────────────
+  // Error helpers 
   function _showFieldError(errorId, message) {
     const el = document.getElementById(errorId);
     if (!el) return;
@@ -121,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.textContent = loading ? 'Creating Event...' : 'Create Event';
   }
 
-  // ── Validation ────────────────────────────────
+  //  Validation 
   function _validate() {
     let valid = true;
     _clearAllErrors();
@@ -153,30 +151,49 @@ document.addEventListener('DOMContentLoaded', () => {
     return valid;
   }
 
-  // ── Submit ────────────────────────────────────
+  // Submit 
   submitBtn?.addEventListener('click', async () => {
     if (!_validate()) return;
 
-    // Build payload — only send event fields, NOT user info
+    // ── Build ISO date from date + time inputs ──
+    // Swagger requires date as ISO 8601 string
+    const dateVal = document.getElementById('eventDate')?.value; // "2026-03-16"
+    const timeVal = document.getElementById('eventTime')?.value; // "14:30"
+    const isoDate = dateVal && timeVal
+      ? new Date(`${dateVal}T${timeVal}`).toISOString()
+      : dateVal
+        ? new Date(dateVal).toISOString()
+        : null;
+
+    // ── Swagger-confirmed payload only ──────────
+    // Extra fields (streetAddress, city, countryState,
+    // region, category) are NOT in the Swagger spec.
+    // Stored locally for display purposes only.
     const payload = {
-      title:         document.getElementById('eventName')?.value.trim(),
-      description:   document.getElementById('eventDescription')?.value.trim(),
-      date:          document.getElementById('eventDate')?.value,
-      time:          document.getElementById('eventTime')?.value,
-      location:      document.getElementById('eventLocation')?.value.trim(),
-      streetAddress: document.getElementById('streetAddress')?.value.trim(),
-      city:          document.getElementById('city')?.value.trim(),
-      countryState:  document.getElementById('countryState')?.value.trim(),
-      region:        document.getElementById('eventRegion')?.value,
-      category:      document.getElementById('eventCategory')?.value,
-      status:        'draft',
+      title:             document.getElementById('eventName')?.value.trim(),
+      description:       document.getElementById('eventDescription')?.value.trim(),
+      date:              isoDate,
+      location:          [
+                           document.getElementById('eventLocation')?.value.trim(),
+                           document.getElementById('streetAddress')?.value.trim(),
+                           document.getElementById('city')?.value.trim(),
+                           document.getElementById('countryState')?.value.trim(),
+                         ].filter(Boolean).join(', '),
+      expectedAttendees: 0,
+      status:            'draft',
+    };
+
+    // Save extra fields locally for UI display
+    const localMeta = {
+      region:   document.getElementById('eventRegion')?.value,
+      category: document.getElementById('eventCategory')?.value,
     };
 
     _setLoading(true);
 
     try {
       const response = await fetch(
-        'https://eventpro-fxfv.onrender.com/api/events',
+        `${BASE_URL}/events`,
         {
           method:  'POST',
           headers: {
@@ -191,8 +208,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Store created event for reference on next screen
-        localStorage.setItem('eventpro_created_event', JSON.stringify(data));
+        // Store created event + local meta for next screen
+        const eventData = data.event ?? data;
+        localStorage.setItem(
+          'eventpro_created_event',
+          JSON.stringify({ ...eventData, ...localMeta })
+        );
 
         // Redirect by role
         const currentUser = getStoredUser();
