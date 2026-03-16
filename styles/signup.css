@@ -26,12 +26,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 1rem;
+  padding: 1.5rem 1.5rem;
 }
 
 .page-wrapper {
   width: 100%;
-  max-width: 75rem;
+  max-width: 65rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -52,8 +52,10 @@ body {
 }
 
 .form-title {
-  font-size: clamp(1.5rem, 4vw, 1.75rem);
-  font-weight: 700;
+  display: flex;
+  justify-content: flex-start;
+  font-size: clamp(1.5rem, 2vw, 1.7rem);
+  font-weight: 600;
   color: var(--color-text-dark);
   font-family: 'Poppins', sans-serif;
   text-align: center;
@@ -62,7 +64,7 @@ body {
 .signup-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;              
+  gap: 1.2rem;              
 }
 
 .form-group {
@@ -72,21 +74,21 @@ body {
 }
 
 .form-group label {
-  font-size: 0.9375rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 400;
   color: var(--color-text-dark);
   font-family: 'Poppins', sans-serif;
 }
 
 .btn-primary {
   width: 100%;
-  height: 4rem;            
+  height: 3.5rem;            
   background-color: var(--color-primary);
   color: var(--color-white);
   border: none;
   border-radius: 11px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   font-family: 'Poppins', sans-serif;
   cursor: pointer;
   transition: background-color 0.2s ease-out,
@@ -104,11 +106,11 @@ body {
 
 .btn-primary:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: pointer;
 }
 
 .signin-text {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: var(--color-text-muted);
   text-align: center;
   font-family: 'Poppins', sans-serif;
@@ -116,7 +118,7 @@ body {
 
 .signin-link {
   color: var(--color-signin-link);
-  font-weight: 600;
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -127,7 +129,7 @@ body {
 /* ── Tablet (48rem = 768px) ──────────────────── */
 @media (min-width: 48rem) {
   body {
-    padding: 2rem 1.5rem;
+    padding: 2.5rem 2.5rem;
   }
 
   .page-wrapper {
@@ -139,7 +141,7 @@ body {
 
   .form-card {
     order: 1;
-    width: min(28.375rem, 50%);
+    width: min(28rem, 50%);
     flex-shrink: 0;
   }
 
@@ -165,7 +167,7 @@ body {
 /* ── Desktop (75rem = 1200px) ────────────────── */
 @media (min-width: 75rem) {
   body {
-    padding: 2rem;
+    padding: 4.5rem;
   }
 
   .page-wrapper {
@@ -177,14 +179,14 @@ body {
 
   .form-card {
     order: 1;
-    width: min(28.375rem, 45%);
+    width: min(28rem, 50%);
     flex-shrink: 0;
     height: auto;
   }
 
   .illustration-card {
     order: 2;
-    width: min(39.375rem, 50%);
+    width: min(38rem, 50%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -194,7 +196,7 @@ body {
 
   .illustration-card img {
     width: 100%;
-    height: 55.625rem;
+    height: 40rem;
     object-fit: contain;
   }
 }
