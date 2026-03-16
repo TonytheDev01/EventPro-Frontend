@@ -1,70 +1,107 @@
-/* ── Report card ─────────────────────────────── */
-.report-card {
-  background: var(--color-card-bg);
-  border-radius: 0.75rem;
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--color-border-light);
-  padding: 1.75rem 1.5rem;
+/* ================================================
+   EventPro — Admin Reports
+   styles/admin-report.css
+   Extends: styles/dashboard-layout.css
+
+   Figma specs (rem at 16px base):
+   Main:         1035×917  | gap 20px
+   Card 1:       1035×486  | radius 16px
+     Meta:       1035×166
+     Stat row:   1035×64   | p 8px 16px | border-bottom 1px
+   Card 2:       1035×411  | radius 16px
+     Chart:      1035×357  | p 32px 16px 16px 16px | border-bottom 1px
+     Actions:    1035×54   | p 4px 12px | space-between
+     PDF btn:    289×46    | gap 12px | p 8px 20px | radius 4px
+     CSV btn:    289×46    | gap 12px | p 8px 20px | radius 4px | border 1px
+   ================================================ */
+
+/* ══ MAIN WRAPPER — 1035×917 | gap 20px ═════════ */
+.rpt-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;        /* 20px */
   min-width: 0;
 }
 
-.report-card__title {
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
-  font-weight: 700;
+/* ══ SHARED CARD BASE ════════════════════════════ */
+.rpt-card {
+  background: var(--color-card-bg);
+  border-radius: 1rem;  /* 16px */
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ══ CARD 1 — 1035×486 ═══════════════════════════ */
+.rpt-card--top {
+  min-height: 30.375rem; /* 486px */
+}
+
+/* ── Meta section — 1035×166 ─────────────────── */
+.rpt-meta-section {
+  padding: 1.5rem 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border-light);
+  min-height: 10.375rem; /* 166px */
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Summary Report title — Poppins 500 24px lh 150% */
+.rpt-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: clamp(1.125rem, 2.5vw, 1.5rem); /* 24px */
+  line-height: 1.5;
+  letter-spacing: 0;
   color: var(--color-text-dark);
-  margin-bottom: 0.875rem;
 }
 
-/* ── Meta section ────────────────────────────── */
-.report-card__meta {
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 1rem;
-  margin-bottom: 0.5rem;
+.rpt-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.report-card__meta-item {
+.rpt-meta__item {
   font-size: 0.8125rem;
   color: var(--color-text-muted);
-  margin-bottom: 0.25rem;
 }
 
-.report-card__meta-item:last-child {
-  margin-bottom: 0;
-}
-
-.report-card__meta-item strong {
+.rpt-meta__item strong {
   color: var(--color-text-dark);
   font-weight: 600;
+  margin-right: 0.25rem;
 }
 
-/* ── Stat list ───────────────────────────────── */
-.stat-list {
+/* ── Stat rows — each 1035×64 | p 8px 16px | border-bottom ── */
+.rpt-stat-list {
   list-style: none;
-  margin-bottom: 0.5rem;
 }
 
-.stat-item {
+.rpt-stat-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.875rem 0;
-  border-bottom: 1px solid var(--color-border);
-  min-width: 0;
+  min-height: 4rem;          /* 64px */
+  padding: 0.5rem 1rem;      /* 8px 16px */
+  border-bottom: 1px solid var(--color-border-light);
 }
 
-.stat-item:last-child {
+.rpt-stat-row:last-child {
   border-bottom: none;
 }
 
-.stat-item__left {
+.rpt-stat-row__left {
   display: flex;
   align-items: center;
   gap: 0.875rem;
   min-width: 0;
 }
 
-/* ── Icon circles ────────────────────────────── */
-.stat-item__icon {
+/* Icon circles */
+.rpt-stat-icon {
   width: 2.375rem;
   height: 2.375rem;
   border-radius: 50%;
@@ -74,38 +111,26 @@
   flex-shrink: 0;
 }
 
-.stat-item__icon svg {
+.rpt-stat-icon svg {
   width: 1.125rem;
   height: 1.125rem;
   fill: var(--color-white);
 }
 
-/* Using CSS variables where possible,
-  custom values only where no token exists */
-.stat-item__icon--attendees {
-  background-color: var(--color-primary);
-}
-.stat-item__icon--vip {
-  background-color: #f5a623;
-}
-.stat-item__icon--regular {
-  background-color: var(--color-text-muted);
-}
-.stat-item__icon--checkin {
-  background-color: #00bfa5;
-}
-.stat-item__icon--pending {
-  background-color: var(--color-accent);
-}
+.rpt-stat-icon--attendees { background: var(--color-primary); }
+.rpt-stat-icon--vip       { background: #F5A623; }
+.rpt-stat-icon--regular   { background: var(--color-text-muted); }
+.rpt-stat-icon--checkin   { background: #00BFA5; }
+.rpt-stat-icon--pending   { background: var(--color-accent); }
 
-.stat-item__label {
+.rpt-stat-label {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text-dark);
   white-space: nowrap;
 }
 
-.stat-item__value {
+.rpt-stat-value {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-dark);
@@ -114,14 +139,14 @@
   flex-shrink: 0;
 }
 
-/* ── Skeleton loading rows ───────────────────── */
+/* Skeleton shimmer */
 .skeleton-row {
-  height: 3.25rem;
-  border-radius: 8px;
+  height: 4rem;
+  border-radius: 0;
   background: linear-gradient(
     90deg,
     var(--color-border-light) 25%,
-    var(--color-border) 50%,
+    var(--color-border)       50%,
     var(--color-border-light) 75%
   );
   background-size: 200% 100%;
@@ -129,141 +154,140 @@
 }
 
 @keyframes shimmer {
-  from {
-    background-position: 200% 0;
-  }
-  to {
-    background-position: -200% 0;
-  }
+  from { background-position:  200% 0; }
+  to   { background-position: -200% 0; }
 }
 
-/* ── Chart section ───────────────────────────── */
-.chart-section {
-  margin-top: 2rem;
-  margin-bottom: 1.5rem;
+/* ══ CARD 2 — 1035×411 ═══════════════════════════ */
+.rpt-card--bottom {
+  min-height: 25.6875rem; /* 411px */
+  display: flex;
+  flex-direction: column;
 }
 
-.chart-title {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--color-text-dark);
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.chart-wrap {
+/* ── Chart — 1035×357 | p 32 16 16 16 | border-bottom ── */
+.rpt-chart-section {
+  padding: 2rem 1rem 1rem; /* 32px 16px 16px 16px */
+  border-bottom: 1px solid var(--color-border-light);
+  min-height: 22.3125rem;  /* 357px */
   position: relative;
-  width: 100%;
-  height: 16rem;
+  flex: 1;
 }
 
-.chart-wrap canvas {
+.rpt-chart-section canvas {
   width: 100% !important;
   height: 100% !important;
+  min-height: 16rem;
 }
 
-/* ── Actions row ─────────────────────────────── */
-.report-card__actions {
+/* ── Actions — 1035×54 | p 4px 12px | space-between ── */
+.rpt-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 1.5rem;
-  flex-wrap: wrap;
+  padding: 0.25rem 0.75rem; /* 4px 12px */
+  min-height: 3.375rem;     /* 54px */
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
-/* ── Buttons ─────────────────────────────────── */
-.btn {
+/* PDF button — 289×46 | gap 12px | p 8px 20px | r4 | filled */
+.btn-pdf {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.5rem;
-  font-family: "Poppins", sans-serif;
-  font-size: 0.8125rem;
+  gap: 0.75rem;                 /* 12px */
+  width: min(18.0625rem, 45%);  /* 289px */
+  height: 2.875rem;             /* 46px */
+  padding: 0.5rem 1.25rem;      /* 8px 20px */
+  border-radius: 4px;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  border: none;
+  background: var(--color-primary);
+  color: var(--color-white);
   white-space: nowrap;
-  transition: opacity 0.2s ease, background-color 0.2s ease;
+  transition: background-color 0.18s ease-out, opacity 0.18s ease-out;
 }
 
-.btn:hover {
-  opacity: 0.88;
-}
-.btn:active {
-  transform: scale(0.98);
-}
-.btn:focus-visible {
+.btn-pdf:hover    { background: var(--color-primary-hover); }
+.btn-pdf:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-pdf:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn svg {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
-}
-
-.btn--primary {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  box-shadow: 0 0.25rem 0.75rem rgba(111, 0, 255, 0.25);
-}
-
-.btn--primary:hover {
-  background-color: var(--color-primary-hover);
-  opacity: 1;
-}
-
-.btn--outline {
-  background-color: transparent;
+/* CSV button — 289×46 | gap 12px | p 8px 20px | r4 | outline */
+.btn-csv {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;                 /* 12px */
+  width: min(18.0625rem, 45%);  /* 289px */
+  height: 2.875rem;             /* 46px */
+  padding: 0.5rem 1.25rem;      /* 8px 20px */
+  border-radius: 4px;
+  border: 1px solid var(--color-primary);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
   color: var(--color-primary);
-  border: 1.5px solid var(--color-primary);
+  white-space: nowrap;
+  transition: background-color 0.18s ease-out, color 0.18s ease-out;
 }
 
-.btn--outline svg {
-  fill: var(--color-primary);
+.btn-csv svg { fill: var(--color-primary); }
+
+.btn-csv:hover {
+  background: var(--color-primary-light);
 }
 
-.btn--outline:hover {
-  background-color: var(--color-primary-light);
-  opacity: 1;
+.btn-csv:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* ════════════════════════════════════════════════
-  RESPONSIVE
-  ════════════════════════════════════════════════ */
+   RESPONSIVE
+   ════════════════════════════════════════════════ */
 
 /* Mobile below 480px */
 @media (max-width: 30rem) {
-  .report-card {
-    padding: 1.25rem 1rem;
-  }
+  .rpt-meta-section { padding: 1.25rem 0.875rem; }
 
-  .report-card__actions {
+  .rpt-actions {
     flex-direction: column;
     align-items: stretch;
+    padding: 0.75rem;
   }
 
-  .btn {
+  .btn-pdf,
+  .btn-csv {
     width: 100%;
+  }
+
+  .rpt-stat-row {
+    padding: 0.5rem 0.875rem;
   }
 }
 
 /* Tablet 768px+ */
 @media (min-width: 48rem) {
-  .report-card {
-    padding: 2rem 1.875rem;
+  .rpt-meta-section { padding: 1.75rem 1.5rem 1.5rem; }
+
+  .rpt-chart-section {
+    padding: 2rem 1.5rem 1.25rem;
+    min-height: 24rem;
   }
 
-  .chart-wrap {
-    height: 20rem;
-  }
+  .rpt-actions { padding: 0.5rem 1.5rem; }
+}
+
+/* Desktop 1200px+ */
+@media (min-width: 75rem) {
+  .rpt-chart-section { min-height: 22.3125rem; }
 }
