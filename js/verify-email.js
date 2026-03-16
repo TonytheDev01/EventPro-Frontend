@@ -1,83 +1,166 @@
 // ================================================
-//  EventPro — Verify Email Page Logic
+//  EventPro — Verify Email
 //  js/verify-email.js
 //  Depends on: js/services/auth-service.js
-//
-//  Note: User is NOT authenticated at this point.
-//  They just signed up. No Bearer token available.
-//  Resend request sends email in request body.
 // ================================================
 
-const maskedEmailEl = document.getElementById('masked-email');
-const resendBtn     = document.getElementById('resendBtn');
+const BASE_URL = 'https://eventpro-fxfv.onrender.com/api';
 
-// Read pending email set by signup.js 
-const pendingEmail = localStorage.getItem('eventpro_pending_email');
+// ── State elements ────────────────────────────────
+const stateVerifying = document.getElementById('stateVerifying');
+const stateSuccess   = document.getElementById('stateSuccess');
+const stateDefault   = document.getElementById('stateDefault');
+const stateError     = document.getElementById('stateError');
+const maskedEmailEl  = document.getElementById('maskedEmail');
+const resendBtn      = document.getElementById('resendBtn');
+const retryResendBtn = document.getElementById('retryResendBtn');
+const errorMsgEl     = document.getElementById('errorMsg');
 
-// Mask email helper 
-// "john@email.com" → "j***@email.com"
-// Guards against missing @ to prevent crash
+// ── Helpers ───────────────────────────────────────
+function showState(name) {
+  ['stateVerifying', 'stateSuccess', 'stateDefault', 'stateError']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.hidden = id !== name;
+    });
+}
+
 function maskEmail(email) {
-  if (!email || !email.includes('@')) return email || 'your email';
+  if (!email || !email.includes('@')) return 'your email';
   const [local, domain] = email.split('@');
   return local.charAt(0) + '***@' + domain;
 }
 
-//  Display masked email 
-if (maskedEmailEl) {
-  maskedEmailEl.textContent = maskEmail(pendingEmail);
+// ── Read URL params ───────────────────────────────
+const params       = new URLSearchParams(window.location.search);
+const tokenFromUrl = params.get('token');
+const pendingEmail = localStorage.getItem('eventpro_pending_email');
+
+// ════════════════════════════════════════════════
+//  FLOW 1 — Token in URL → verify automatically
+// ════════════════════════════════════════════════
+if (tokenFromUrl) {
+  showState('stateVerifying');
+  _verifyToken(tokenFromUrl);
 }
 
-//  Resend button with cooldown 
-let cooldownTimer = null;
+// ════════════════════════════════════════════════
+//  FLOW 2 — No token → show waiting state
+// ════════════════════════════════════════════════
+else {
+  showState('stateDefault');
 
-if (resendBtn) {
-  resendBtn.addEventListener('click', async () => {
+  // Show masked email
+  if (maskedEmailEl) {
+    maskedEmailEl.textContent = maskEmail(pendingEmail);
+  }
+
+  // Wire resend button
+  _wireResendBtn(resendBtn);
+}
+
+// Wire retry resend button on error state
+_wireResendBtn(retryResendBtn);
+
+// ════════════════════════════════════════════════
+//  VERIFY TOKEN
+// ════════════════════════════════════════════════
+async function _verifyToken(token) {
+  try {
+    const response = await fetch(`${BASE_URL}/auth/verify-email`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ token }),
+      signal:  AbortSignal.timeout(15000),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // Clean up pending email
+      localStorage.removeItem('eventpro_pending_email');
+      showState('stateSuccess');
+
+      // Auto-redirect to sign-in after 3 seconds
+      setTimeout(() => {
+        window.location.href = '../pages/sign-in.html';
+      }, 3000);
+
+    } else {
+      if (errorMsgEl) {
+        errorMsgEl.textContent =
+          data.message || 'The verification link is invalid or has expired.';
+      }
+      showState('stateError');
+    }
+
+  } catch (err) {
+    if (errorMsgEl) {
+      errorMsgEl.textContent = err.name === 'TimeoutError'
+        ? 'Request timed out. Please try again.'
+        : 'Network error. Please check your connection and try again.';
+    }
+    showState('stateError');
+  }
+}
+
+// ════════════════════════════════════════════════
+//  RESEND VERIFICATION EMAIL
+// ════════════════════════════════════════════════
+function _wireResendBtn(btn) {
+  if (!btn) return;
+
+  let cooldownTimer = null;
+
+  btn.addEventListener('click', async () => {
+
     if (!pendingEmail) {
-      resendBtn.textContent = 'No email found — go back and sign up';
+      btn.textContent = 'No email found — please sign up again';
       return;
     }
 
     // Loading state
-    resendBtn.textContent = 'Sending...';
-    resendBtn.disabled    = true;
+    btn.textContent = 'Sending…';
+    btn.disabled    = true;
 
     try {
-      // User is not authenticated — send email in body directly
       const response = await fetch(
-        'https://eventpro-fxfv.onrender.com/api/auth/resend-verification',
+        `${BASE_URL}/auth/resend-verification`,
         {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ email: pendingEmail })
+          body:    JSON.stringify({ email: pendingEmail }),
+          signal:  AbortSignal.timeout(15000),
         }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        resendBtn.textContent = data.message || 'Failed — try again';
-        resendBtn.disabled    = false;
+        btn.textContent = data.message || 'Failed — please try again';
+        btn.disabled    = false;
         return;
       }
 
-      // Success — show confirmation then start 30s cooldown
-      resendBtn.textContent = 'Email sent!';
-
+      // Success — 30s cooldown
+      btn.textContent = '✓ Email sent!';
       let seconds = 30;
+
       cooldownTimer = setInterval(() => {
         seconds -= 1;
-        resendBtn.textContent = `Resend in ${seconds}s`;
+        btn.textContent = `Resend in ${seconds}s`;
         if (seconds <= 0) {
           clearInterval(cooldownTimer);
-          resendBtn.textContent = 'Resend Verification Mail';
-          resendBtn.disabled    = false;
+          btn.textContent = 'Resend Verification Mail';
+          btn.disabled    = false;
         }
       }, 1000);
 
     } catch (err) {
-      resendBtn.textContent = 'Network error — try again';
-      resendBtn.disabled    = false;
+      btn.textContent = err.name === 'TimeoutError'
+        ? 'Timed out — try again'
+        : 'Network error — try again';
+      btn.disabled = false;
     }
   });
 }

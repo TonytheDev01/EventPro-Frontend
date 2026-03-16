@@ -1,20 +1,20 @@
 /* ================================================
    EventPro — Verify Email Page
+   styles/verify-email.css
    Mobile-first. Scales to tablet and desktop.
-   Base font size = 16px
    ================================================ */
 
 :root {
-  --color-primary:        #6F00FF;
-  --color-primary-hover:  #5900CC;
-  --color-text-heading:   #161616;
-  --color-text-body:      #565A61;
-  --color-text-email:     #1F2937;
-  --color-text-dark:      #000000;
-  --color-white:          #FEFEFE;
+  --color-primary:       #6F00FF;
+  --color-primary-hover: #5900CC;
+  --color-text-heading:  #161616;
+  --color-text-body:     #565A61;
+  --color-text-email:    #1F2937;
+  --color-text-dark:     #000000;
+  --color-white:         #FEFEFE;
 }
 
-* {
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -32,17 +32,18 @@ body {
 
 .page-wrapper {
   width: 100%;
-  max-width: min(32.1875rem, 100%);  
+  max-width: min(32.1875rem, 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.2rem;
+  text-align: center;
 }
 
+/* ── Illustration ─────────────────────────────── */
 .verify-image {
   width: 100%;
-  max-width: min(32.1875rem, 100%);   
-  height: auto;
+  max-width: min(32.1875rem, 100%);
 }
 
 .verify-image img {
@@ -52,22 +53,40 @@ body {
   display: block;
 }
 
-.check-heading {
-  font-size: clamp(2rem, 6vw, 2.5rem);  
-  font-weight: 600;
-  font-family: 'Poppins', sans-serif;
-  color: var(--color-text-heading);
-  text-align: center;
-  letter-spacing: -0.02em;            
-  line-height: 1.1;
+/* ── Verifying spinner ────────────────────────── */
+.spinner-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
 }
 
+.verify-spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid #E5E7EB;
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Headings ─────────────────────────────────── */
+.check-heading {
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  font-weight: 600;
+  color: var(--color-text-heading);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 0.25rem;
+}
+
+/* ── Body text ────────────────────────────────── */
 .verify-text {
   font-size: clamp(0.875rem, 2.5vw, 1rem);
   color: var(--color-text-body);
-  text-align: center;
   line-height: 1.6;
-  max-width: min(32.8125rem, 100%);    
+  max-width: min(32.8125rem, 100%);
 }
 
 .verify-text strong {
@@ -75,44 +94,38 @@ body {
   font-weight: 600;
 }
 
+/* ── Resend / CTA button ──────────────────────── */
 .btn-resend {
-  width: min(20.5rem, 100%);           
-  height: 4.2rem;    
-  display: flex; 
-  align-items: center;                
-  padding: 1.25rem 4.375rem;           
-  background-color: var(--color-primary);
+  width: min(20.5rem, 100%);
+  height: 4.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;   /* fix: was missing, text was left-aligned */
+  padding: 1.25rem 1.5rem;
+  background: var(--color-primary);
   color: var(--color-white);
   border: none;
-  border-radius: 9px;                  
+  border-radius: 9px;
   font-family: 'Poppins', sans-serif;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease-out,
-              opacity 0.2s ease-out;
+  transition: background-color 0.2s ease-out, opacity 0.2s ease-out;
 }
 
-.btn-resend:hover {
-  background-color: var(--color-primary-hover);
-}
-
+.btn-resend:hover        { background: var(--color-primary-hover); }
+.btn-resend:disabled     { opacity: 0.6; cursor: not-allowed; }
 .btn-resend:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 3px;
 }
 
-.btn-resend:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
+/* ── Change email / back links ────────────────── */
 .change-email {
-  font-size: 1.125rem;                
+  font-size: 1rem;
   font-weight: 500;
   color: var(--color-text-dark);
-  text-align: center;
-  line-height: 1.875rem;              
+  line-height: 1.875rem;
   letter-spacing: -0.02em;
 }
 
@@ -122,17 +135,14 @@ body {
   text-decoration: none;
 }
 
-.change-email-link:hover {
-  text-decoration: underline;
-}
+.change-email-link:hover { text-decoration: underline; }
 
 .back-to-signin {
-  font-size: 1.125rem;                 
+  font-size: 1rem;
   font-weight: 500;
   color: var(--color-text-dark);
-  text-align: center;
   text-decoration: none;
-  line-height: 1.875rem;             
+  line-height: 1.875rem;
   letter-spacing: -0.02em;
 }
 
@@ -141,24 +151,12 @@ body {
   text-decoration: underline;
 }
 
-/*  Tablet (768px+)  */
-@media (min-width: 48rem) {
-  .page-wrapper {
-    gap: 1.5rem;
-  }
 
-  .verify-image {
-    max-width: min(32.1875rem, 100%);
-  }
+@media (min-width: 48rem) {
+  .page-wrapper { gap: 1.5rem; }
 }
 
-/*  Desktop (1200px+)  */
 @media (min-width: 75rem) {
-  body {
-    padding: 2rem;
-  }
-
-  .page-wrapper {
-    gap: 1.7rem;
-  }
+  body { padding: 2rem; }
+  .page-wrapper { gap: 1.7rem; }
 }
