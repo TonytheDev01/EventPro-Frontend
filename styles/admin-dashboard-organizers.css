@@ -184,11 +184,11 @@ body {
     flex-direction: column;
     align-items: center; 
     justify-content: center;
+    overflow: hidden;
     gap: 0.5rem; 
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s;
-    position: relative; 
-    overflow: hidden; 
+    position: relative;  
     padding: 1.25rem;
 }
 
@@ -198,10 +198,14 @@ body {
 }
 
 .upload-zone input[type="file"] {
-    position: absolute; 
-    inset: 0; 
-    opacity: 0; 
+    position: absolute;
+    inset: 0;
+    opacity: 0;
     cursor: pointer;
+}
+
+.upload-zone.has-file input[type="file"] {
+    pointer-events: none;
 }
 
 .upload-icon { 
@@ -234,6 +238,7 @@ body {
     max-height: 5.625rem; 
     border-radius: var(--radius-sm); 
     object-fit: contain;
+    display: none;
 }
 
 .upload-preview .file-name {
@@ -241,6 +246,7 @@ body {
     color: var(--text-secondary);
     word-break: break-all; 
     text-align: center;
+    max-width: 100%;
 }
 
 .upload-preview .remove-file {
@@ -251,6 +257,8 @@ body {
     font-weight: 600; 
     cursor: pointer; 
     font-family: var(--font);
+    margin-top: 0.25rem;
+    text-decoration: underline;
 }
 
 .form-group { 

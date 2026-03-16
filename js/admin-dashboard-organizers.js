@@ -1,6 +1,13 @@
 document.addEventListener('DOMContentLoaded', async () => { 
 // 1. Redirect if not logged in 
     requireAuth(); 
+
+    window.handleFileChange = handleFileChange;
+    window.removeFile = removeFile;
+    window.handleVerify = handleVerify;
+    window.clearFieldError = clearFieldError;
+
+
 // 2. Load sidebar + topbar — ALWAYS before anything else 
     await loadDashboardComponents('organizers'); 
 
@@ -9,16 +16,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const API_BASE = window.APP_CONFIG?.apiBase ?? '/api';
 
     //  STATE
-
-    let currentOrganizer = null; // till when organizer data arrives
+    let currentOrganizer = null;
     let selectedFile     = null;
 
-    window.addEventListener('organizer:added', (e) => {
+    //Listen for organizer added from modal
+      window.addEventListener('organizer:added', (e) => {
       populateReview(e.detail);
     });
 
     window.loadOrganizer = (data) => populateReview(data);
 
+    //  Populate review card 
     function populateReview(data) {
       if (!data) return;
       currentOrganizer = data;
@@ -39,12 +47,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         </tr>
       `).join('');
 
-      // Shows table and hides empty state
+      // Show table, hide empty state
       document.getElementById('basic-info-empty').style.display = 'none';
       document.getElementById('basic-info-table').style.display = 'table';
       document.getElementById('card-divider').style.display     = 'block';
+    }
 
-      //  FILE UPLOAD
+    //  File Upload 
+    const uploadZone = document.getElementById("upload-zone");
+    const fileInput = document.getElementById("doc-file");
+
+    uploadZone.addEventListener("click", () => {
+      if (!selectedFile) {
+      fileInput.click();
+  }
+});
+
       function handleFileChange(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -53,7 +71,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
       selectedFile = file;
+      document.getElementById('upload-zone').classList.add('has-file');
       document.getElementById('preview-name').textContent = file.name;
+
 
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
@@ -73,11 +93,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     function removeFile(e) {
       e.stopPropagation();
       selectedFile = null;
+      document.getElementById('upload-zone').classList.remove('has-file');
       document.getElementById('doc-file').value = '';
       document.getElementById('upload-placeholder').style.display = 'flex';
       document.getElementById('upload-preview').style.display     = 'none';
     }
 
+
+    // Drag and drop
     const zone = document.getElementById('upload-zone');
     zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
     zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
@@ -93,8 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
-     //  VERIFY DOCUMENT
-
+    // Verify Document 
     async function handleVerify() {
       let valid = true;
       if (!document.getElementById('id-type').value) {
@@ -142,15 +164,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function setVerifyLoading(loading) {
-      document.getElementById('btn-verify').disabled           = loading;
-      document.getElementById('verify-spinner').style.display  = loading ? 'block' : 'none';
-      document.getElementById('verify-label').textContent      = loading ? 'Verifying…' : 'Verify Document';
+      document.getElementById('btn-verify').disabled          = loading;
+      document.getElementById('verify-spinner').style.display = loading ? 'block' : 'none';
+      document.getElementById('verify-label').textContent     = loading ? 'Verifying…' : 'Verify Document';
     }
 
-  
     function statusBadge(status) {
-    return capitalize(status || 'pending');
-  }
+      return capitalize(status || 'pending');
+    }
 
     function showFieldError(fieldId, msg) {
       document.getElementById(fieldId).classList.add('error');
@@ -188,7 +209,28 @@ document.addEventListener('DOMContentLoaded', async () => {
       const d = document.createElement('div');
       d.textContent = str;
       return d.innerHTML;
-    }}
+    }
 
-});    
-    
+    //Dynamic active breadcrumb 
+    const path = window.location.pathname;
+    const breadcrumbCurrent = document.querySelector('.breadcrumb-current');
+
+    const pageMap = {
+      'organizers': 'Organizers',
+      'events':     'Events',
+      'attendees':  'Attendees',
+      'reports':    'Reports',
+      'settings':   'Settings',
+      'dashboard':  'Dashboard',
+    };
+
+    if (breadcrumbCurrent) {
+      const matchedPage = Object.keys(pageMap).find(key => path.includes(key));
+      if (matchedPage) {
+        breadcrumbCurrent.textContent  = pageMap[matchedPage];
+        breadcrumbCurrent.style.color      = '#6F00FF';
+        breadcrumbCurrent.style.fontWeight = '600';
+      }
+    }
+
+});
