@@ -1,333 +1,392 @@
 // ================================================
 //  EventPro — Admin Dashboard
 //  js/admin-dashboard.js
-//  Depends on:
-//    js/services/auth-service.js
-//    js/utils/load-components.js
+//  Depends on: auth-service.js, load-components.js
 //
-//  Endpoints used:
-//  GET /dashboard/stats
-//  GET /events?limit=6&sort=recent
-//  GET /admin/organizers?limit=5   ← now uses real endpoint
+//  Swagger-confirmed endpoints (March 2026):
+//  GET /dashboard/stats      → { totalUsers, totalEvents } ONLY
+//  GET /events?limit=6&sort=recent → recent events
+//
+//  Stubbed (pending Swagger):
+//  GET /admin/organizers     → not in Swagger yet
+//  Chart.js                  → loaded dynamically
 // ================================================
 
-const API = 'https://eventpro-fxfv.onrender.com/api';
+var API = 'https://eventpro-fxfv.onrender.com/api';
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async function () {
 
   requireAuth();
 
-  const user = getStoredUser();
-  if (user?.role !== 'admin') {
+  var user = getStoredUser();
+  if (!user || user.role !== 'admin') {
     window.location.href = '../pages/sign-in.html';
     return;
   }
 
-  //  Load sidebar + topbar 
   await loadDashboardComponents('dashboard');
 
-  //  Fetch all data in parallel 
-  const token   = getStoredToken();
-  const headers = {
+  // Show Add Organizer btn — admin only
+  var addOrgBtn = document.getElementById('btnAddOrganizer');
+  if (addOrgBtn) addOrgBtn.hidden = false;
+
+  // Load Chart.js dynamically — never blocks shell
+  _loadChartJS(function () {
+    // chart renders after data arrives
+  });
+
+  var headers = {
     'Content-Type':  'application/json',
-    'Authorization': `Bearer ${token}`,
+    'Authorization': 'Bearer ' + getStoredToken()
   };
 
-  const [statsResult, eventsResult, organizersResult] = await Promise.allSettled([
-    apiFetch(`${API}/dashboard/stats`,            headers),
-    apiFetch(`${API}/events?limit=6&sort=recent`, headers),
-    apiFetch(`${API}/admin/organizers?limit=5`,   headers), // ← real endpoint
+  // Fetch confirmed endpoints in parallel
+  // /admin/organizers stubbed — not in Swagger yet
+  var results = await Promise.allSettled([
+    _apiFetch(API + '/dashboard/stats',            headers),
+    _apiFetch(API + '/events?limit=6&sort=recent', headers)
   ]);
 
-  //  Render all sections 
-  renderStatCards(statsResult);
-  renderRecentEvents(eventsResult);
-  renderTopOrganizers(organizersResult);  // ← now uses organizers data
-  renderAttendanceChart(statsResult);
+  renderStatCards(results[0]);
+  renderRecentEvents(results[1]);
+  renderTopOrganizers(null);   // stubbed until Swagger confirms endpoint
+  _renderChartWhenReady(results[0]);
+  _wireAddOrganizerModal();
 
 });
 
-//  API HELPER
-
-async function apiFetch(url, headers) {
-  const res = await fetch(url, {
-    method: 'GET',
-    headers,
-    signal: AbortSignal.timeout(15000),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+// ── Load Chart.js dynamically ─────────────────────────────
+function _loadChartJS(callback) {
+  if (window.Chart) { if (callback) callback(); return; }
+  var s    = document.createElement('script');
+  s.src    = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+  s.onload = function () { if (callback) callback(); };
+  document.head.appendChild(s);
 }
 
-//  STAT CARDS
-//  GET /dashboard/stats returns: { totalUsers, totalEvents }
-//  Gracefully handles missing fields with '--'
+function _renderChartWhenReady(statsResult) {
+  if (window.Chart) {
+    renderAttendanceChart(statsResult);
+  } else {
+    _loadChartJS(function () {
+      renderAttendanceChart(statsResult);
+    });
+  }
+}
 
+// ── API Helper ────────────────────────────────────────────
+function _apiFetch(url, headers) {
+  var controller = new AbortController();
+  var timeoutId  = setTimeout(function () { controller.abort(); }, 15000);
+
+  return fetch(url, {
+    method:  'GET',
+    headers: headers,
+    signal:  controller.signal
+  }).then(function (res) {
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).catch(function (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  });
+}
+
+// ── Stat Cards ────────────────────────────────────────────
+// Swagger confirmed: only totalUsers + totalEvents returned
+// totalAttendees + totalRevenue show N/A until Ezekiel updates endpoint
 function renderStatCards(result) {
-  const container = document.getElementById('statCards');
+  var container = document.getElementById('statCards');
   if (!container) return;
 
-  let totalEvents  = '--';
-  let totalAttend  = '--';
-  let totalRevenue = '--';
+  var totalEvents  = 'N/A';
+  var totalAttend  = 'N/A';
+  var totalRevenue = 'N/A';
 
   if (result.status === 'fulfilled') {
-    const d     = result.value;
-    totalEvents = (d.totalEvents   ?? d.total_events   ?? '--').toLocaleString();
-    totalAttend = (d.totalAttendees ?? d.totalUsers     ?? '--').toLocaleString();
-    const rev   = d.totalRevenue   ?? d.total_revenue   ?? null;
-    totalRevenue = rev !== null ? `₦${Number(rev).toLocaleString()}` : 'N/A';
+    var d = result.value;
+    // Swagger confirmed fields
+    if (d.totalEvents != null)  totalEvents = Number(d.totalEvents).toLocaleString();
+    if (d.totalUsers  != null)  totalAttend = Number(d.totalUsers).toLocaleString();
+    // Not in Swagger yet — show N/A
+    if (d.totalRevenue != null) totalRevenue = '\u20A6' + Number(d.totalRevenue).toLocaleString();
   }
 
-  container.innerHTML = `
-    <div class="stat-card">
-      <div class="stat-card-left">
-        <span class="stat-card-label">Total events</span>
-        <div class="stat-card-dots">
-          <span class="stat-dot on"></span>
-          <span class="stat-dot on"></span>
-          <span class="stat-dot on"></span>
-          <span class="stat-dot on-accent"></span>
-          <span class="stat-dot on-accent"></span>
-          <span class="stat-dot"></span>
-        </div>
-      </div>
-      <span class="stat-card-value">${totalEvents}</span>
-    </div>
+  container.innerHTML =
+    '<div class="stat-card">' +
+      '<div class="stat-card-left">' +
+        '<span class="stat-card-label">Total Events</span>' +
+        '<div class="stat-card-dots">' +
+          '<span class="stat-dot on"></span><span class="stat-dot on"></span>' +
+          '<span class="stat-dot on"></span><span class="stat-dot on-accent"></span>' +
+          '<span class="stat-dot on-accent"></span><span class="stat-dot"></span>' +
+        '</div>' +
+      '</div>' +
+      '<span class="stat-card-value">' + totalEvents + '</span>' +
+    '</div>' +
 
-    <div class="stat-card">
-      <div class="stat-card-left">
-        <span class="stat-card-label">Attendees</span>
-        <div class="stat-card-dots">
-          <span class="stat-dot on"></span>
-          <span class="stat-dot on"></span>
-          <span class="stat-dot on"></span>
-          <span class="stat-dot on-accent"></span>
-          <span class="stat-dot on"></span>
-          <span class="stat-dot"></span>
-        </div>
-      </div>
-      <span class="stat-card-value">${totalAttend}</span>
-    </div>
+    '<div class="stat-card">' +
+      '<div class="stat-card-left">' +
+        '<span class="stat-card-label">Total Users</span>' +
+        '<div class="stat-card-dots">' +
+          '<span class="stat-dot on"></span><span class="stat-dot on"></span>' +
+          '<span class="stat-dot on"></span><span class="stat-dot on-accent"></span>' +
+          '<span class="stat-dot on"></span><span class="stat-dot"></span>' +
+        '</div>' +
+      '</div>' +
+      '<span class="stat-card-value">' + totalAttend + '</span>' +
+    '</div>' +
 
-    <div class="stat-card">
-      <div class="stat-card-left">
-        <span class="stat-card-label">Revenue</span>
-        <div class="stat-card-dots">
-          <span class="stat-dot on"></span>
-          <span class="stat-dot on"></span>
-          <span class="stat-dot on"></span>
-          <span class="stat-dot on"></span>
-          <span class="stat-dot"></span>
-          <span class="stat-dot"></span>
-        </div>
-      </div>
-      <span class="stat-card-value revenue">${totalRevenue}</span>
-    </div>
-  `;
+    '<div class="stat-card">' +
+      '<div class="stat-card-left">' +
+        '<span class="stat-card-label">Revenue</span>' +
+        '<div class="stat-card-dots">' +
+          '<span class="stat-dot on"></span><span class="stat-dot on"></span>' +
+          '<span class="stat-dot on"></span><span class="stat-dot on"></span>' +
+          '<span class="stat-dot"></span><span class="stat-dot"></span>' +
+        '</div>' +
+      '</div>' +
+      '<span class="stat-card-value revenue">' + totalRevenue + '</span>' +
+    '</div>';
 }
 
-//  RECENT EVENTS TABLE
-
+// ── Recent Events ─────────────────────────────────────────
 function renderRecentEvents(result) {
-  const tbody = document.getElementById('recentEventsBody');
+  var tbody = document.getElementById('recentEventsBody');
   if (!tbody) return;
 
   if (result.status === 'rejected') {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="4" class="empty-state">
-          Unable to load events. Please try again.
-        </td>
-      </tr>`;
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Unable to load events. Please try again.</td></tr>';
     return;
   }
 
-  const events = result.value?.events ?? result.value?.data ?? result.value ?? [];
-
-  if (!events.length) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="4" class="empty-state">No events found.</td>
-      </tr>`;
+  var events = result.value && (result.value.events || result.value.data || result.value);
+  if (!Array.isArray(events) || !events.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No events found.</td></tr>';
     return;
   }
 
-  tbody.innerHTML = events.slice(0, 6).map(ev => {
-    const date   = ev.date ? formatDate(ev.date) : '--';
-    const count  = (ev.attendeeCount ?? ev.attendees ?? 0).toLocaleString();
-    const status = ev.status ?? 'pending';
-    return `
-      <tr>
-        <td>${escHtml(ev.title ?? ev.name ?? 'Unnamed')}</td>
-        <td>${date}</td>
-        <td>${count}</td>
-        <td>
-          <span class="badge badge-${status.toLowerCase()}">
-            ${capitalise(status)}
-          </span>
-        </td>
-      </tr>`;
+  tbody.innerHTML = events.slice(0, 6).map(function (ev) {
+    var date   = ev.date || ev.startDate ? formatDate(ev.date || ev.startDate) : '--';
+    var count  = ((ev.attendeeCount || ev.attendees || 0)).toLocaleString();
+    var status = ev.status || 'pending';
+    return '<tr>' +
+      '<td>' + escHtml(ev.title || ev.name || 'Unnamed') + '</td>' +
+      '<td>' + date + '</td>' +
+      '<td>' + count + '</td>' +
+      '<td><span class="badge badge-' + status.toLowerCase() + '">' +
+        capitalise(status) + '</span></td>' +
+      '</tr>';
   }).join('');
 }
 
-//  TOP ORGANIZERS
-//  Now uses GET /admin/organizers — Swagger confirmed
-//  Response: { organizers: [...], pagination, summary }
-
+// ── Top Organizers ────────────────────────────────────────
+// Stubbed — GET /admin/organizers not in Swagger yet
 function renderTopOrganizers(result) {
-  const container = document.getElementById('topOrganizersList');
+  var container = document.getElementById('topOrganizersList');
   if (!container) return;
-
-  if (result.status === 'rejected') {
-    container.innerHTML = '<p class="empty-state">Unable to load organizers.</p>';
-    return;
-  }
-
-  const organizers = result.value?.organizers ?? [];
-
-  if (!organizers.length) {
-    container.innerHTML = '<p class="empty-state">No organizers yet.</p>';
-    return;
-  }
-
-  container.innerHTML = organizers.slice(0, 5).map(org => {
-    const name     = `${org.firstName ?? ''} ${org.lastName ?? ''}`.trim()
-      || 'Unknown Organizer';
-    const initials = name.split(' ')
-      .map(w => w[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase();
-    const status   = org.isVerified ? 'verified' : 'pending';
-
-    return `
-      <div class="organizer-item"
-        role="button" tabindex="0"
-        onclick="window.location.href='../pages/organizer-management.html'"
-        onkeydown="if(event.key==='Enter')
-          window.location.href='../pages/organizer-management.html'">
-        <div class="organizer-avatar">${initials}</div>
-        <div class="organizer-info">
-          <p class="organizer-name">${escHtml(name)}</p>
-          <p class="organizer-sub">${escHtml(org.email ?? '')}</p>
-        </div>
-        <div class="organizer-right">
-          <span class="badge badge-${status}">
-            ${capitalise(status)}
-          </span>
-          <svg class="organizer-chevron" width="16" height="16"
-            viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M9 18l6-6-6-6" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>`;
-  }).join('');
+  // TODO: wire GET /admin/organizers once Ezekiel adds to Swagger
+  container.innerHTML = '<p class="empty-state">Organizer data coming soon.</p>';
 }
 
-//  ATTENDANCE CHART
-
+// ── Attendance Chart ──────────────────────────────────────
 function renderAttendanceChart(result) {
-  const canvas = document.getElementById('attendanceChart');
+  var canvas = document.getElementById('attendanceChart');
   if (!canvas || typeof Chart === 'undefined') return;
 
-  // Fallback shape — replaced if backend provides chart data
-  let labels     = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
-  let registered = [800, 950, 1100, 1050, 1300, 1600, 2000, 2500];
-  let checkedIn  = [600, 700,  850,  900, 1000, 1200, 1500, 1900];
+  // Fallback data — replace with real chart data when Ezekiel updates /dashboard/stats
+  var labels     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'];
+  var registered = [800, 950, 1100, 1050, 1300, 1600, 2000, 2500];
+  var checkedIn  = [600, 700, 850, 900, 1000, 1200, 1500, 1900];
 
-  if (result.status === 'fulfilled') {
-    const chart = result.value?.attendanceChart ?? result.value?.chart ?? null;
+  if (result && result.status === 'fulfilled') {
+    var chart = result.value && (result.value.attendanceChart || result.value.chart);
     if (chart) {
-      labels     = chart.labels     ?? labels;
-      registered = chart.registered ?? registered;
-      checkedIn  = chart.checkedIn  ?? checkedIn;
+      labels     = chart.labels     || labels;
+      registered = chart.registered || registered;
+      checkedIn  = chart.checkedIn  || checkedIn;
     }
   }
 
   new Chart(canvas, {
     type: 'line',
     data: {
-      labels,
+      labels: labels,
       datasets: [
         {
-          label:            'Registered',
-          data:             registered,
-          borderColor:      '#6F00FF',
-          backgroundColor:  'rgba(111, 0, 255, 0.08)',
-          borderWidth:      2.5,
-          pointRadius:      3,
-          pointHoverRadius: 5,
-          tension:          0.4,
-          fill:             true,
+          label: 'Registered', data: registered,
+          borderColor: '#6F00FF', backgroundColor: 'rgba(111,0,255,0.08)',
+          borderWidth: 2.5, pointRadius: 3, tension: 0.4, fill: true
         },
         {
-          label:            'Checked In',
-          data:             checkedIn,
-          borderColor:      '#F97316',
-          backgroundColor:  'rgba(249, 115, 22, 0.06)',
-          borderWidth:      2.5,
-          pointRadius:      3,
-          pointHoverRadius: 5,
-          tension:          0.4,
-          fill:             true,
-        },
-      ],
+          label: 'Checked In', data: checkedIn,
+          borderColor: '#F97316', backgroundColor: 'rgba(249,115,22,0.06)',
+          borderWidth: 2.5, pointRadius: 3, tension: 0.4, fill: true
+        }
+      ]
     },
     options: {
-      responsive:          true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: {
-          position: 'top',
-          align:    'end',
-          labels: {
-            font:      { family: 'Poppins', size: 12 },
-            boxWidth:  12,
-            boxHeight: 12,
-            padding:   16,
-          },
+        legend: { position: 'top', align: 'end',
+          labels: { font: { family: 'Poppins', size: 12 }, boxWidth: 12, padding: 16 }
         },
         tooltip: {
           backgroundColor: '#1A1A1A',
-          titleFont:       { family: 'Poppins', size: 12 },
-          bodyFont:        { family: 'Poppins', size: 12 },
-          padding:         10,
-          cornerRadius:    8,
-        },
+          titleFont: { family: 'Poppins', size: 12 },
+          bodyFont:  { family: 'Poppins', size: 12 },
+          padding: 10, cornerRadius: 8
+        }
       },
       scales: {
-        x: {
-          grid:   { display: false },
-          ticks:  { font: { family: 'Poppins', size: 11 }, color: '#6B7280' },
-          border: { display: false },
+        x: { grid: { display: false },
+          ticks: { font: { family: 'Poppins', size: 11 }, color: '#6B7280' },
+          border: { display: false }
         },
-        y: {
-          beginAtZero: true,
-          grid:   { color: '#F3F4F6' },
-          ticks: {
-            font:     { family: 'Poppins', size: 11 },
-            color:    '#6B7280',
-            callback: v => v.toLocaleString(),
+        y: { beginAtZero: true, grid: { color: '#F3F4F6' },
+          ticks: { font: { family: 'Poppins', size: 11 }, color: '#6B7280',
+            callback: function (v) { return v.toLocaleString(); }
           },
-          border: { display: false },
-        },
-      },
-    },
+          border: { display: false }
+        }
+      }
+    }
   });
 }
 
-//  UTILITIES
+// ── Add Organizer Modal ───────────────────────────────────
+function _wireAddOrganizerModal() {
+  var overlay   = document.getElementById('addOrgModalOverlay');
+  var openBtn   = document.getElementById('btnAddOrganizer');
+  var closeBtn  = document.getElementById('addOrgModalClose');
+  var cancelBtn = document.getElementById('addOrgCancel');
+  var form      = document.getElementById('addOrganizerForm');
+  var submitBtn = document.getElementById('addOrgSubmit');
+  var spinner   = document.getElementById('addOrgSpinner');
+  var label     = document.getElementById('addOrgLabel');
+  var errorEl   = document.getElementById('addOrgError');
 
+  if (!overlay || !form) return;
+
+  function _open() {
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    var first = document.getElementById('orgFirstName');
+    if (first) first.focus();
+  }
+
+  function _close() {
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+    form.reset();
+    if (errorEl) errorEl.hidden = true;
+    ['orgFirstName','orgLastName','orgEmail','orgPhone'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('om-input--error');
+    });
+    ['orgFirstNameError','orgLastNameError','orgEmailError','orgPhoneError'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = '';
+    });
+  }
+
+  if (openBtn)  openBtn.addEventListener('click', _open);
+  if (closeBtn) closeBtn.addEventListener('click', _close);
+  if (cancelBtn) cancelBtn.addEventListener('click', _close);
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) _close();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !overlay.hidden) _close();
+  });
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    if (errorEl) errorEl.hidden = true;
+
+    var firstName = document.getElementById('orgFirstName');
+    var lastName  = document.getElementById('orgLastName');
+    var email     = document.getElementById('orgEmail');
+    var phone     = document.getElementById('orgPhone');
+    var valid     = true;
+
+    function _fieldErr(input, errId, msg) {
+      if (input) input.classList.add('om-input--error');
+      var el = document.getElementById(errId);
+      if (el) el.textContent = msg;
+      valid = false;
+    }
+    function _fieldOk(input, errId) {
+      if (input) input.classList.remove('om-input--error');
+      var el = document.getElementById(errId);
+      if (el) el.textContent = '';
+    }
+
+    if (!firstName || !firstName.value.trim()) {
+      _fieldErr(firstName, 'orgFirstNameError', 'First name is required.');
+    } else { _fieldOk(firstName, 'orgFirstNameError'); }
+
+    if (!lastName || !lastName.value.trim()) {
+      _fieldErr(lastName, 'orgLastNameError', 'Last name is required.');
+    } else { _fieldOk(lastName, 'orgLastNameError'); }
+
+    var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !email.value.trim() || !emailRe.test(email.value.trim())) {
+      _fieldErr(email, 'orgEmailError', 'A valid email is required.');
+    } else { _fieldOk(email, 'orgEmailError'); }
+
+    if (!valid) return;
+
+    submitBtn.disabled = true;
+    if (spinner) spinner.hidden = false;
+    if (label)   label.textContent = 'Adding…';
+
+    var payload = {
+      firstName: firstName.value.trim(),
+      lastName:  lastName.value.trim(),
+      email:     email.value.trim(),
+      role:      'organizer'
+    };
+    if (phone && phone.value.trim()) {
+      payload.phone = '+234' + phone.value.trim();
+    }
+
+    try {
+      // TODO: confirm exact endpoint path in Swagger with Ezekiel
+      var res  = await fetch(API + '/admin/organizers', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json',
+                   'Authorization': 'Bearer ' + getStoredToken() },
+        body: JSON.stringify(payload)
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to add organizer.');
+      _close();
+      _showToast('Organizer added successfully!');
+    } catch (err) {
+      if (errorEl) {
+        errorEl.textContent = err.message || 'Something went wrong.';
+        errorEl.hidden      = false;
+      }
+    } finally {
+      submitBtn.disabled = false;
+      if (spinner) spinner.hidden = true;
+      if (label)   label.textContent = 'Add Organizer';
+    }
+  });
+}
+
+// ── Utilities ─────────────────────────────────────────────
 function formatDate(raw) {
   try {
     return new Date(raw).toLocaleDateString('en-GB', {
-      day: 'numeric', month: 'short', year: 'numeric',
+      day: 'numeric', month: 'short', year: 'numeric'
     });
-  } catch { return raw; }
+  } catch (e) { return raw; }
 }
 
 function capitalise(str) {
@@ -337,8 +396,15 @@ function capitalise(str) {
 
 function escHtml(str) {
   return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g,  '&lt;')
-    .replace(/>/g,  '&gt;')
-    .replace(/"/g,  '&quot;');
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function _showToast(message) {
+  var toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = message;
+  toast.className   = 'toast show';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(function () { toast.className = 'toast'; }, 3500);
 }
