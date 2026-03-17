@@ -26,15 +26,19 @@
     </div>
 
     <div class="nav-links" id="navLinks">
+      <!-- Discover Events — public events listing -->
       <a href="../pages/attendees.html">Discover Events</a>
+      <!-- Create Event — current page -->
       <a href="../pages/create-event.html" class="active">Create Event</a>
-      <a href="../pages/admin-dashboard.html">My Events</a>
+      <!-- My Events — role-based, set dynamically in create-event.js -->
+      <a href="#" id="myEventsLink">My Events</a>
     </div>
 
     <div class="nav-right">
-      <div class="avatar" id="navAvatar" aria-label="User initials"></div>
+      <!-- Avatar initials — filled by JS -->
+      <div class="avatar" id="navAvatar" aria-label="User menu"></div>
       <button type="button" class="menu-btn" id="hamburgerBtn"
-        aria-label="Open menu">
+        aria-label="Open menu" aria-expanded="false">
         <svg width="22" height="22" viewBox="0 0 24 24"
           fill="none" aria-hidden="true">
           <line x1="3"  y1="6"  x2="21" y2="6"
@@ -52,8 +56,12 @@
   <div class="nav-drawer" id="navDrawer" aria-hidden="true">
     <a href="../pages/attendees.html">Discover Events</a>
     <a href="../pages/create-event.html" class="active">Create Event</a>
-    <a href="../pages/admin-dashboard.html">My Events</a>
+    <!-- role-based, set dynamically -->
+    <a href="#" id="myEventsLinkMobile">My Events</a>
+    <a href="#" id="drawerLogout" class="drawer-logout">Logout</a>
   </div>
+  <!-- Overlay to close drawer -->
+  <div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
 
   <!-- ── Page ───────────────────────────────────── -->
   <div class="page">
@@ -75,6 +83,10 @@
       <h1>Create an Event</h1>
       <p class="subtitle">Ready to bring people together? Add your event details below.</p>
     </div>
+
+    <!-- Global feedback banners -->
+    <div class="form-banner form-banner--error"   id="formError"   hidden></div>
+    <div class="form-banner form-banner--success" id="formSuccess" hidden></div>
 
     <!-- Form -->
     <div class="event-form">
@@ -117,18 +129,18 @@
       <!-- Row 4: Event Date + Event Time -->
       <div class="form-row two-col">
         <div class="input-block">
-          <label for="eventDate">Event Date (Local Date)</label>
+          <label for="eventDate">Event Date</label>
           <input type="date" id="eventDate" />
           <span class="input-error" id="eventDateError"></span>
         </div>
         <div class="input-block">
-          <label for="eventTime">Event Time (Local Time)</label>
+          <label for="eventTime">Event Time</label>
           <input type="time" id="eventTime" />
           <span class="input-error" id="eventTimeError"></span>
         </div>
       </div>
 
-      <!-- Row 5: Event Location + Street Address + City -->
+      <!-- Row 5: Location + Street + City -->
       <div class="form-row three-col">
         <div class="input-block">
           <label for="eventLocation">Event Location</label>
@@ -147,7 +159,7 @@
         </div>
       </div>
 
-      <!-- Row 6: Country/State + Event Region -->
+      <!-- Row 6: Country + Region -->
       <div class="form-row two-col">
         <div class="input-block">
           <label for="countryState">Country / State</label>
@@ -174,7 +186,7 @@
         </div>
       </div>
 
-      <!-- Row 7: Event Category + Event Banner -->
+      <!-- Row 7: Category + Banner -->
       <div class="form-row two-col">
         <div class="input-block">
           <label for="eventCategory">Event Category</label>
@@ -216,18 +228,15 @@
         </div>
       </div>
 
-      <!-- Row 8: Event Description -->
+      <!-- Row 8: Description -->
       <div class="form-row">
         <div class="input-block">
           <label for="eventDescription">Others</label>
           <textarea id="eventDescription"
-            placeholder="Please include all necessary details for the event..."></textarea>
+            placeholder="Please include all necessary details for the event…"></textarea>
           <span class="input-error" id="eventDescriptionError"></span>
         </div>
       </div>
-
-      <!-- Global error -->
-      <p class="form-error" id="formError"></p>
 
       <!-- Submit -->
       <div class="form-row">
@@ -239,6 +248,7 @@
     </div><!-- /.event-form -->
   </div><!-- /.page -->
 
+  <!-- Script load order — DO NOT change -->
   <script src="../js/services/auth-service.js"></script>
   <script src="../js/create-event.js"></script>
 

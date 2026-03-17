@@ -1,241 +1,249 @@
-// ================================================
-//  EventPro — Create Event
-//  js/create-event.js
-//  Depends on: js/services/auth-service.js
-//
-//  NOTE: firstName, lastName, emailAddress are
-//  pre-filled read-only from getStoredUser().
-//  They are NOT sent to the backend — user is
-//  already authenticated via JWT.
-// ================================================
+/* ============================================================
+   create-event.js
+   Standalone page — uses own navbar, NOT dashboard shell.
+   Requires: auth-service.js
+   ============================================================ */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function () {
 
-  // Auth guard 
   requireAuth();
 
-  //  Pre-fill user fields 
-  const user = getStoredUser();
+  var user = getStoredUser();
 
-  if (user) {
-    const firstNameEl = document.getElementById('firstName');
-    const lastNameEl  = document.getElementById('lastName');
-    const emailEl     = document.getElementById('emailAddress');
-    const navAvatar   = document.getElementById('navAvatar');
+  /* ── Avatar initials ──────────────────────────────────── */
+  var avatarEl = document.getElementById('navAvatar');
+  if (avatarEl && user) {
+    var initials = [user.firstName, user.lastName]
+      .filter(Boolean)
+      .map(function (n) { return n[0]; })
+      .join('')
+      .toUpperCase() || '?';
+    avatarEl.textContent = initials;
 
-    if (firstNameEl) { firstNameEl.value = user.firstName || ''; }
-    if (lastNameEl)  { lastNameEl.value  = user.lastName  || ''; }
-    if (emailEl)     { emailEl.value     = user.email     || ''; }
-
-    if (navAvatar) {
-      const initials = [
-        user.firstName?.charAt(0) || '',
-        user.lastName?.charAt(0)  || '',
-      ].join('').toUpperCase() || '?';
-      navAvatar.textContent = initials;
-    }
+    // Click avatar → go to dashboard
+    avatarEl.style.cursor = 'pointer';
+    avatarEl.addEventListener('click', function () {
+      _goToDashboard(user.role);
+    });
   }
 
-  // Element refs 
-  const backBtn      = document.getElementById('backBtn');
-  const hamburgerBtn = document.getElementById('hamburgerBtn');
-  const navDrawer    = document.getElementById('navDrawer');
-  const uploadWrap   = document.getElementById('uploadWrap');
-  const bannerInput  = document.getElementById('bannerInput');
-  const uploadLabel  = document.getElementById('uploadLabel');
-  const submitBtn    = document.getElementById('submitBtn');
-  const formError    = document.getElementById('formError');
+  /* ── "My Events" link — role-based ───────────────────── */
+  var myEventsLink       = document.getElementById('myEventsLink');
+  var myEventsLinkMobile = document.getElementById('myEventsLinkMobile');
+  var dashHref = _dashboardHref(user && user.role);
 
-  // Back button 
-  backBtn?.addEventListener('click', () => window.history.back());
+  if (myEventsLink)       myEventsLink.href       = dashHref;
+  if (myEventsLinkMobile) myEventsLinkMobile.href  = dashHref;
 
-  //  Hamburger toggle 
-  hamburgerBtn?.addEventListener('click', () => {
-    const isOpen = navDrawer.classList.toggle('open');
-    navDrawer.setAttribute('aria-hidden', String(!isOpen));
-  });
-
-  // Banner upload 
-  uploadWrap?.addEventListener('click', () => bannerInput?.click());
-
-  uploadWrap?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      bannerInput?.click();
-    }
-  });
-
-  bannerInput?.addEventListener('change', (e) => {
-    const file = e.target.files?.[0];
-    if (file && uploadLabel) uploadLabel.textContent = file.name;
-  });
-
-  // Error helpers 
-  function _showFieldError(errorId, message) {
-    const el = document.getElementById(errorId);
-    if (!el) return;
-    el.textContent = message;
-    el.classList.add('show');
-    const input = el.closest('.input-block')
-      ?.querySelector('input, select, textarea');
-    if (input) input.style.borderColor = 'var(--color-error)';
-  }
-
-  function _clearFieldError(errorId) {
-    const el = document.getElementById(errorId);
-    if (!el) return;
-    el.textContent = '';
-    el.classList.remove('show');
-    const input = el.closest('.input-block')
-      ?.querySelector('input, select, textarea');
-    if (input) input.style.borderColor = '';
-  }
-
-  function _clearAllErrors() {
-    [
-      'firstNameError', 'lastNameError', 'emailAddressError',
-      'eventNameError', 'eventDateError', 'eventTimeError',
-      'eventLocationError', 'streetAddressError', 'cityError',
-      'countryStateError', 'eventRegionError', 'eventCategoryError',
-      'bannerError', 'eventDescriptionError',
-    ].forEach(_clearFieldError);
-
-    if (formError) {
-      formError.textContent = '';
-      formError.classList.remove('show');
-    }
-  }
-
-  function _showGlobalError(message) {
-    if (!formError) return;
-    formError.textContent = message;
-    formError.classList.add('show');
-    formError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-
-  function _setLoading(loading) {
-    if (!submitBtn) return;
-    submitBtn.disabled    = loading;
-    submitBtn.textContent = loading ? 'Creating Event...' : 'Create Event';
-  }
-
-  //  Validation 
-  function _validate() {
-    let valid = true;
-    _clearAllErrors();
-
-    const required = [
-      { id: 'eventName',     errId: 'eventNameError',     msg: 'Event name is required.'          },
-      { id: 'eventDate',     errId: 'eventDateError',     msg: 'Event date is required.'          },
-      { id: 'eventTime',     errId: 'eventTimeError',     msg: 'Event time is required.'          },
-      { id: 'eventLocation', errId: 'eventLocationError', msg: 'Event location is required.'      },
-      { id: 'streetAddress', errId: 'streetAddressError', msg: 'Street address is required.'      },
-      { id: 'city',          errId: 'cityError',          msg: 'City is required.'                },
-      { id: 'countryState',  errId: 'countryStateError',  msg: 'Country / State is required.'     },
-      { id: 'eventRegion',   errId: 'eventRegionError',   msg: 'Please select an event region.'   },
-      { id: 'eventCategory', errId: 'eventCategoryError', msg: 'Please select an event category.' },
-    ];
-
-    required.forEach(({ id, errId, msg }) => {
-      const val = document.getElementById(id)?.value?.trim();
-      if (!val) {
-        _showFieldError(errId, msg);
-        valid = false;
+  /* ── Back button ──────────────────────────────────────── */
+  var backBtn = document.getElementById('backBtn');
+  if (backBtn) {
+    backBtn.addEventListener('click', function () {
+      if (document.referrer) {
+        history.back();
+      } else {
+        _goToDashboard(user && user.role);
       }
     });
-
-    if (!valid) {
-      _showGlobalError('Please fill in all required fields.');
-    }
-
-    return valid;
   }
 
-  // Submit 
-  submitBtn?.addEventListener('click', async () => {
-    if (!_validate()) return;
+  /* ── Mobile hamburger toggle ──────────────────────────── */
+  var hamburger = document.getElementById('hamburgerBtn');
+  var drawer    = document.getElementById('navDrawer');
+  var overlay   = document.getElementById('navOverlay');
 
-    // ── Build ISO date from date + time inputs ──
-    // Swagger requires date as ISO 8601 string
-    const dateVal = document.getElementById('eventDate')?.value; // "2026-03-16"
-    const timeVal = document.getElementById('eventTime')?.value; // "14:30"
-    const isoDate = dateVal && timeVal
-      ? new Date(`${dateVal}T${timeVal}`).toISOString()
-      : dateVal
-        ? new Date(dateVal).toISOString()
-        : null;
+  function _openDrawer() {
+    drawer.removeAttribute('aria-hidden');
+    overlay.removeAttribute('aria-hidden');
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    hamburger.setAttribute('aria-expanded', 'true');
+  }
 
-    // ── Swagger-confirmed payload only ──────────
-    // Extra fields (streetAddress, city, countryState,
-    // region, category) are NOT in the Swagger spec.
-    // Stored locally for display purposes only.
-    const payload = {
-      title:             document.getElementById('eventName')?.value.trim(),
-      description:       document.getElementById('eventDescription')?.value.trim(),
-      date:              isoDate,
-      location:          [
-                           document.getElementById('eventLocation')?.value.trim(),
-                           document.getElementById('streetAddress')?.value.trim(),
-                           document.getElementById('city')?.value.trim(),
-                           document.getElementById('countryState')?.value.trim(),
-                         ].filter(Boolean).join(', '),
-      expectedAttendees: 0,
-      status:            'draft',
-    };
+  function _closeDrawer() {
+    drawer.setAttribute('aria-hidden', 'true');
+    overlay.setAttribute('aria-hidden', 'true');
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    hamburger.setAttribute('aria-expanded', 'false');
+  }
 
-    // Save extra fields locally for UI display
-    const localMeta = {
-      region:   document.getElementById('eventRegion')?.value,
-      category: document.getElementById('eventCategory')?.value,
-    };
+  if (hamburger) hamburger.addEventListener('click', _openDrawer);
+  if (overlay)   overlay.addEventListener('click', _closeDrawer);
 
-    _setLoading(true);
+  // Close on nav link click
+  if (drawer) {
+    drawer.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', _closeDrawer);
+    });
+  }
 
-    try {
-      const response = await fetch(
-        `${BASE_URL}/events`,
-        {
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') _closeDrawer();
+  });
+
+  /* ── Drawer logout ────────────────────────────────────── */
+  var drawerLogout = document.getElementById('drawerLogout');
+  if (drawerLogout) drawerLogout.addEventListener('click', logoutUser);
+
+  /* ── Create Event form ────────────────────────────────── */
+  _initForm(user);
+
+});
+
+/* ── Pre-fill user fields ─────────────────────────────── */
+function _initForm(user) {
+  if (!user) return;
+
+  var firstNameEl = document.getElementById('firstName');
+  var lastNameEl  = document.getElementById('lastName');
+  var emailEl     = document.getElementById('emailAddress');
+
+  if (firstNameEl) firstNameEl.value = user.firstName || '';
+  if (lastNameEl)  lastNameEl.value  = user.lastName  || '';
+  if (emailEl)     emailEl.value     = user.email     || '';
+
+  /* ── Upload banner preview ──────────────────────────── */
+  var uploadWrap  = document.getElementById('uploadWrap');
+  var bannerInput = document.getElementById('bannerInput');
+  var uploadLabel = document.getElementById('uploadLabel');
+
+  if (uploadWrap && bannerInput) {
+    uploadWrap.addEventListener('click', function () { bannerInput.click(); });
+    uploadWrap.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') bannerInput.click();
+    });
+    bannerInput.addEventListener('change', function () {
+      var file = bannerInput.files[0];
+      if (file && uploadLabel) uploadLabel.textContent = file.name;
+    });
+  }
+
+  /* ── Submit ─────────────────────────────────────────── */
+  var submitBtn   = document.getElementById('submitBtn');
+  var errorBanner = document.getElementById('formError');
+  var okBanner    = document.getElementById('formSuccess');
+
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async function () {
+      _hideBanners(errorBanner, okBanner);
+
+      var eventName    = document.getElementById('eventName');
+      var eventDate    = document.getElementById('eventDate');
+      var eventTime    = document.getElementById('eventTime');
+      var eventLoc     = document.getElementById('eventLocation');
+      var streetAddr   = document.getElementById('streetAddress');
+      var city         = document.getElementById('city');
+      var countryState = document.getElementById('countryState');
+      var region       = document.getElementById('eventRegion');
+      var category     = document.getElementById('eventCategory');
+      var description  = document.getElementById('eventDescription');
+
+      /* Basic validation */
+      var valid = true;
+
+      var required = [
+        { el: eventName,    errId: 'eventNameError',     msg: 'Event name is required.' },
+        { el: eventDate,    errId: 'eventDateError',     msg: 'Event date is required.' },
+        { el: eventTime,    errId: 'eventTimeError',     msg: 'Event time is required.' },
+        { el: eventLoc,     errId: 'eventLocationError', msg: 'Location is required.' },
+        { el: streetAddr,   errId: 'streetAddressError', msg: 'Street address is required.' },
+        { el: city,         errId: 'cityError',          msg: 'City is required.' },
+        { el: countryState, errId: 'countryStateError',  msg: 'Country/State is required.' },
+      ];
+
+      required.forEach(function (item) {
+        var errEl = document.getElementById(item.errId);
+        if (!item.el.value.trim()) {
+          item.el.classList.add('input-error');
+          if (errEl) errEl.textContent = item.msg;
+          valid = false;
+        } else {
+          item.el.classList.remove('input-error');
+          if (errEl) errEl.textContent = '';
+        }
+      });
+
+      if (region && !region.value) {
+        document.getElementById('eventRegionError').textContent = 'Please select a region.';
+        valid = false;
+      }
+      if (category && !category.value) {
+        document.getElementById('eventCategoryError').textContent = 'Please select a category.';
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      submitBtn.disabled    = true;
+      submitBtn.textContent = 'Creating…';
+
+      /* Combine date + time into ISO string */
+      var startDate = new Date(eventDate.value + 'T' + eventTime.value).toISOString();
+
+      var payload = {
+        title:       eventName.value.trim(),
+        startDate:   startDate,
+        location:    eventLoc.value.trim(),
+        address:     streetAddr.value.trim(),
+        city:        city.value.trim(),
+        country:     countryState.value.trim(),
+        region:      region.value,
+        category:    category.value,
+        description: description ? description.value.trim() : '',
+      };
+
+      try {
+        var res = await fetch('https://eventpro-fxfv.onrender.com/api/events', {
           method:  'POST',
           headers: {
             'Content-Type':  'application/json',
-            'Authorization': `Bearer ${getStoredToken()}`,
+            'Authorization': 'Bearer ' + getStoredToken()
           },
-          body:   JSON.stringify(payload),
-          signal: AbortSignal.timeout(15000),
-        }
-      );
+          body: JSON.stringify(payload)
+        });
 
-      const data = await response.json();
+        var data = await res.json();
 
-      if (response.ok) {
-        // Store created event + local meta for next screen
-        const eventData = data.event ?? data;
-        localStorage.setItem(
-          'eventpro_created_event',
-          JSON.stringify({ ...eventData, ...localMeta })
-        );
+        if (!res.ok) throw new Error(data.message || 'Failed to create event.');
 
-        // Redirect by role
-        const currentUser = getStoredUser();
-        window.location.href = currentUser?.role === 'admin'
-          ? '../pages/admin-dashboard.html'
-          : '../pages/attendees.html';
+        _showBanner(okBanner, 'Event created successfully! Redirecting…');
 
-      } else {
-        _showGlobalError(
-          data.message || 'Failed to create event. Please try again.'
-        );
-        _setLoading(false);
+        /* On success — go to the organizer dashboard */
+        setTimeout(function () {
+          window.location.href = '../pages/organizer-dashboard.html';
+        }, 1500);
+
+      } catch (err) {
+        _showBanner(errorBanner, err.message || 'Something went wrong. Please try again.');
+        submitBtn.disabled    = false;
+        submitBtn.textContent = 'Create Event';
       }
+    });
+  }
+}
 
-    } catch (err) {
-      _showGlobalError(
-        err.name === 'TimeoutError'
-          ? 'Request timed out. The server may be starting up — please try again.'
-          : 'Network error. Please check your connection and try again.'
-      );
-      _setLoading(false);
-    }
-  });
+/* ── Helpers ──────────────────────────────────────────── */
+function _dashboardHref(role) {
+  if (role === 'admin')     return '../pages/admin-dashboard.html';
+  if (role === 'organizer') return '../pages/organizer-dashboard.html';
+  return '../pages/attendees.html';
+}
 
-});
+function _goToDashboard(role) {
+  window.location.href = _dashboardHref(role);
+}
+
+function _showBanner(el, msg) {
+  if (!el) return;
+  el.textContent = msg;
+  el.hidden      = false;
+}
+
+function _hideBanners() {
+  for (var i = 0; i < arguments.length; i++) {
+    if (arguments[i]) arguments[i].hidden = true;
+  }
+}
