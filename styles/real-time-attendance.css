@@ -5,7 +5,6 @@
    px   → borders & border-radius only
    ============================================================ */
 
-/* ── Page-scoped tokens (single source of truth) ────────── */
 :root {
   --rta-green:         #22C55E;
   --rta-orange:        #FA8838;
@@ -18,19 +17,18 @@
   --rta-card-radius:   15px;
 }
 
-/* ── Page Header ─────────────────────────────────────────── */
 .rta-page-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.2rem;
 }
 
 .rta-page-header__title {
   font-family: Poppins, sans-serif;
-  font-size: clamp(1.375rem, 2.5vw, 1.875rem);
+  font-size: clamp(1.3rem, 2vw, 1.5rem);
   font-weight: 600;
   line-height: 1;
   color: var(--color-text-dark);
@@ -46,20 +44,21 @@
 }
 
 .rta-page-header__crumb-light {
+    color:#6F00FF;
   font-weight: 300;
 }
 
 /* Switch Event Button */
 .rta-btn-switch {
   font-family: Poppins, sans-serif;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--color-card-bg);
   background: var(--color-primary);
   border: none;
   border-radius: 5px;
   padding: 0.625rem 1rem;
-  min-height: 2.5625rem;
+  min-height: 2.5rem;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.2s;
@@ -72,13 +71,12 @@
   outline: none;
 }
 
-/* ── Event Info Bar ──────────────────────────────────────── */
 .rta-event-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.7rem;
   padding: 0.875rem 1.25rem;
   background: var(--color-card-bg);
   border: 1px solid var(--color-border);
@@ -89,10 +87,10 @@
 .rta-event-bar__meta {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
   font-family: Poppins, sans-serif;
-  font-size: 0.9375rem;
+  font-size: 0.9rem;
 }
 
 .rta-event-bar__name {
@@ -113,7 +111,7 @@
   border: none;
   color: var(--color-primary);
   font-family: Poppins, sans-serif;
-  font-size: 0.9375rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   padding: 0;
@@ -128,14 +126,14 @@
 .rta-event-bar__refresh {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.3rem;
   background: var(--color-primary-light);
   border: 1px solid var(--color-primary);
   border-radius: 6px;
   color: var(--color-primary);
   font-family: Poppins, sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 400;
   padding: 0.375rem 0.75rem;
   cursor: pointer;
   white-space: nowrap;
@@ -161,14 +159,12 @@
   transform: rotate(180deg);
 }
 
-/* ── Section Divider ─────────────────────────────────────── */
 .rta-divider {
   border: none;
   border-top: 1px solid var(--color-border);
   margin: 0 0 1.5rem;
 }
 
-/* ── Stats Row ───────────────────────────────────────────── */
 .rta-stats-row {
   display: flex;
   align-items: stretch;
@@ -193,7 +189,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 1rem 1.25rem;
+  padding: 1rem 1rem;
   border-right: 1px solid var(--color-border-light);
   min-width: 0;
 }
@@ -204,7 +200,7 @@
 
 .rta-stat__num {
   font-family: Poppins, sans-serif;
-  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-size: clamp(1.4rem, 2vw, 1.7rem);
   font-weight: 700;
   color: var(--color-text-dark);
   margin: 0 0 0.125rem;
@@ -214,12 +210,12 @@
 .rta-stat__num--green { color: var(--rta-green); }
 
 .rta-stat__num--sm {
-  font-size: clamp(1rem, 2vw, 1.375rem);
+  font-size: clamp(1rem, 2vw, 1.4rem);
 }
 
 .rta-stat__lbl {
   font-family: Poppins, sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 400;
   color: var(--color-text-muted);
   margin: 0;
@@ -227,7 +223,7 @@
 
 /* Yet to Arrive card */
 .rta-yet-card {
-  width: min(100%, 14.375rem);
+  width: min(100%, 14rem);
   flex-shrink: 0;
   background: var(--color-card-bg);
   border: 1px solid var(--rta-orange);
@@ -241,7 +237,7 @@
 
 .rta-yet-card__lbl {
   font-family: Poppins, sans-serif;
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--color-text-muted);
   margin: 0;
@@ -275,34 +271,32 @@
 .rta-yet-card__num {
   font-family: Poppins, sans-serif;
   font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--rta-orange);
   margin: 0;
   line-height: 1;
 }
 
-/* ── Main Grid ───────────────────────────────────────────── */
 .rta-grid {
   display: flex;
-  gap: 1.25rem;
+  gap: 1.2rem;
   align-items: flex-start;
   flex-wrap: wrap;
 }
 
 .rta-col-left {
-  flex: 1 1 min(100%, 42rem);
+  flex: 1 1 min(100%, 40rem);
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.2rem;
   min-width: 0;
 }
 
 .rta-col-right {
   flex: 0 1 19.0625rem;
-  min-width: min(100%, 19.0625rem);
+  min-width: min(100%, 19rem);
 }
 
-/* ── Shared Card ─────────────────────────────────────────── */
 .rta-card {
   background: var(--color-card-bg);
   border: 1px solid var(--color-border);
@@ -313,14 +307,13 @@
 .rta-card__title {
   font-family: Poppins, sans-serif;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-text-dark);
   margin: 0 0 0.875rem;
 }
 
-/* ── Live Attendance Status ──────────────────────────────── */
 .rta-live-status {
-  min-height: 9.5rem;
+  min-height: 9rem;
 }
 
 .rta-live-status .rta-card__title {
@@ -337,14 +330,14 @@
 .rta-progress-info {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.6rem;
   flex-shrink: 0;
 }
 
 .rta-progress-info__num {
   font-family: Poppins, sans-serif;
-  font-size: clamp(1.375rem, 2.5vw, 1.75rem);
-  font-weight: 700;
+  font-size: clamp(1.3rem, 2vw, 1.5rem);
+  font-weight: 600;
   color: var(--color-text-dark);
   line-height: 1;
 }
@@ -353,13 +346,13 @@
   display: flex;
   flex-direction: column;
   font-family: Poppins, sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--color-text-muted);
   line-height: 1.5;
 }
 
 .rta-progress-info__meta b {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-text-dark);
 }
 
@@ -383,14 +376,13 @@
 
 .rta-progress-tag {
   font-family: Poppins, sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
   color: var(--color-primary);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
-/* ── Check-In Activity ───────────────────────────────────── */
 .rta-activity__head {
   display: flex;
   align-items: center;
@@ -398,6 +390,9 @@
   margin-bottom: 1rem;
 }
 
+.rta-activity{
+    min-height: 22.2rem ;
+}
 .rta-activity__head .rta-card__title {
   margin: 0;
 }
@@ -407,7 +402,7 @@
   align-items: center;
   gap: 0.25rem;
   font-family: Poppins, sans-serif;
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--color-primary);
   background: var(--color-primary-light);
@@ -442,8 +437,8 @@
 
 .rta-table th {
   text-align: left;
-  font-weight: 600;
-  font-size: 0.75rem;
+  font-weight: 500;
+  font-size: 0.7rem;
   color: var(--color-text-muted);
   padding: 0.5rem 0.875rem;
   white-space: nowrap;
@@ -493,7 +488,7 @@
 .rta-status {
   display: inline-flex;
   align-items: center;
-  gap: 0.3125rem;
+  gap: 0.4rem;
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -501,8 +496,8 @@
 .rta-status::before {
   content: "";
   display: inline-block;
-  width: 0.4375rem;
-  height: 0.4375rem;
+  width: 0.4rem;
+  height: 0.4rem;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -515,12 +510,11 @@
   background: var(--color-success-text);
 }
 
-/* Row detail arrow */
 .rta-row-arrow {
   background: none;
   border: none;
   color: var(--color-text-muted);
-  font-size: 1.125rem;
+  font-size: 1rem;
   cursor: pointer;
   padding: 0 0.25rem;
   line-height: 1;
@@ -542,8 +536,8 @@
 /* Spinner */
 .rta-spinner {
   display: inline-block;
-  width: 1.625rem;
-  height: 1.625rem;
+  width: 1.6rem;
+  height: 1.6rem;
   border: 2px solid var(--color-border);
   border-top-color: var(--color-primary);
   border-radius: 50%;
@@ -554,7 +548,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* ── Right Column — Stats Panel ──────────────────────────── */
 .rta-stats-panel {
   padding: 1.25rem;
 }
@@ -571,8 +564,8 @@
 
 /* Donut chart */
 .rta-chart-wrap {
-  width: 13.3125rem;
-  height: 13.3125rem;
+  width: 13rem;
+  height: 13rem;
   margin: 0 auto 1.25rem;
   display: flex;
   align-items: center;
@@ -603,8 +596,8 @@
 }
 
 .rta-legend__dot {
-  width: 0.625rem;
-  height: 0.625rem;
+  width: 0.6rem;
+  height: 0.6rem;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -647,7 +640,6 @@
   font-weight: 600;
 }
 
-/* ── Modal ───────────────────────────────────────────────── */
 .rta-modal-overlay {
   position: fixed;
   inset: 0;
@@ -693,8 +685,8 @@
 
 .rta-modal__title {
   font-family: Poppins, sans-serif;
-  font-size: 1.0625rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 500;
   color: var(--color-text-dark);
   margin: 0;
 }
@@ -702,7 +694,7 @@
 .rta-modal__close {
   background: none;
   border: none;
-  font-size: 1.125rem;
+  font-size: 1rem;
   color: var(--color-text-muted);
   cursor: pointer;
   padding: 0.25rem;
@@ -729,7 +721,7 @@
   padding: 0.875rem 1.5rem;
   cursor: pointer;
   font-family: Poppins, sans-serif;
-  font-size: 0.9375rem;
+  font-size: 0.9rem;
   color: var(--color-text-dark);
   transition: background 0.15s;
 }
@@ -762,7 +754,6 @@
   font-size: 0.875rem;
 }
 
-/* ── Responsive ──────────────────────────────────────────── */
 
 /* Tablet — stack grid columns */
 @media (max-width: 64rem) {
