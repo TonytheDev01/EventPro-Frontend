@@ -1,3 +1,18 @@
+/* ================================================
+   EventPro — Sign Up Page
+   Mobile-first. Scales to tablet and desktop.
+   Pulls shared input styles from form-input.css
+   Base font size = 16px
+   ================================================ */
+:root {
+  --color-primary:       #6F00FF;
+  --color-primary-hover: #5900CC;
+  --color-text-dark:     #1F2937;
+  --color-text-muted:    #6B7280;
+  --color-white:         #FFFFFF;
+  --color-signin-link:   #6F00FF;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -5,87 +20,116 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #FFFFFF;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--color-white);
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem;
+  padding: 1.5rem 1.5rem;
 }
 
-   /* MOBILE FIRST — single column */
 .page-wrapper {
   width: 100%;
-  max-width: 90rem;
+  max-width: 65rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
-}
-
-/* ── Form Card ── */
-.form-card {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 1.25rem;
-}
-
-/* ── Page title ── */
-.form-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1F2937;
-  text-align: center;
-}
-
-/* ── Form fields ── */
-.signup-form {
-  display: flex;
-  flex-direction: column;
+  justify-content: center;
   gap: 1.5rem;
 }
 
-/* ── Submit button ── */
-.btn-primary {
-  width: 100%;
-  height: 2.75rem;
-  background-color: #8F00FF;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer;
-  transition: background-color 0.2s ease, opacity 0.2s ease;
-  margin-top: 0.5rem;
-}
-
-.btn-primary:hover {
-  background-color: #7600D4;
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* ── Illustration card — hidden on mobile ── */
+/* Illustration — hidden on mobile */
 .illustration-card {
   display: none;
 }
 
-   /* TABLET (768px+)
-   Side by side layout, illustration shows */
+.form-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;              
+}
 
-   @media (min-width: 768px) {
+.form-title {
+  display: flex;
+  justify-content: flex-start;
+  font-size: clamp(1.5rem, 2vw, 1.7rem);
+  font-weight: 600;
+  color: var(--color-text-dark);
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;              
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--color-text-dark);
+  font-family: 'Poppins', sans-serif;
+}
+
+.btn-primary {
+  width: 100%;
+  height: 3.5rem;            
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 11px;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease-out,
+              opacity 0.2s ease-out;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.signin-text {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.signin-link {
+  color: var(--color-signin-link);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.signin-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Tablet (48rem = 768px) ──────────────────── */
+@media (min-width: 48rem) {
   body {
-    padding: 2rem 1.5rem;
-    align-items: center;
-    min-height: 100vh;
+    padding: 2.5rem 2.5rem;
   }
 
   .page-wrapper {
@@ -93,40 +137,26 @@ body {
     align-items: center;
     justify-content: center;
     gap: 1.5rem;
-    width: 100%;
   }
 
-  /* Form card — fixed to design width */
   .form-card {
-    width: 28.375rem;
-    flex-shrink: 1;
-    padding: 1.5rem;
-    gap: 1.2rem;
+    order: 1;
+    width: min(28rem, 50%);
+    flex-shrink: 0;
   }
 
-  /* Illustration shows on tablet+ */
   .illustration-card {
+    order: 2;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 39.375rem;
-    flex-shrink: 0.5;
-    align-self: stretch;
+    flex: 1;
     border-radius: 15px;
     overflow: hidden;
+    min-height: 30rem;
   }
 
-  .illustration-inner {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-  }
-
-  /* ── The actual image ── */
-  .illustration-inner img {
+  .illustration-card img {
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -134,30 +164,39 @@ body {
   }
 }
 
-   /* DESKTOP (1200px+)
-   Full design spec */
-@media (min-width: 1200px) {
+/* ── Desktop (75rem = 1200px) ────────────────── */
+@media (min-width: 75rem) {
   body {
-    padding: 2rem;
+    padding: 4.5rem;
   }
 
   .page-wrapper {
-    gap: 2.5rem;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
+    gap: 1.5rem;
   }
 
   .form-card {
-    width: 28.375rem;
-    padding: 2rem;
-    min-height: 47.8125rem;
-    justify-content: center;
-    gap: 2rem;
+    order: 1;
+    width: min(28rem, 50%);
+    flex-shrink: 0;
+    height: auto;
   }
 
   .illustration-card {
-    width: 39.375rem;
-    height: 55.625rem;
-    align-self: auto;
+    order: 2;
+    width: min(38rem, 50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    overflow: hidden;
+  }
+
+  .illustration-card img {
+    width: 100%;
+    height: 40rem;
+    object-fit: contain;
   }
 }

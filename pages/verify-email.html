@@ -1,38 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification</title>
-    <link rel="stylesheet" href="../styles/verify-email.css"/>
-    
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify Email | EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../styles/verify-email.css" />
 </head>
 <body>
 
-    <div id="verification-img">
-        <img src="../assets/images/verify-icon.png" alt="Email verification" />
-    </div>
+  <div class="ve-wrapper">
 
+    <!-- Image — 515×445 -->
+    <img
+      src="../assets/images/verify-icon.png"
+      alt="Check your inbox"
+      class="ve-image"
+    />
 
-    <div id="verify-heading">
-        <h2 class="check-h2">Check your inbox</h2>
-        <br>
-        <p class="verify-text">
-            We have sent a verification link to 
-            <strong id="masked-email">j***@email.com</strong>. 
-            Click the link to activate your account and 
-            start managing your events.
-        </p>
-    </div>
+    <!-- Heading — 40px | 600 | ls -2% -->
+    <h1 class="ve-heading">Check your inbox</h1>
 
-    <button id="resendBtn">Resend Verification Mail</button>
-    <br>
-    <p class="change-email">Wrong Email? <a href="#">Change it</a></p>
-    <br>
+    <!-- Body — 18px | 400 | lh 30px | ls -2% -->
+    <p class="ve-body">
+      We have sent a verification link to
+      <strong id="maskedEmail" class="ve-email">your email</strong>.
+      Click the link to activate your account and
+      start managing your events.
+    </p>
 
-    <a href="#" class="back-to-login">Back to Login Page</a>
+    <!-- Button — 328×68 | r 9.23px | p 20px 70px -->
+    <button type="button" class="ve-btn" id="resendBtn">
+      Resend Verification Mail
+    </button>
 
-    <script src="../js/form-input.js"></script>
-    <script src="../js/verify-email.js"></script>
+    <!-- Wrong email — 18px | 500 | ls -2% -->
+    <p class="ve-change">
+      Wrong email?
+      <a href="../pages/sign-in.html" class="ve-change__link">Change it</a>
+    </p>
+
+    <!-- Back to login — 16px | 500 | ls -2% -->
+    <a href="../pages/sign-in.html" class="ve-back">
+      Back to Login Page
+    </a>
+
+    <!-- Status message — hidden, shown by JS only when needed -->
+    <p class="ve-status" id="veStatus" aria-live="polite"></p>
+
+  </div>
+
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/verify-email.js"></script>
+
 </body>
 </html>

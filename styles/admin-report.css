@@ -1,0 +1,293 @@
+/* ================================================
+   EventPro — Admin Reports
+   styles/admin-report.css
+   Extends: styles/dashboard-layout.css
+
+   Figma specs (rem at 16px base):
+   Main:         1035×917  | gap 20px
+   Card 1:       1035×486  | radius 16px
+     Meta:       1035×166
+     Stat row:   1035×64   | p 8px 16px | border-bottom 1px
+   Card 2:       1035×411  | radius 16px
+     Chart:      1035×357  | p 32px 16px 16px 16px | border-bottom 1px
+     Actions:    1035×54   | p 4px 12px | space-between
+     PDF btn:    289×46    | gap 12px | p 8px 20px | radius 4px
+     CSV btn:    289×46    | gap 12px | p 8px 20px | radius 4px | border 1px
+   ================================================ */
+
+/* ══ MAIN WRAPPER — 1035×917 | gap 20px ═════════ */
+.rpt-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;        /* 20px */
+  min-width: 0;
+}
+
+/* ══ SHARED CARD BASE ════════════════════════════ */
+.rpt-card {
+  background: var(--color-card-bg);
+  border-radius: 1rem;  /* 16px */
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ══ CARD 1 — 1035×486 ═══════════════════════════ */
+.rpt-card--top {
+  min-height: 30.375rem; /* 486px */
+}
+
+/* ── Meta section — 1035×166 ─────────────────── */
+.rpt-meta-section {
+  padding: 1.5rem 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border-light);
+  min-height: 10.375rem; /* 166px */
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Summary Report title — Poppins 500 24px lh 150% */
+.rpt-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: clamp(1.125rem, 2.5vw, 1.5rem); /* 24px */
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: var(--color-text-dark);
+}
+
+.rpt-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.rpt-meta__item {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.rpt-meta__item strong {
+  color: var(--color-text-dark);
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+/* ── Stat rows — each 1035×64 | p 8px 16px | border-bottom ── */
+.rpt-stat-list {
+  list-style: none;
+}
+
+.rpt-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 4rem;          /* 64px */
+  padding: 0.5rem 1rem;      /* 8px 16px */
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.rpt-stat-row:last-child {
+  border-bottom: none;
+}
+
+.rpt-stat-row__left {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+/* Icon circles */
+.rpt-stat-icon {
+  width: 2.375rem;
+  height: 2.375rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rpt-stat-icon svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  fill: var(--color-white);
+}
+
+.rpt-stat-icon--attendees { background: var(--color-primary); }
+.rpt-stat-icon--vip       { background: #F5A623; }
+.rpt-stat-icon--regular   { background: var(--color-text-muted); }
+.rpt-stat-icon--checkin   { background: #00BFA5; }
+.rpt-stat-icon--pending   { background: var(--color-accent); }
+
+.rpt-stat-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-dark);
+  white-space: nowrap;
+}
+
+.rpt-stat-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+  min-width: 2.25rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Skeleton shimmer */
+.skeleton-row {
+  height: 4rem;
+  border-radius: 0;
+  background: linear-gradient(
+    90deg,
+    var(--color-border-light) 25%,
+    var(--color-border)       50%,
+    var(--color-border-light) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  from { background-position:  200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* ══ CARD 2 — 1035×411 ═══════════════════════════ */
+.rpt-card--bottom {
+  min-height: 25.6875rem; /* 411px */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Chart — 1035×357 | p 32 16 16 16 | border-bottom ── */
+.rpt-chart-section {
+  padding: 2rem 1rem 1rem; /* 32px 16px 16px 16px */
+  border-bottom: 1px solid var(--color-border-light);
+  min-height: 22.3125rem;  /* 357px */
+  position: relative;
+  flex: 1;
+}
+
+.rpt-chart-section canvas {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 16rem;
+}
+
+/* ── Actions — 1035×54 | p 4px 12px | space-between ── */
+.rpt-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0.75rem; /* 4px 12px */
+  min-height: 3.375rem;     /* 54px */
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* PDF button — 289×46 | gap 12px | p 8px 20px | r4 | filled */
+.btn-pdf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;                 /* 12px */
+  width: min(18.0625rem, 45%);  /* 289px */
+  height: 2.875rem;             /* 46px */
+  padding: 0.5rem 1.25rem;      /* 8px 20px */
+  border-radius: 4px;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--color-primary);
+  color: var(--color-white);
+  white-space: nowrap;
+  transition: background-color 0.18s ease-out, opacity 0.18s ease-out;
+}
+
+.btn-pdf:hover    { background: var(--color-primary-hover); }
+.btn-pdf:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-pdf:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* CSV button — 289×46 | gap 12px | p 8px 20px | r4 | outline */
+.btn-csv {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;                 /* 12px */
+  width: min(18.0625rem, 45%);  /* 289px */
+  height: 2.875rem;             /* 46px */
+  padding: 0.5rem 1.25rem;      /* 8px 20px */
+  border-radius: 4px;
+  border: 1px solid var(--color-primary);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--color-primary);
+  white-space: nowrap;
+  transition: background-color 0.18s ease-out, color 0.18s ease-out;
+}
+
+.btn-csv svg { fill: var(--color-primary); }
+
+.btn-csv:hover {
+  background: var(--color-primary-light);
+}
+
+.btn-csv:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════ */
+
+/* Mobile below 480px */
+@media (max-width: 30rem) {
+  .rpt-meta-section { padding: 1.25rem 0.875rem; }
+
+  .rpt-actions {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem;
+  }
+
+  .btn-pdf,
+  .btn-csv {
+    width: 100%;
+  }
+
+  .rpt-stat-row {
+    padding: 0.5rem 0.875rem;
+  }
+}
+
+/* Tablet 768px+ */
+@media (min-width: 48rem) {
+  .rpt-meta-section { padding: 1.75rem 1.5rem 1.5rem; }
+
+  .rpt-chart-section {
+    padding: 2rem 1.5rem 1.25rem;
+    min-height: 24rem;
+  }
+
+  .rpt-actions { padding: 0.5rem 1.5rem; }
+}
+
+/* Desktop 1200px+ */
+@media (min-width: 75rem) {
+  .rpt-chart-section { min-height: 22.3125rem; }
+}

@@ -1,145 +1,144 @@
-// EventPro — Confirm Registration Page Logic
+// ================================================
+//  EventPro — Confirm Registration
+//  js/confirm-registration.js
+//  Depends on: js/services/auth-service.js
+//
+//  Reads event data from localStorage key:
+//  'eventpro_selected_event' (set by gen-ad.js)
+//
+//  ⚠️  POST /events/{id}/register is NOT yet in
+//  Swagger. Currently navigates to youre-all-set
+//  directly on confirm. Will wire to real endpoint
+//  once Ezekiel confirms it.
+// ================================================
 
-const BASE_URL = process.env.API_URL || "http://localhost:5000/api";
-const confirmBtn = document.getElementById("confirmBtn");
-const cancelBtn = document.getElementById("cancelBtn");
-const errorMessage = document.getElementById("errorMessage");
+const BASE_URL = 'https://eventpro-fxfv.onrender.com/api';
 
-// Elements to populate
+document.addEventListener('DOMContentLoaded', () => {
 
-const eventTitle = document.getElementById("event-title");
-const eventDate = document.getElementById("event-date");
-const eventTime = document.getElementById("event-time");
-const eventLocation = document.getElementById("event-location");
-const eventTicketType = document.getElementById("event-ticket-type");
-const eventAttendee = document.getElementById("event-attendee");
+  // ── Auth guard ────────────────────────────────
+  requireAuth();
 
-// Format date: "2026-03-28T09:00:00.000Z" → "March 28, 2026" 
+  // ── Element refs ──────────────────────────────
+  const confirmBtn      = document.getElementById('confirmBtn');
+  const cancelBtn       = document.getElementById('cancelBtn');
+  const errorMessageEl  = document.getElementById('errorMessage');
+  const eventTitleEl    = document.getElementById('event-title');
+  const eventDateEl     = document.getElementById('event-date');
+  const eventTimeEl     = document.getElementById('event-time');
+  const eventLocationEl = document.getElementById('event-location');
+  const ticketTypeEl    = document.getElementById('event-ticket-type');
+  const attendeeEl      = document.getElementById('event-attendee');
 
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric"
-});
-}
+  // ── Load event from localStorage ──────────────
+  const raw   = localStorage.getItem('eventpro_selected_event');
+  const event = raw ? _safeParse(raw) : null;
+  const user  = getStoredUser();
 
-//  Format time: "2026-03-28T09:00:00.000Z" → "9:00 AM" 
-
-function formatTime(dateString) {
-    const date = new Date(dateString);  
-    return date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true
-});
-}
-
-// Populate event details from localStorage 
-
-function populateEventDetails() {
-    const eventData = localStorage.getItem("selectedEvent");
-    const user = getStoredUser();
-
-    if (!eventData) {
-        eventTitle.textContent = "Event details not found";
+  if (!event) {
+    if (eventTitleEl) eventTitleEl.textContent = 'Event details not found.';
+    if (confirmBtn)   confirmBtn.disabled = true;
     return;
-}
+  }
 
-const event = JSON.parse(eventData);
+  // ── Populate fields ───────────────────────────
+  if (eventTitleEl)    eventTitleEl.textContent    = event.title ?? event.name ?? '—';
+  if (eventDateEl)     eventDateEl.textContent     = event.date ? _fmtDate(event.date) : '—';
+  if (eventTimeEl)     eventTimeEl.textContent     = event.date ? _fmtTime(event.date) : '—';
+  if (eventLocationEl) eventLocationEl.textContent = event.location ?? '—';
+  if (ticketTypeEl)    ticketTypeEl.textContent    = event.ticketType ?? 'General Admission';
 
-eventTitle.textContent = event.title || "—";
-eventDate.textContent = event.date ? formatDate(event.date) : "—";
-eventTime.textContent = event.date ? formatTime(event.date) : "—";
-eventLocation.textContent = event.location || "—";
-eventTicketType.textContent = event.ticketType || "General Admission";
+  if (attendeeEl && user) {
+    attendeeEl.textContent =
+      `${user.firstName ?? ''} ${user.lastName ?? ''} — ${user.email ?? ''}`.trim();
+  }
 
-// Populate attendee from logged in user
-if (user) {
-    eventAttendee.textContent = `${user.firstName} ${user.lastName} — ${user.email}`;
-}
-}
+  // ── Cancel ────────────────────────────────────
+  cancelBtn?.addEventListener('click', () => window.history.back());
 
-// Show error message 
-function showError(message) {
-    errorMessage.textContent = message;
-    errorMessage.style.display = "block";
-}
+  // ── Confirm Registration ──────────────────────
+  confirmBtn?.addEventListener('click', async () => {
+    if (errorMessageEl) errorMessageEl.style.display = 'none';
+    _setLoading(confirmBtn, true, 'Processing…');
 
-// Confirm Registration — calls backend API 
-confirmBtn.addEventListener("click", async () => {
-    confirmBtn.disabled = true;
-    confirmBtn.textContent = "Processing...";
-    errorMessage.style.display = "none";
+    const eventId = event._id ?? event.id;
 
-    const token = getStoredToken();
-    const eventData = localStorage.getItem("selectedEvent");
+    try {
+      // ⚠️ /events/{id}/register not yet in Swagger
+      // Attempting call — will gracefully fall through if 404
+      const res = await fetch(`${BASE_URL}/events/${eventId}/register`, {
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${getStoredToken()}`,
+        },
+        signal: AbortSignal.timeout(15000),
+      });
 
-    if (!token) {
-        window.location.href = "../pages/login.html";
-    return;
-}
+      // If endpoint doesn't exist yet (404/405) still proceed to success
+      if (res.ok || res.status === 404 || res.status === 405) {
+        // Store confirmed registration for youre-all-set.html
+        localStorage.setItem(
+          'eventpro_registration_confirmed',
+          JSON.stringify(event)
+        );
+        window.location.href = '../pages/youre-all-set.html';
+        return;
+      }
 
-if (!eventData) {
-    showError("Event details not found. Please go back and try again.");
-    confirmBtn.disabled = false;
-    confirmBtn.textContent = "Confirm Registration";
-    return;
-}
+      const data = await res.json().catch(() => ({}));
+      _showError(errorMessageEl, data.message || 'Registration failed. Please try again.');
+      _setLoading(confirmBtn, false, 'Confirm Registration');
 
-const event = JSON.parse(eventData);
-
-try {
-    const response = await fetch(`${BASE_URL}/event/${event_id}/register`, {
-    method: "POST",
-    
-    headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer ${token}"
-}
+    } catch (err) {
+      // Network error — still allow proceed for testing
+      if (err.name === 'TimeoutError') {
+        _showError(errorMessageEl, 'Request timed out. Please try again.');
+      } else {
+        // For testing without endpoint — proceed anyway
+        localStorage.setItem(
+          'eventpro_registration_confirmed',
+          JSON.stringify(event)
+        );
+        window.location.href = '../pages/youre-all-set.html';
+        return;
+      }
+      _setLoading(confirmBtn, false, 'Confirm Registration');
+    }
+  });
 });
 
-const data = await response.json();
+//  UTILITIES
 
-if (!response.ok) {
-  showError(data.message || "Registration failed. Please try again.");
-  confirmBtn.disabled    = false;
-  confirmBtn.textContent = "Confirm Registration";
-  return;
+function _fmtDate(raw) {
+  try {
+    return new Date(raw).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric',
+    });
+  } catch { return raw; }
 }
 
-// Save confirmation data for the success screen
-
-localStorage.setItem("registrationConfirmed", JSON.stringify(data));
-
-// Navigate to success screen
-
-window.location.href = "../pages/registration-success.html";
-
-} catch (error) {
-    showError("Network error — please check your connection and try again.");
-    confirmBtn.disabled = false;
-    confirmBtn.textContent = "Confirm Registration";
-}
-});
-
-// Cancel — go back to previous page 
-
-cancelBtn.addEventListener("click", () => {
-    window.history.back();
-});
-
-// Run on page load 
-
-document.addEventListener("DOMContentLoaded", () => {
-// Redirect to login if not logged in
-
-    const token = getStoredToken();
-        if (!token) {
-            window.location.href = "../pages/login.html";
-            return;
+function _fmtTime(raw) {
+  try {
+    return new Date(raw).toLocaleTimeString('en-US', {
+      hour: 'numeric', minute: '2-digit', hour12: true,
+    });
+  } catch { return '—'; }
 }
 
-populateEventDetails();
-});
+function _safeParse(str) {
+  try { return JSON.parse(str); } catch { return null; }
+}
+
+function _setLoading(btn, loading, label) {
+  if (!btn) return;
+  btn.disabled    = loading;
+  btn.textContent = label;
+}
+
+function _showError(el, msg) {
+  if (!el) return;
+  el.textContent    = msg;
+  el.style.display  = 'block';
+  el.style.color    = '#E11727';
+}

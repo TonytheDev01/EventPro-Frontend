@@ -1,103 +1,154 @@
-* {
+/* ================================================
+   EventPro — Verify Email
+   styles/verify-email.css
+   ================================================ */
+
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-
 body {
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-min-height: 100vh;
-padding: 1.5rem 1rem;
-font-family: 'Inter', 'sans-serif';
+  font-family: 'Poppins', sans-serif;
+  background: #FFFFFF;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1.5rem;
 }
 
-#verification-img{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1.25rem;
+.ve-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 32rem;
+  margin: 0 auto;          
+  text-align: center;
 }
 
-img {
-width: 100%;
-max-width: 12rem;
+.ve-wrapper > * {
+  width: 100%;
+  text-align: center;
 }
 
-
-#verify-heading{
-    padding: 1rem;
-    justify-content: center;
-    text-align: center;
-    gap: 1rem;
+.ve-image {
+  width: 100%;
+  max-width: 31rem;  
+  height: auto;
+  object-fit: contain;
+  display: block;
 }
 
-.check-h2{
-    font-size: 2rem;
-    gap: 0.5rem ;
+.ve-heading {
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #161616;
 }
 
-.verify-text {
-    font-size: 0.875rem;
-    color: #565a61;
-    text-align: center;
-    line-height: 1.6;
-    max-width: 20rem;
-    margin: auto;
-    display: block;
+.ve-body {
+  font-weight: 400;
+  font-size: clamp(0.9rem, 1.5vw, 1rem);
+  line-height: 1.5rem;
+  letter-spacing: -0.02em;
+  color: #565A61;
+  max-width: 30rem;  
 }
 
-.verify-text strong {
-    color: #1F2937;
-    font-weight: 600;
+.ve-email {
+  font-weight: 500;
+  color: #1F2937;
 }
 
-#resendBtn{
-    width: 12rem;
-    height: 3rem;
-    padding: 1rem 1rem;
-    background-color: #6f00ff;
-    font-size: 0.75rem;   
-    border-radius: 0.875rem;
-    border-color: #6f00ff; 
-    color: #ffffff;
+.ve-btn {
+  width: min(19rem, 100%);
+  height: 3.5rem;
+  padding: 1.5rem 2rem;
+  border-radius: 10px;
+  border: none;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #6F00FF;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease-out, opacity 0.2s ease-out;
 }
 
-
-.change-email{
-    font-size: 0.95rem;
-    text-align: center;
+.ve-btn:hover         { background: #5900CC; }
+.ve-btn:disabled      { opacity: 0.6; cursor: not-allowed; }
+.ve-btn:focus-visible {
+  outline: 1.5px solid #6F00FF;
+  outline-offset: 2px;
 }
 
-.change-email a{
-    color: #000000; 
-    margin-top: 1rem;  
+.ve-change {
+  font-weight: 500;
+  font-size: clamp(0.9rem, 1.5vw, 1rem);
+  line-height: 1.5rem;
+  letter-spacing: -0.02em;
+  color: #000000;
 }
 
-.back-to-login{
-    font-size: 0.8rem;
-    text-align: center;
-    text-decoration: none;
-    margin-top: 0.75rem;
-    display: block;
-    color: #000000;
+.ve-change__link {
+  color: #6F00FF;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-style: solid;
+  text-underline-offset: 2px;
 }
 
+.ve-change__link:hover { color: #5900CC; }
 
-@media (min-width: 600px) {
-img {
-max-width: 15rem;
+.ve-back {
+  font-weight: 500;
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  line-height: 1.875rem;
+  letter-spacing: -0.02em;
+  color: #000000;
+  text-decoration: none;
 }
 
-.check-h2 {
-font-size: 2rem;
+.ve-back:hover {
+  color: #6F00FF;
+  text-decoration: underline;
 }
 
-.verify-text {
-font-size: 1rem;
-}
+.ve-status {
+  font-size: 0.8rem;
+  font-weight: 500;
+  min-height: 1.2rem;
+  color: #E11727;
+  display: none;
 }
 
+.ve-status.show         { display: block; }
+.ve-status.show--success { color: #166534; }
+.ve-status.show--error   { color: #E11727; }
+
+
+@media (max-width: 30rem) {
+  .ve-btn {
+    padding: 1.25rem 1.5rem;
+    width: 100%;
+  }
+}
+
+@media (min-width: 48rem) {
+  body { padding: 2rem; }
+}
+
+@media (min-width: 75rem) {
+  body { padding: 2rem 1.5rem; }
+}
