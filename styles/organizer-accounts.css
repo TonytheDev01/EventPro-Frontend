@@ -88,7 +88,7 @@ outline-offset: 3px;
 
 .header__title {
 font-size: clamp(1.25rem, 3vw, 1.5rem);
-font-weight: 700;
+font-weight: 600;
 color: var(--color-text-dark);
 }
 
