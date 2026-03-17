@@ -8,15 +8,19 @@
 //
 //  Confirmed base URL: https://eventpro-fxfv.onrender.com
 //  Swagger docs:       https://eventpro-fxfv.onrender.com/api/docs/
+//
+//  Backend changes applied (Ezekiel — March 2026):
+//  - Email verification removed from registration flow
+//  - Admin has its own signup endpoint
+//  - All roles share the same login endpoint
+//  - Social login via Appwrite (configure credentials below)
 // ================================================
 
-const BASE_URL = 'https://eventpro-fxfv.onrender.com/api';
-
-//  Storage keys 
+const BASE_URL  = 'https://eventpro-fxfv.onrender.com/api';
 const TOKEN_KEY = 'eventpro_token';
 const USER_KEY  = 'eventpro_user';
 
-//  Internal helpers 
+// ── Internal Helpers ────────────────────────────────────────
 
 /**
  * Returns standard headers for all requests.
@@ -75,11 +79,13 @@ async function request(endpoint, options = {}) {
   }
 }
 
-//  AUTH ENDPOINTS
+// ── AUTH ENDPOINTS ──────────────────────────────────────────
 
 /**
  * POST /auth/signup
- * Register a new user.
+ * Register a new regular user (attendee).
+ * No email verification required after this call.
+ * On success — redirect straight to sign-in.
  * @param {Object} payload - { firstName, lastName, email, password }
  */
 async function signupUser(payload) {
@@ -91,9 +97,24 @@ async function signupUser(payload) {
 }
 
 /**
+ * POST /admin/signup  ← confirm exact path with Ezekiel in Swagger
+ * Register a new admin account.
+ * Separate endpoint from regular user signup.
+ * @param {Object} payload - { firstName, lastName, email, password }
+ */
+async function signupAdmin(payload) {
+  return await request('/admin/signup', {
+    method:  'POST',
+    headers: buildHeaders(),
+    body:    JSON.stringify(payload),
+  });
+}
+
+/**
  * POST /auth/login
- * Log in a user.
+ * Shared login endpoint — works for admin, organizer, and user.
  * Stores token and user in localStorage on success.
+ * Role-based redirect handled in sign-in.js.
  * @param {string} email
  * @param {string} password
  */
@@ -113,32 +134,6 @@ async function loginUser(email, password) {
 }
 
 /**
- * POST /auth/verify-email
- * Verify email address with token from email link.
- * @param {string} token
- */
-async function verifyEmail(token) {
-  return await request('/auth/verify-email', {
-    method:  'POST',
-    headers: buildHeaders(),
-    body:    JSON.stringify({ token }),
-  });
-}
-
-/**
- * POST /auth/resend-verification
- * Resend the verification email.
- * @param {string} email
- */
-async function resendVerification(email) {
-  return await request('/auth/resend-verification', {
-    method:  'POST',
-    headers: buildHeaders(),
-    body:    JSON.stringify({ email }),
-  });
-}
-
-/**
  * POST /auth/forgot-password
  * Request a password reset email.
  * @param {string} email
@@ -154,7 +149,7 @@ async function forgotPassword(email) {
 /**
  * POST /auth/reset-password/{token}
  * Reset password using token from reset email link.
- * FIX: Swagger requires { newPassword } not { password }
+ * Swagger requires { newPassword } not { password }.
  * @param {string} token       - reset token from email link
  * @param {string} newPassword - new password
  */
@@ -162,13 +157,14 @@ async function resetPassword(token, newPassword) {
   return await request(`/auth/reset-password/${token}`, {
     method:  'POST',
     headers: buildHeaders(),
-    body:    JSON.stringify({ newPassword }),  
+    body:    JSON.stringify({ newPassword }),
   });
 }
 
 /**
  * POST /auth/reset-password
- * Reset password for an authenticated user.
+ * Reset password for an authenticated (logged-in) user.
+ * Used in the Settings page.
  * @param {string} currentPassword
  * @param {string} newPassword
  */
@@ -203,7 +199,6 @@ async function updateUserProfile(payload) {
     body:    JSON.stringify(payload),
   });
 
-  // Keep localStorage in sync on success
   if (result.success && result.data.user) {
     storeUser(result.data.user);
   }
@@ -211,7 +206,50 @@ async function updateUserProfile(payload) {
   return result;
 }
 
-//  LOCAL STORAGE UTILITIES
+// ── SOCIAL LOGIN — APPWRITE ─────────────────────────────────
+// TODO: Replace placeholders with real values from Ezekiel.
+// Docs: https://appwrite.io/docs/references/cloud/client-web/account
+
+const APPWRITE_ENDPOINT   = 'https://cloud.appwrite.io/v1'; // confirm with Ezekiel
+const APPWRITE_PROJECT_ID = 'YOUR_PROJECT_ID';              // get from Ezekiel
+
+/**
+ * Initiate Google OAuth via Appwrite.
+ * Redirects to Google — on return Appwrite creates a session.
+ * Call _handleAppwriteSession() on the redirect-back page.
+ */
+function loginWithGoogle() {
+  const successUrl = `${window.location.origin}/pages/sign-in.html?oauth=success`;
+  const failureUrl = `${window.location.origin}/pages/sign-in.html?oauth=failed`;
+
+  window.location.href =
+    `${APPWRITE_ENDPOINT}/account/sessions/oauth2/google` +
+    `?project=${APPWRITE_PROJECT_ID}` +
+    `&success=${encodeURIComponent(successUrl)}` +
+    `&failure=${encodeURIComponent(failureUrl)}`;
+}
+
+/**
+ * Handle Appwrite OAuth session on redirect return.
+ * Exchanges Appwrite session for an EventPro JWT.
+ * Call this in sign-in.js on DOMContentLoaded
+ * when URL contains ?oauth=success.
+ */
+async function handleAppwriteSession() {
+  // TODO: Once Ezekiel confirms the exchange endpoint,
+  // send the Appwrite session token to the backend
+  // to receive a standard EventPro JWT.
+  // Pattern:
+  //   const appwriteToken = new URLSearchParams(location.search).get('token');
+  //   const result = await request('/auth/oauth/appwrite', {
+  //     method: 'POST',
+  //     headers: buildHeaders(),
+  //     body: JSON.stringify({ token: appwriteToken }),
+  //   });
+  //   if (result.success) { storeToken(...); storeUser(...); _redirectByRole(); }
+}
+
+// ── LOCAL STORAGE UTILITIES ─────────────────────────────────
 
 function storeToken(token) {
   localStorage.setItem(TOKEN_KEY, token);
@@ -235,8 +273,7 @@ function getStoredUser() {
 }
 
 /**
- * Clear token and user from localStorage.
- * Call this on logout.
+ * Clear token and user from localStorage and redirect to sign-in.
  */
 function logoutUser() {
   localStorage.removeItem(TOKEN_KEY);
