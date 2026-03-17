@@ -14,7 +14,7 @@
 
   <div class="page-wrapper">
 
-    <!-- TOP / RIGHT — Illustration  -->
+    <!-- Illustration -->
     <div class="illustration-card">
       <img
         src="../assets/images/image.png"
@@ -22,9 +22,13 @@
       />
     </div>
 
-    <!--  BOTTOM / LEFT — Sign Up Form  -->
+    <!-- Sign Up Form -->
     <div class="form-card">
       <h1 class="form-title">Sign Up</h1>
+
+      <!-- Inline feedback banner -->
+      <div class="form-banner form-banner--error" id="formError" role="alert" aria-live="polite" hidden></div>
+      <div class="form-banner form-banner--success" id="formSuccess" role="status" aria-live="polite" hidden></div>
 
       <form class="signup-form" id="signupForm" novalidate>
 
@@ -136,6 +140,7 @@
 
   </div>
 
+  <!-- Script load order — DO NOT change -->
   <script src="../js/form-input.js"></script>
   <script src="../js/services/auth-service.js"></script>
   <script src="../js/signup.js"></script>
