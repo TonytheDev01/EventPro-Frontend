@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Duplicate Detection —EventPro</title>
+    <link rel="stylesheet" href="../styles/duplicate-detection.css" />
+  </head>
+  <body>
+    <!-- Overlay backdrop -->
+    <div
+      class="overlay"
+      id="overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+    >
+      <!-- Modal card -->
+      <article class="modal">
+        <!-- Modal header -->
+        <header class="modal__header">
+          <h1 class="modal__title" id="modalTitle">
+            Possible Duplicate Event Detected
+          </h1>
+          <p class="modal__subtitle">
+            An event with similar details already exists. Please review before
+            continuing.
+          </p>
+        </header>
+
+        <!-- Pink background block — event details + match similarity only -->
+        <section class="similar-event" aria-label="Similar event found">
+          <h2 class="similar-event__heading">Similar Event Found</h2>
+
+          <dl class="event-details">
+            <div class="event-details__row">
+              <dt class="event-details__label">Event Name:</dt>
+              <dd class="event-details__value" id="detailEventName">
+                Tech Innovators Conference
+              </dd>
+            </div>
+            <div class="event-details__row">
+              <dt class="event-details__label">Date:</dt>
+              <dd class="event-details__value" id="detailDate">12 Aug 2026</dd>
+            </div>
+            <div class="event-details__row">
+              <dt class="event-details__label">Location:</dt>
+              <dd class="event-details__value" id="detailLocation">
+                Lagos Convention Center
+              </dd>
+            </div>
+            <div class="event-details__row">
+              <dt class="event-details__label">Organizer:</dt>
+              <dd class="event-details__value" id="detailOrganizer">
+                TechHub Africa
+              </dd>
+            </div>
+          </dl>
+
+          <p class="match-similarity">
+            <strong>Match Similarity:</strong>
+            <span class="match-similarity__value" id="matchPercent">92%</span>
+          </p>
+        </section>
+
+        <!-- White background — matched fields sits outside the pink block -->
+        <div class="matched-fields">
+          <h3 class="matched-fields__heading">Matched Fields</h3>
+          <ul
+            class="matched-fields__list"
+            id="matchedFieldsList"
+            role="list"
+          ></ul>
+        </div>
+
+        <!-- Divider top -->
+        <hr class="modal__divider" />
+
+        <!-- "Different event" checkbox -->
+        <div class="different-event">
+          <label class="different-event__label" for="chkDifferent">
+            <input
+              class="different-event__checkbox"
+              type="checkbox"
+              id="chkDifferent"
+            />
+            <span class="different-event__text">
+              This is a different event
+            </span>
+          </label>
+        </div>
+
+        <!-- Divider bottom -->
+        <hr class="modal__divider" />
+
+        <!-- Action buttons -->
+        <footer class="modal__actions">
+          <button class="btn btn--primary" type="button" id="btnContinue">
+            Continue Creating Event
+          </button>
+          <button class="btn btn--ghost" type="button" id="btnViewExisting">
+            View Existing Event
+          </button>
+          <button class="btn btn--danger" type="button" id="btnCancel">
+            Cancel
+          </button>
+        </footer>
+      </article>
+    </div>
+
+    <script src="../js/duplicate-detection.js"></script>
+  </body>
+</html>
