@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real-Time Attendance | EventPro</title>
+  <link rel="stylesheet" href="../styles/dashboard-layout.css" />
+  <link rel="stylesheet" href="../styles/real-time-attendance.css" />
+</head>
+<body>
+
+  <div class="dashboard-shell">
+
+    <div id="sidebarSlot"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="dashboard-main">
+      <div id="topbarSlot"></div>
+
+      <main class="dashboard-content">
+
+        <!-- Page Header -->
+        <header class="rta-page-header">
+          <div class="rta-page-header__text">
+            <h1 class="rta-page-header__title">Real-Time Attendance</h1>
+            <p class="rta-page-header__crumb">
+              Admin / <span class="rta-page-header__crumb-light">Real-Time Attendance</span>
+            </p>
+          </div>
+          <button class="rta-btn-switch" id="switchEventBtn">Switch Event</button>
+        </header>
+
+        <!-- Event Info Bar -->
+        <div class="rta-event-bar">
+          <div class="rta-event-bar__meta">
+            <strong id="eventName">—</strong>
+            <span aria-hidden="true">|</span>
+            <span id="eventDate">—</span>
+            <span aria-hidden="true">|</span>
+            <button class="rta-event-bar__inline-switch" id="inlineSwitchBtn">Switch Event</button>
+          </div>
+          <button class="rta-event-bar__refresh" id="refreshBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            <span id="lastUpdatedText">Updated just now</span>
+          </button>
+        </div>
+
+        <hr class="rta-divider" />
+
+        <!-- Stats Row -->
+        <div class="rta-stats-row">
+          <div class="rta-stats-group">
+            <div class="rta-stat">
+              <p class="rta-stat__num" id="statTotal">—</p>
+              <p class="rta-stat__lbl">Total Attending</p>
+            </div>
+            <div class="rta-stat">
+              <p class="rta-stat__num rta-stat__num--green" id="statPct">—</p>
+              <p class="rta-stat__lbl">Currently Checked-In</p>
+            </div>
+            <div class="rta-stat">
+              <p class="rta-stat__num" id="statCheckedIn">—</p>
+              <p class="rta-stat__lbl">Checked-In</p>
+            </div>
+            <div class="rta-stat">
+              <p class="rta-stat__lbl">Capacity</p>
+              <p class="rta-stat__num rta-stat__num--sm" id="statCapacity">—</p>
+            </div>
+          </div>
+
+          <div class="rta-yet-card">
+            <p class="rta-yet-card__lbl">Yet to Arrive</p>
+            <div class="rta-yet-card__body">
+              <span class="rta-yet-card__dots" aria-hidden="true">
+                <i></i><i></i><i></i><i class="active"></i>
+              </span>
+              <p class="rta-yet-card__num" id="statYet">—</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="rta-grid">
+
+          <!-- Left Column -->
+          <div class="rta-col-left">
+
+            <!-- Live Attendance Status -->
+            <section class="rta-card rta-live-status">
+              <h2 class="rta-card__title">Live Attendance Status</h2>
+              <div class="rta-progress-row">
+                <div class="rta-progress-info">
+                  <span class="rta-progress-info__num" id="progressNum">0</span>
+                  <span class="rta-progress-info__meta">
+                    <b>Checked-In</b>
+                    <small id="progressSub">in total event</small>
+                  </span>
+                </div>
+                <div class="rta-progress-track"
+                  role="progressbar"
+                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                  id="progressTrack">
+                  <div class="rta-progress-fill" id="progressFill"></div>
+                </div>
+                <span class="rta-progress-tag" id="progressTag">Checked-In 0</span>
+              </div>
+            </section>
+
+            <!-- Check-In Activity -->
+            <section class="rta-card rta-activity">
+              <div class="rta-activity__head">
+                <h2 class="rta-card__title">Check-In Activity</h2>
+                <button class="rta-btn-viewall" id="viewAllBtn">View All ›</button>
+              </div>
+              <div class="rta-table-scroll">
+                <table class="rta-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Ticket Type</th>
+                      <th>Check-In Time</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="activityTbody">
+                    <tr>
+                      <td colspan="5" class="rta-table__state">
+                        <span class="rta-spinner"></span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+          </div>
+
+          <!-- Right Column -->
+          <div class="rta-col-right">
+            <section class="rta-card rta-stats-panel">
+              <h2 class="rta-card__title">Live Check-In Stats</h2>
+              <hr class="rta-card-hr" />
+              <div class="rta-chart-wrap">
+                <canvas id="donutChart"></canvas>
+              </div>
+              <ul class="rta-legend">
+                <li class="rta-legend__row">
+                  <span class="rta-legend__dot rta-legend__dot--vip"></span>
+                  <span class="rta-legend__name">VIP</span>
+                  <span class="rta-legend__pct" id="vipPct">—</span>
+                </li>
+                <li class="rta-legend__row">
+                  <span class="rta-legend__dot rta-legend__dot--regular"></span>
+                  <span class="rta-legend__name">Regular</span>
+                  <span class="rta-legend__pct" id="regularPct">—</span>
+                </li>
+                <li class="rta-legend__row">
+                  <span class="rta-legend__dot rta-legend__dot--speaker"></span>
+                  <span class="rta-legend__name">Speakers</span>
+                  <span class="rta-legend__pct" id="speakerPct">—</span>
+                </li>
+              </ul>
+              <div class="rta-summary-card">
+                <div class="rta-summary-card__row">
+                  <span>Total Check-ins</span>
+                  <strong id="summaryTotal">—</strong>
+                </div>
+                <div class="rta-summary-card__row">
+                  <span>Peak Hour</span>
+                  <strong id="summaryPeak">—</strong>
+                </div>
+                <div class="rta-summary-card__row">
+                  <span>No-Shows</span>
+                  <strong id="summaryNoShow">—</strong>
+                </div>
+              </div>
+            </section>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Switch Event Modal -->
+  <div class="rta-modal-overlay" id="modalOverlay" aria-hidden="true">
+    <div class="rta-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="rta-modal__head">
+        <h3 class="rta-modal__title" id="modalTitle">Switch Event</h3>
+        <button class="rta-modal__close" id="modalCloseBtn" aria-label="Close">✕</button>
+      </div>
+      <ul class="rta-modal__list" id="modalEventList">
+        <li class="rta-modal__loading">Loading events…</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Script load order — DO NOT change -->
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/utils/load-components.js"></script>
+  <script src="../js/real-time-attendance.js"></script>
+
+</body>
+</html>
