@@ -3,28 +3,37 @@
    styles/organizer-dashboard.css
    Extends: styles/dashboard-layout.css
 
-   Figma specs (converted to rem at 16px base):
-   Heading:     230×45   | top 93  | Poppins 600 30px
-   Subtitle:    183×24   | top 140 | Poppins 300 16px
-   Divider:     1027.5px | top 186 | 1px border
-   Stat card:   318×280  | top 225 | radius 14px
-   Cal image:   96×96
-   Label:       17px Poppins 600
-   Number:      57px tall → font-size 3rem
-   Trend:       164×24   | gap 18px | color #11886A
-   Recent card: 603×373  | radius 15px
-   Top Org card:413×373  | radius 15px
-   Org row:     40px tall | gap 99px
-   Avatar:      40×40
-   Badge+chev:  gap 8px
    ================================================ */
 
-/* ── Page heading ────────────────────────────── */
 .org-heading {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Create Event button */
+.btn-create-event {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: Poppins, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-card-bg);
+  background: var(--color-primary);
+  border-radius: 8px;
+  padding: 0.625rem 1.125rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+
+.btn-create-event:hover {
+  background: var(--color-primary-hover);
 }
 
 .org-heading__title {
