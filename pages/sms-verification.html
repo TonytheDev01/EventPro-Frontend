@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>SMS Verification - EventPro</title>
+    <link rel="stylesheet" href="../styles/sms-verification.css" />
+</head>
+<body>
+
+<main class="container">
+  <section class="card" aria-labelledby="verification-title">
+
+    <h1 id="verification-title">SMS Verification</h1>
+    <p class="subtitle">
+      Enter the verification code sent to your phone number.
+    </p>
+
+    <p class="phone">
+    Phone: <strong id="maskedPhone"></strong>
+    </p>
+
+    <form id="verificationForm" novalidate>
+      
+      <div class="otp-group" role="group" aria-label="Verification code inputs">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
+      </div>
+
+      <p class="timer">
+        Resend code in <span id="countdown">00:30</span>
+      </p>
+
+      <button type="submit" class="btn primary">
+        Verify Code
+      </button>
+
+      <button type="button" id="resendBtn" class="btn secondary" disabled>
+        Resend Code
+      </button>
+
+      <p id="errorMessage" class="error" aria-live="assertive"></p>
+
+    </form>
+
+    <div class="footer-actions">
+        <a href="/" id="noCodeLink" class="text-link">
+            Didn’t receive code?
+        </a>
+
+        <a href="/" class="text-link primary-link">
+            Change phone number
+        </a>
+    </div>
+
+  </section>
+</main>
+
+<script src="../js/sms-verification.js"></script>
+
+</body>
+</html>

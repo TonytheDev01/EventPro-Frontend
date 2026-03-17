@@ -7,7 +7,6 @@
    with dashboard-layout.css shared classes.
    ================================================ */
 
-/* ── Controls row ────────────────────────────── */
 .om-controls {
   display: flex;
   align-items: center;
