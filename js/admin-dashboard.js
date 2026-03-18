@@ -14,7 +14,7 @@
 
 var API = 'https://eventpro-fxfv.onrender.com/api';
 
-document.addEventListener('DOMContentLoaded', async function () {
+document.addEventListener('DOMContentLoaded', function () {
 
   requireAuth();
 
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     return;
   }
 
-  await loadDashboardComponents('dashboard');
+  loadDashboardComponents('dashboard');
 
   // Show Add Organizer btn — admin only
   var addOrgBtn = document.getElementById('btnAddOrganizer');
@@ -41,16 +41,16 @@ document.addEventListener('DOMContentLoaded', async function () {
   };
 
   // Fetch confirmed endpoints in parallel
-  // /admin/organizers stubbed — not in Swagger yet
-  var results = await Promise.allSettled([
+  Promise.allSettled([
     _apiFetch(API + '/dashboard/stats',            headers),
     _apiFetch(API + '/events?limit=6&sort=recent', headers)
-  ]);
+  ]).then(function (results) {
+    renderStatCards(results[0]);
+    renderRecentEvents(results[1]);
+    renderTopOrganizers(null);
+    _renderChartWhenReady(results[0]);
+  });
 
-  renderStatCards(results[0]);
-  renderRecentEvents(results[1]);
-  renderTopOrganizers(null);   // stubbed until Swagger confirms endpoint
-  _renderChartWhenReady(results[0]);
   _wireAddOrganizerModal();
 
 });
@@ -94,8 +94,6 @@ function _apiFetch(url, headers) {
 }
 
 // ── Stat Cards ────────────────────────────────────────────
-// Swagger confirmed: only totalUsers + totalEvents returned
-// totalAttendees + totalRevenue show N/A until Ezekiel updates endpoint
 function renderStatCards(result) {
   var container = document.getElementById('statCards');
   if (!container) return;
@@ -106,10 +104,8 @@ function renderStatCards(result) {
 
   if (result.status === 'fulfilled') {
     var d = result.value;
-    // Swagger confirmed fields
-    if (d.totalEvents != null)  totalEvents = Number(d.totalEvents).toLocaleString();
-    if (d.totalUsers  != null)  totalAttend = Number(d.totalUsers).toLocaleString();
-    // Not in Swagger yet — show N/A
+    if (d.totalEvents  != null) totalEvents  = Number(d.totalEvents).toLocaleString();
+    if (d.totalUsers   != null) totalAttend  = Number(d.totalUsers).toLocaleString();
     if (d.totalRevenue != null) totalRevenue = '\u20A6' + Number(d.totalRevenue).toLocaleString();
   }
 
@@ -168,8 +164,8 @@ function renderRecentEvents(result) {
   }
 
   tbody.innerHTML = events.slice(0, 6).map(function (ev) {
-    var date   = ev.date || ev.startDate ? formatDate(ev.date || ev.startDate) : '--';
-    var count  = ((ev.attendeeCount || ev.attendees || 0)).toLocaleString();
+    var date   = (ev.date || ev.startDate) ? formatDate(ev.date || ev.startDate) : '--';
+    var count  = (ev.attendeeCount || ev.attendees || 0).toLocaleString();
     var status = ev.status || 'pending';
     return '<tr>' +
       '<td>' + escHtml(ev.title || ev.name || 'Unnamed') + '</td>' +
@@ -182,7 +178,6 @@ function renderRecentEvents(result) {
 }
 
 // ── Top Organizers ────────────────────────────────────────
-// Stubbed — GET /admin/organizers not in Swagger yet
 function renderTopOrganizers(result) {
   var container = document.getElementById('topOrganizersList');
   if (!container) return;
@@ -195,7 +190,6 @@ function renderAttendanceChart(result) {
   var canvas = document.getElementById('attendanceChart');
   if (!canvas || typeof Chart === 'undefined') return;
 
-  // Fallback data — replace with real chart data when Ezekiel updates /dashboard/stats
   var labels     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'];
   var registered = [800, 950, 1100, 1050, 1300, 1600, 2000, 2500];
   var checkedIn  = [600, 700, 850, 900, 1000, 1200, 1500, 1900];
@@ -292,8 +286,8 @@ function _wireAddOrganizerModal() {
     });
   }
 
-  if (openBtn)  openBtn.addEventListener('click', _open);
-  if (closeBtn) closeBtn.addEventListener('click', _close);
+  if (openBtn)   openBtn.addEventListener('click', _open);
+  if (closeBtn)  closeBtn.addEventListener('click', _close);
   if (cancelBtn) cancelBtn.addEventListener('click', _close);
 
   overlay.addEventListener('click', function (e) {
@@ -304,7 +298,7 @@ function _wireAddOrganizerModal() {
     if (e.key === 'Escape' && !overlay.hidden) _close();
   });
 
-  form.addEventListener('submit', async function (e) {
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
     if (errorEl) errorEl.hidden = true;
 
@@ -320,6 +314,7 @@ function _wireAddOrganizerModal() {
       if (el) el.textContent = msg;
       valid = false;
     }
+
     function _fieldOk(input, errId) {
       if (input) input.classList.remove('om-input--error');
       var el = document.getElementById(errId);
@@ -355,28 +350,45 @@ function _wireAddOrganizerModal() {
       payload.phone = '+234' + phone.value.trim();
     }
 
-    try {
-      // TODO: confirm exact endpoint path in Swagger with Ezekiel
-      var res  = await fetch(API + '/admin/organizers', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json',
-                   'Authorization': 'Bearer ' + getStoredToken() },
-        body: JSON.stringify(payload)
+    // TODO: confirm exact endpoint path in Swagger with Ezekiel
+    fetch(API + '/admin/organizers', {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + getStoredToken()
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) {
+        return res.json().then(function (data) {
+          return { ok: res.ok, data: data };
+        });
+      })
+      .then(function (result) {
+        submitBtn.disabled = false;
+        if (spinner) spinner.hidden = true;
+        if (label)   label.textContent = 'Add Organizer';
+
+        if (!result.ok) {
+          if (errorEl) {
+            errorEl.textContent = result.data.message || 'Failed to add organizer.';
+            errorEl.hidden      = false;
+          }
+          return;
+        }
+
+        _close();
+        _showToast('Organizer added successfully!');
+      })
+      .catch(function (err) {
+        submitBtn.disabled = false;
+        if (spinner) spinner.hidden = true;
+        if (label)   label.textContent = 'Add Organizer';
+        if (errorEl) {
+          errorEl.textContent = err.message || 'Something went wrong.';
+          errorEl.hidden      = false;
+        }
       });
-      var data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to add organizer.');
-      _close();
-      _showToast('Organizer added successfully!');
-    } catch (err) {
-      if (errorEl) {
-        errorEl.textContent = err.message || 'Something went wrong.';
-        errorEl.hidden      = false;
-      }
-    } finally {
-      submitBtn.disabled = false;
-      if (spinner) spinner.hidden = true;
-      if (label)   label.textContent = 'Add Organizer';
-    }
   });
 }
 
