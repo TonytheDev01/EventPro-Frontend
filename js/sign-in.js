@@ -12,62 +12,84 @@ var loginBtn   = document.getElementById('loginBtn');
 var toggleBtn  = document.getElementById('togglePassword');
 
 // ── Password toggle ────────────────────────────
-var eyeOpen = '<svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-var eyeClosed = '<svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="1" y1="1" x2="23" y2="23" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var eyeOpen   = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var eyeClosed = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="1" y1="1" x2="23" y2="23" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 if (toggleBtn) {
   toggleBtn.addEventListener('click', function () {
     var isPassword      = passInput.type === 'password';
     passInput.type      = isPassword ? 'text' : 'password';
     toggleBtn.innerHTML = isPassword ? eyeClosed : eyeOpen;
-    toggleBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+    toggleBtn.setAttribute('aria-label',
+      isPassword ? 'Hide password' : 'Show password'
+    );
   });
 }
 
 // ── Handle OAuth return from Appwrite ──────────
-// Runs on page load — if URL has ?oauth=success,
-// exchange Appwrite session for EventPro JWT
+// Runs immediately on page load.
+// If URL has ?oauth=success — exchange Appwrite
+// session JWT for an EventPro token.
 (function _checkOAuthReturn() {
   var params = new URLSearchParams(window.location.search);
-  if (params.get('oauth') === 'success') {
-    // TODO: wire handleAppwriteSession() once Ezekiel
-    // confirms the exchange endpoint + Appwrite credentials
-    // handleAppwriteSession().then(function(result) {
-    //   if (result.success) _redirectByRole(getStoredUser().role);
-    // });
-  }
+
   if (params.get('oauth') === 'failed') {
-    _showError('Social login failed. Please try again.');
+    _showError('Social login failed. Please try again or use email and password.');
+    return;
+  }
+
+  if (params.get('oauth') === 'success') {
+    _showBanner('Completing sign in…', 'info');
+
+    handleAppwriteSession()
+      .then(function (result) {
+        if (!result.success) {
+          _showError(result.message || 'Social login failed. Please try again.');
+          return;
+        }
+
+        var user = getStoredUser();
+        var role = user && user.role;
+
+        if (!role) {
+          window.location.href = '../pages/role-selection.html';
+        } else {
+          _redirectByRole(role);
+        }
+      })
+      .catch(function () {
+        _showError('Social login failed. Please try again.');
+      });
   }
 })();
 
 // ── Social login buttons ───────────────────────
-// TODO: replace with loginWithGoogle() from auth-service.js
-// once Ezekiel provides Appwrite project ID + endpoint
-var googleBtn   = document.getElementById('googleLoginBtn');
-var facebookBtn = document.getElementById('facebookLoginBtn');
-var twitterBtn  = document.getElementById('twitterLoginBtn');
-var appleBtn    = document.getElementById('appleLoginBtn');
+var googleBtn    = document.getElementById('googleLoginBtn');
+var facebookBtn  = document.getElementById('facebookLoginBtn');
+var microsoftBtn = document.getElementById('microsoftLoginBtn');
+var githubBtn    = document.getElementById('githubLoginBtn');
 
 if (googleBtn) {
   googleBtn.addEventListener('click', function () {
-    // loginWithGoogle(); // ← uncomment when Appwrite is configured
-    _showError('Google login coming soon. Please use email and password for now.');
+    loginWithGoogle();
   });
 }
+
 if (facebookBtn) {
   facebookBtn.addEventListener('click', function () {
-    _showError('Facebook login coming soon. Please use email and password for now.');
+    loginWithFacebook();
   });
 }
-if (twitterBtn) {
-  twitterBtn.addEventListener('click', function () {
-    _showError('X login coming soon. Please use email and password for now.');
+
+if (microsoftBtn) {
+  microsoftBtn.addEventListener('click', function () {
+    loginWithMicrosoft();
   });
 }
-if (appleBtn) {
-  appleBtn.addEventListener('click', function () {
-    _showError('Apple login coming soon. Please use email and password for now.');
+
+if (githubBtn) {
+  githubBtn.addEventListener('click', function () {
+    loginWithGithub();
   });
 }
 
@@ -102,7 +124,7 @@ if (passInput) {
 
 // ── Form submit ────────────────────────────────
 if (form) {
-  form.addEventListener('submit', async function (e) {
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
     _clearBanner();
 
@@ -114,24 +136,30 @@ if (form) {
     loginBtn.textContent = 'Signing in…';
     loginBtn.disabled    = true;
 
-    var result = await loginUser(
-      emailInput.value.trim(),
-      passInput.value
-    );
+    loginUser(emailInput.value.trim(), passInput.value)
+      .then(function (result) {
+        if (!result.success) {
+          setInputState(emailInput, 'error',
+            result.message || 'Invalid email or password.');
+          loginBtn.textContent = 'Login';
+          loginBtn.disabled    = false;
+          return;
+        }
 
-    if (!result.success) {
-      setInputState(emailInput, 'error',
-        result.message || 'Invalid email or password.');
-      loginBtn.textContent = 'Login';
-      loginBtn.disabled    = false;
-      return;
-    }
+        var user = getStoredUser();
+        var role = user && user.role;
 
-    var user = getStoredUser();
-
-    // Email verification removed (March 2026)
-    // No verify-email redirect — go straight to dashboard by role
-    _redirectByRole(user && user.role);
+        if (!role) {
+          window.location.href = '../pages/role-selection.html';
+        } else {
+          _redirectByRole(role);
+        }
+      })
+      .catch(function () {
+        _showError('Network error. Please check your connection and try again.');
+        loginBtn.textContent = 'Login';
+        loginBtn.disabled    = false;
+      });
   });
 }
 
@@ -142,7 +170,6 @@ function _redirectByRole(role) {
   } else if (role === 'organizer') {
     window.location.href = '../pages/organizer-dashboard.html';
   } else {
-    // role === 'user' or anything else
     window.location.href = '../pages/attendees.html';
   }
 }
@@ -151,6 +178,15 @@ function _showError(msg) {
   var banner = document.getElementById('signinError');
   if (!banner) return;
   banner.textContent = msg;
+  banner.className   = 'form-banner form-banner--error';
+  banner.hidden      = false;
+}
+
+function _showBanner(msg, type) {
+  var banner = document.getElementById('signinError');
+  if (!banner) return;
+  banner.textContent = msg;
+  banner.className   = 'form-banner form-banner--' + (type || 'error');
   banner.hidden      = false;
 }
 
