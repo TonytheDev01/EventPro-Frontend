@@ -1,66 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>SMS Verification - EventPro</title>
-    <link rel="stylesheet" href="../styles/sms-verification.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SMS Verification | EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/sms-verification.css" />
 </head>
 <body>
 
-<main class="container">
-  <section class="card" aria-labelledby="verification-title">
+  <main class="container">
+    <section class="card" aria-labelledby="verification-title">
 
-    <h1 id="verification-title">SMS Verification</h1>
-    <p class="subtitle">
-      Enter the verification code sent to your phone number.
-    </p>
-
-    <p class="phone">
-    Phone: <strong id="maskedPhone"></strong>
-    </p>
-
-    <form id="verificationForm" novalidate>
-      
-      <div class="otp-group" role="group" aria-label="Verification code inputs">
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
-      </div>
-
-      <p class="timer">
-        Resend code in <span id="countdown">00:30</span>
+      <h1 id="verification-title">SMS Verification</h1>
+      <p class="subtitle">
+        Enter the verification code sent to your phone number.
+      </p>
+      <p class="phone">
+        Phone: <strong id="maskedPhone">—</strong>
       </p>
 
-      <button type="submit" class="btn primary">
-        Verify Code
-      </button>
+      <!-- Inline feedback banners -->
+      <div class="sms-alert sms-alert--error"   id="smsError"   role="alert"  aria-live="assertive" hidden></div>
+      <div class="sms-alert sms-alert--success" id="smsSuccess" role="status" aria-live="polite"    hidden></div>
 
-      <button type="button" id="resendBtn" class="btn secondary" disabled>
-        Resend Code
-      </button>
+      <form id="verificationForm" novalidate>
 
-      <p id="errorMessage" class="error" aria-live="assertive"></p>
+        <div class="otp-group" role="group" aria-label="Verification code inputs">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input" autocomplete="one-time-code" required />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input" required />
+        </div>
 
-    </form>
+        <p class="timer">
+          Resend code in <span id="countdown">00:30</span>
+        </p>
 
-    <div class="footer-actions">
-        <a href="/" id="noCodeLink" class="text-link">
-            Didn’t receive code?
+        <button type="submit" class="btn primary" id="verifyBtn">
+          Verify Code
+        </button>
+
+        <button type="button" id="resendBtn" class="btn secondary" disabled>
+          Resend Code
+        </button>
+
+      </form>
+
+      <div class="footer-actions">
+        <a href="../pages/forget-password.html" class="text-link">
+          Didn't receive code?
         </a>
-
-        <a href="/" class="text-link primary-link">
-            Change phone number
+        <a href="../pages/sign-in.html" class="text-link primary-link">
+          Back to Sign In
         </a>
-    </div>
+      </div>
 
-  </section>
-</main>
+    </section>
+  </main>
 
-<script src="../js/sms-verification.js"></script>
+  <!-- auth-service must load first -->
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/sms-verification.js"></script>
 
 </body>
 </html>
