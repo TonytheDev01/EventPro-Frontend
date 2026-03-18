@@ -149,6 +149,24 @@ body {
 .nav-drawer a:hover,
 .nav-drawer a.active { color: var(--color-primary); font-weight: 600; }
 
+.drawer-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-dark);
+  padding: 0.5rem;
+  margin-left: auto;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.drawer-close:hover {
+  background: var(--color-border-light);
+}
+
 .page {
   max-width: min(75rem, 100%);
   margin: 0 auto;
