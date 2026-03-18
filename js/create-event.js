@@ -72,6 +72,9 @@ document.addEventListener('DOMContentLoaded', function () {
   if (hamburger) hamburger.addEventListener('click', _openDrawer);
   if (overlay)   overlay.addEventListener('click', _closeDrawer);
 
+  var drawerCloseBtn = document.getElementById('drawerCloseBtn');
+  if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', _closeDrawer);
+
   if (drawer) {
     drawer.querySelectorAll('a').forEach(function (link) {
       link.addEventListener('click', _closeDrawer);
