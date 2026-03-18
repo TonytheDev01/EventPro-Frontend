@@ -6,7 +6,7 @@
 //
 //  Backend change (March 2026):
 //  Email verification removed — on success redirect
-//  straight to sign-in. No verify-email step.
+//  to role-selection so user picks their role.
 // ================================================
 
 var form           = document.getElementById('signupForm');
@@ -40,6 +40,30 @@ confirmInput.addEventListener('blur', function () {
   validateMatch(confirmInput, passwordInput.value);
 });
 
+// ── Password visibility toggles ───────────────────────────
+var togglePassword        = document.getElementById('togglePassword');
+var toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+
+if (togglePassword) {
+  togglePassword.addEventListener('click', function () {
+    var isPassword       = passwordInput.type === 'password';
+    passwordInput.type   = isPassword ? 'text' : 'password';
+    togglePassword.setAttribute('aria-label',
+      isPassword ? 'Hide password' : 'Show password'
+    );
+  });
+}
+
+if (toggleConfirmPassword) {
+  toggleConfirmPassword.addEventListener('click', function () {
+    var isPassword      = confirmInput.type === 'password';
+    confirmInput.type   = isPassword ? 'text' : 'password';
+    toggleConfirmPassword.setAttribute('aria-label',
+      isPassword ? 'Hide password' : 'Show password'
+    );
+  });
+}
+
 // ── Clear state on input ──────────────────────────────────
 [firstNameInput, lastNameInput, emailInput,
  passwordInput, confirmInput].forEach(function (input) {
@@ -57,12 +81,11 @@ confirmInput.addEventListener('blur', function () {
 });
 
 // ── Form submit ───────────────────────────────────────────
-form.addEventListener('submit', async function (e) {
+form.addEventListener('submit', function (e) {
   e.preventDefault();
 
   _hideBanners();
 
-  // Run all validations
   var isFirstNameValid = validateMinLength(firstNameInput, 2, 'First name must be at least 2 characters');
   var isLastNameValid  = validateMinLength(lastNameInput,  2, 'Last name must be at least 2 characters');
   var isEmailValid     = validateEmail(emailInput);
@@ -74,57 +97,42 @@ form.addEventListener('submit', async function (e) {
     return;
   }
 
-  // Loading state
   submitBtn.textContent = 'Creating account…';
   submitBtn.disabled    = true;
 
-  var result = await signupUser({
+  signupUser({
     firstName: firstNameInput.value.trim(),
     lastName:  lastNameInput.value.trim(),
     email:     emailInput.value.trim(),
     password:  passwordInput.value,
-  });
+  })
+    .then(function (result) {
+      if (!result.success) {
+        _showError(result.message || 'Signup failed. Please try again.');
+        submitBtn.textContent = 'Create Account';
+        submitBtn.disabled    = false;
+        return;
+      }
 
-  if (!result.success) {
-    _showError(result.message || 'Signup failed. Please try again.');
-    submitBtn.textContent = 'Create Account';
-    submitBtn.disabled    = false;
-    return;
-  }
+      // Store token + user if backend returns them
+      var user  = result.data && result.data.user;
+      var token = result.data && result.data.token;
 
-  // ── Email verification is removed (March 2026 backend update) ──
-  // If backend returns token + user on signup, store them so
-  // sign-in is seamless. Then redirect by role.
-  // If backend does NOT return a token, redirect to sign-in instead.
+      if (token) storeToken(token);
+      if (user)  storeUser(user);
 
-  var user  = result.data && result.data.user;
-  var token = result.data && result.data.token;
-
-  if (token && user) {
-    // Backend returned session — store and redirect by role
-    storeToken(token);
-    storeUser(user);
-    _redirectByRole(user.role);
-    return;
-  }
-
-  // No token returned — send to sign-in with success message
-  _showSuccess('Account created! Redirecting to sign in…');
-  setTimeout(function () {
-    window.location.href = '../pages/sign-in.html';
-  }, 1500);
+      // Always send new users to role selection — never skip it
+      _showSuccess('Account created! Setting up your profile…');
+      setTimeout(function () {
+        window.location.href = '../pages/role-selection.html';
+      }, 1200);
+    })
+    .catch(function () {
+      _showError('Network error. Please check your connection and try again.');
+      submitBtn.textContent = 'Create Account';
+      submitBtn.disabled    = false;
+    });
 });
-
-// ── Role-based redirect ───────────────────────────────────
-function _redirectByRole(role) {
-  if (role === 'admin') {
-    window.location.href = '../pages/admin-dashboard.html';
-  } else if (role === 'organizer') {
-    window.location.href = '../pages/organizer-dashboard.html';
-  } else {
-    window.location.href = '../pages/attendees.html';
-  }
-}
 
 // ── Banner helpers ────────────────────────────────────────
 function _showError(msg) {

@@ -26,8 +26,8 @@
     <div class="form-card">
       <h1 class="form-title">Sign Up</h1>
 
-      <!-- Inline feedback banner -->
-      <div class="form-banner form-banner--error" id="formError" role="alert" aria-live="polite" hidden></div>
+      <!-- Inline feedback banners -->
+      <div class="form-banner form-banner--error"   id="formError"   role="alert"  aria-live="polite" hidden></div>
       <div class="form-banner form-banner--success" id="formSuccess" role="status" aria-live="polite" hidden></div>
 
       <form class="signup-form" id="signupForm" novalidate>
@@ -98,6 +98,17 @@
               placeholder="Enter password"
               autocomplete="new-password"
             />
+            <!-- ✅ ADDED: password visibility toggle -->
+            <button type="button" class="toggle-password"
+              id="togglePassword" aria-label="Show password">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                  stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="3"
+                  stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
           </div>
           <span class="helper-text"></span>
         </div>
@@ -121,6 +132,17 @@
               placeholder="Enter password"
               autocomplete="new-password"
             />
+            <!-- ✅ ADDED: confirm password visibility toggle -->
+            <button type="button" class="toggle-password"
+              id="toggleConfirmPassword" aria-label="Show confirm password">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                  stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="3"
+                  stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
           </div>
           <span class="helper-text"></span>
         </div>
