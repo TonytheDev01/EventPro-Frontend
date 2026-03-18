@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Duplicate Detection | EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/duplicate-detection.css" />
+</head>
+<body>
+
+  <!-- Overlay backdrop -->
+  <div
+    class="dd-overlay"
+    id="overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle"
+  >
+    <!-- Modal card -->
+    <article class="dd-modal">
+
+      <!-- Modal header -->
+      <header class="dd-modal__header">
+        <h1 class="dd-modal__title" id="modalTitle">
+          Possible Duplicate Event Detected
+        </h1>
+        <p class="dd-modal__subtitle">
+          An event with similar details already exists. Please review before
+          continuing.
+        </p>
+      </header>
+
+      <!-- Similar event block -->
+      <section class="dd-similar" aria-label="Similar event found">
+        <h2 class="dd-similar__heading">Similar Event Found</h2>
+        <dl class="dd-event-details">
+          <div class="dd-event-details__row">
+            <dt class="dd-event-details__label">Event Name:</dt>
+            <dd class="dd-event-details__value" id="detailEventName">—</dd>
+          </div>
+          <div class="dd-event-details__row">
+            <dt class="dd-event-details__label">Date:</dt>
+            <dd class="dd-event-details__value" id="detailDate">—</dd>
+          </div>
+          <div class="dd-event-details__row">
+            <dt class="dd-event-details__label">Location:</dt>
+            <dd class="dd-event-details__value" id="detailLocation">—</dd>
+          </div>
+          <div class="dd-event-details__row">
+            <dt class="dd-event-details__label">Organizer:</dt>
+            <dd class="dd-event-details__value" id="detailOrganizer">—</dd>
+          </div>
+        </dl>
+        <p class="dd-match-similarity">
+          <strong>Match Similarity:</strong>
+          <span class="dd-match-similarity__value" id="matchPercent">—</span>
+        </p>
+      </section>
+
+      <!-- Matched fields -->
+      <div class="dd-matched-fields">
+        <h3 class="dd-matched-fields__heading">Matched Fields</h3>
+        <ul
+          class="dd-matched-fields__list"
+          id="matchedFieldsList"
+          role="list"
+        ></ul>
+      </div>
+
+      <hr class="dd-divider" />
+
+      <!-- "Different event" checkbox -->
+      <div class="dd-different">
+        <label class="dd-different__label" for="chkDifferent">
+          <input
+            class="dd-different__checkbox"
+            type="checkbox"
+            id="chkDifferent"
+          />
+          <span class="dd-different__text">This is a different event</span>
+        </label>
+      </div>
+
+      <hr class="dd-divider" />
+
+      <!-- Action buttons -->
+      <footer class="dd-modal__actions">
+        <button class="dd-btn dd-btn--primary" type="button" id="btnContinue">
+          Continue Creating Event
+        </button>
+        <button class="dd-btn dd-btn--ghost" type="button" id="btnViewExisting">
+          View Existing Event
+        </button>
+        <button class="dd-btn dd-btn--danger" type="button" id="btnCancel">
+          Cancel
+        </button>
+      </footer>
+
+    </article>
+  </div>
+
+  <!-- auth-service must load first -->
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/duplicate-detection.js"></script>
+
+</body>
+</html>

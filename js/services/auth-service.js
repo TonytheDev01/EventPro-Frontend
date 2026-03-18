@@ -22,8 +22,7 @@ var USER_KEY  = 'eventpro_user';
 
 // ── Appwrite config (confirmed March 2026) ──────────────────
 var APPWRITE_ENDPOINT   = 'https://fra.cloud.appwrite.io/v1';
-var APPWRITE_PROJECT_ID = 'standard_5cd487d9a445f60de9321bd70839df61214e561aaa746c386e715d3b3fb4698f6b352d970c2f7e6710f221c8b5452841fb95543cf6c1fcae0977bb440045e5d19648b7378816d30448c540367cacc52adf2ded82bbf07ea826beda85a40ce4b94394595f689bd43cfa752fab166199b0f1637b9f2776da78067536b2ad66ff5b';
-
+var APPWRITE_PROJECT_ID = 'evenpro';
 // ── Internal Helpers ────────────────────────────────────────
 
 function buildHeaders(requiresAuth) {
