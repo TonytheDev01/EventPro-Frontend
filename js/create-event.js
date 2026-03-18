@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function () {
       .toUpperCase() || '?';
     avatarEl.textContent = initials;
 
-    // Click avatar → go to dashboard
     avatarEl.style.cursor = 'pointer';
     avatarEl.addEventListener('click', function () {
       _goToDashboard(user.role);
@@ -32,8 +31,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var myEventsLinkMobile = document.getElementById('myEventsLinkMobile');
   var dashHref = _dashboardHref(user && user.role);
 
-  if (myEventsLink)       myEventsLink.href       = dashHref;
-  if (myEventsLinkMobile) myEventsLinkMobile.href  = dashHref;
+  if (myEventsLink)       myEventsLink.href      = dashHref;
+  if (myEventsLinkMobile) myEventsLinkMobile.href = dashHref;
 
   /* ── Back button ──────────────────────────────────────── */
   var backBtn = document.getElementById('backBtn');
@@ -73,7 +72,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (hamburger) hamburger.addEventListener('click', _openDrawer);
   if (overlay)   overlay.addEventListener('click', _closeDrawer);
 
-  // Close on nav link click
   if (drawer) {
     drawer.querySelectorAll('a').forEach(function (link) {
       link.addEventListener('click', _closeDrawer);
@@ -127,7 +125,7 @@ function _initForm(user) {
   var okBanner    = document.getElementById('formSuccess');
 
   if (submitBtn) {
-    submitBtn.addEventListener('click', async function () {
+    submitBtn.addEventListener('click', function () {
       _hideBanners(errorBanner, okBanner);
 
       var eventName    = document.getElementById('eventName');
@@ -141,9 +139,7 @@ function _initForm(user) {
       var category     = document.getElementById('eventCategory');
       var description  = document.getElementById('eventDescription');
 
-      /* Basic validation */
-      var valid = true;
-
+      var valid    = true;
       var required = [
         { el: eventName,    errId: 'eventNameError',     msg: 'Event name is required.' },
         { el: eventDate,    errId: 'eventDateError',     msg: 'Event date is required.' },
@@ -180,7 +176,6 @@ function _initForm(user) {
       submitBtn.disabled    = true;
       submitBtn.textContent = 'Creating…';
 
-      /* Combine date + time into ISO string */
       var startDate = new Date(eventDate.value + 'T' + eventTime.value).toISOString();
 
       var payload = {
@@ -195,32 +190,53 @@ function _initForm(user) {
         description: description ? description.value.trim() : '',
       };
 
-      try {
-        var res = await fetch('https://eventpro-fxfv.onrender.com/api/events', {
-          method:  'POST',
-          headers: {
-            'Content-Type':  'application/json',
-            'Authorization': 'Bearer ' + getStoredToken()
-          },
-          body: JSON.stringify(payload)
+      fetch('https://eventpro-fxfv.onrender.com/api/events', {
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': 'Bearer ' + getStoredToken(),
+        },
+        body: JSON.stringify(payload),
+      })
+        .then(function (res) {
+          return res.json().then(function (data) {
+            return { ok: res.ok, status: res.status, data: data };
+          });
+        })
+        .then(function (result) {
+
+          // ── Duplicate detected — 409 Conflict ───────
+          // Store data and redirect to duplicate detection modal
+          if (result.status === 409 || (result.data && result.data.duplicate)) {
+            sessionStorage.setItem(
+              'eventpro_duplicate_data',
+              JSON.stringify(result.data.duplicate || result.data)
+            );
+            sessionStorage.setItem(
+              'eventpro_pending_event',
+              JSON.stringify(payload)
+            );
+            window.location.href = '../pages/duplicate-detection.html';
+            return;
+          }
+
+          if (!result.ok) {
+            _showBanner(errorBanner, result.data.message || 'Failed to create event.');
+            submitBtn.disabled    = false;
+            submitBtn.textContent = 'Create Event';
+            return;
+          }
+
+          _showBanner(okBanner, 'Event created successfully! Redirecting…');
+          setTimeout(function () {
+            window.location.href = '../pages/organizer-dashboard.html';
+          }, 1500);
+        })
+        .catch(function () {
+          _showBanner(errorBanner, 'Network error. Please check your connection and try again.');
+          submitBtn.disabled    = false;
+          submitBtn.textContent = 'Create Event';
         });
-
-        var data = await res.json();
-
-        if (!res.ok) throw new Error(data.message || 'Failed to create event.');
-
-        _showBanner(okBanner, 'Event created successfully! Redirecting…');
-
-        /* On success — go to the organizer dashboard */
-        setTimeout(function () {
-          window.location.href = '../pages/organizer-dashboard.html';
-        }, 1500);
-
-      } catch (err) {
-        _showBanner(errorBanner, err.message || 'Something went wrong. Please try again.');
-        submitBtn.disabled    = false;
-        submitBtn.textContent = 'Create Event';
-      }
     });
   }
 }
