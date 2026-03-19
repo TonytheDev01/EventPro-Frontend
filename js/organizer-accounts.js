@@ -1,266 +1,380 @@
 // ================================================
-// EventPro — Organizer Accounts Page Logic
-// js/organizer-accounts.js
-// Depends on: js/services/auth-service.js
+//  EventPro — Organizer Accounts
+//  js/organizer-accounts.js
+//  Depends on: auth-service.js, load-components.js
 //
-// Endpoints used:
-// GET /auth/profile — get current user profile
-// ⚠️ No user listing endpoint confirmed yet
-// from backend. Table renders from mock data
-// until Ezekiel confirms GET /admin/users or
-// equivalent endpoint.
+//  Flow:
+//  1. Arrived from organizer-management.html
+//     via row click → ?organizerId=...
+//  2. If organizerId in URL → fetch that organizer
+//     GET /admin/organizers/{id}
+//  3. If no organizerId → load all organizers
+//     GET /admin/organizers
+//  4. Back button → organizer-management.html
+//
+//  Endpoints (Swagger confirmed):
+//  GET /admin/organizers          → list all
+//  GET /admin/organizers/{id}     → single organizer
 // ================================================
 
-document.addEventListener('DOMContentLoaded', () => {
+var API          = 'https://eventpro-fxfv.onrender.com/api';
+var ROWS_PER_PAGE = 5;
 
-// Guard — admin only
-requireAuth();
-const currentUser = getStoredUser();
-if (currentUser && currentUser.role !== 'admin') {
-window.location.href = '../pages/dashboard.html';
-return;
-}
+var _currentPage = 1;
+var _editingId   = null;
+var _allUsers    = [];
 
-// Elements
-const tableBody = document.getElementById('tableBody');
-const searchInput = document.getElementById('searchInput');
-const roleFilter = document.getElementById('roleFilter');
-const addBtn = document.getElementById('addOrganizerBtn');
-const backBtn = document.getElementById('backBtn');
-const paginationEl = document.getElementById('pagination');
-const modalOverlay = document.getElementById('modalOverlay');
-const modalTitle = document.getElementById('modalTitle');
-const modalName = document.getElementById('modalName');
-const modalEmail = document.getElementById('modalEmail');
-const modalRole = document.getElementById('modalRole');
-const modalError = document.getElementById('modalError');
-const modalSaveBtn = document.getElementById('modalSaveBtn');
-const modalCancelBtn = document.getElementById('modalCancelBtn');
+document.addEventListener('DOMContentLoaded', function () {
 
-// Pagination state
-const rowsPerPage = 5;
-let currentPage = 1;
-let editingRow = null;
-
-// Mock data — replace with GET /admin/users
-// ⚠️ Update once Ezekiel confirms user listing endpoint
-let users = [
-{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com', role: 'admin', status: 'active' },
-{ id: '2', firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com', role: 'organizer', status: 'pending' },
-{ id: '3', firstName: 'Alice', lastName: 'Brown', email: 'alice@example.com', role: 'user', status: 'inactive' },
-{ id: '4', firstName: 'Bob', lastName: 'Miller', email: 'bob@example.com', role: 'organizer', status: 'active' },
-];
-
-// Back button
-backBtn.addEventListener('click', () => {
-window.history.back();
-});
-
-// Generate initials avatar
-function getInitials(firstName, lastName) {
-return (firstName?.charAt(0).toUpperCase, lastName?.charAt(0).toUpperCase);
-}
-
-// Get status class
-function getStatusClass(status) {
-const map = {
-active: 'status--active',
-pending: 'status--pending',
-inactive: 'status--inactive'
-};
-return map[status] || 'status--inactive';
-}
-
-// Render table
-function renderTable() {
-const searchVal = searchInput.value.toLowerCase();
-const roleVal = roleFilter.value;
-
-const filtered = users.filter(user => {
-  const fullName    = `${user.firstName} ${user.lastName}`.toLowerCase();
-  const matchSearch = fullName.includes(searchVal) ||
-                      user.email.toLowerCase().includes(searchVal);
-  const matchRole   = roleVal === 'all' || user.role === roleVal;
-  return matchSearch && matchRole;
-});
-
-const totalPages = Math.ceil(filtered.length / rowsPerPage) || 1;
-if (currentPage > totalPages) currentPage = totalPages;
-
-const start   = (currentPage - 1) * rowsPerPage;
-const end     = start + rowsPerPage;
-const visible = filtered.slice(start, end);
-
-// Render rows 
-if (visible.length === 0) {
-  tableBody.innerHTML = `
-    <tr class="loading-row">
-      <td colspan="6">No organizers found.</td>
-    </tr>`;
-} else {
-  tableBody.innerHTML = visible.map(user => `
-    <tr data-id="${user.id}">
-      <td>
-        <div class="avatar">${getInitials(user.firstName, user.lastName)}</div>
-      </td>
-      <td class="col-name">${user.firstName} ${user.lastName}</td>
-      <td class="col-email">${user.email}</td>
-      <td class="col-role">${user.role}</td>
-      <td>
-        <span class="status ${getStatusClass(user.status)}">
-          ${user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-        </span>
-      </td>
-      <td>
-        <div class="action-buttons">
-          <button type="button" class="btn-edit" data-id="${user.id}">Edit</button>
-          <button type="button" class="btn-delete" data-id="${user.id}">Delete</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-renderPagination(totalPages);
-}
-
-// Render pagination
-function renderPagination(totalPages) {
-paginationEl.innerHTML = '';
-
-for (let i = 1; i <= totalPages; i++) {
-  const btn = document.createElement('button');
-  btn.type      = 'button';
-  btn.className = `page-btn${i === currentPage ? ' active' : ''}`;
-  btn.textContent = i;
-  btn.addEventListener('click', () => {
-    currentPage = i;
-    renderTable();
-  });
-  paginationEl.appendChild(btn);
-}
-
-if (totalPages > 1) {
-  const nextBtn = document.createElement('button');
-  nextBtn.type        = 'button';
-  nextBtn.className   = 'next-btn';
-  nextBtn.textContent = 'Next →';
-  nextBtn.addEventListener('click', () => {
-    if (currentPage < totalPages) {
-      currentPage++;
-      renderTable();
-    }
-  });
-  paginationEl.appendChild(nextBtn);
-}
-}
-
-// Open modal
-function openModal(title, user = null) {
-modalTitle.textContent = title;
-modalName.value = user ? (user.firstName, user.lastName): ' ';
-modalEmail.value = user ? user.email : '';
-modalRole.value = user ? user.role : 'organizer';
-modalError.style.display = 'none';
-modalError.textContent = '';
-editingRow = user ? user.id : null;
-modalOverlay.classList.add('show');
-modalName.focus();
-}
-
-function closeModal() {
-modalOverlay.classList.remove('show');
-editingRow = null;
-}
-
-// Add organizer button
-addBtn.addEventListener('click', () => {
-openModal('Add Organizer');
-});
-
-// Modal cancel
-modalCancelBtn.addEventListener('click', closeModal);
-modalOverlay.addEventListener('click', (e) => {
-if (e.target === modalOverlay) closeModal();
-});
-
-// Modal save
-modalSaveBtn.addEventListener('click', () => {
-const fullName = modalName.value.trim();
-const email = modalEmail.value.trim();
-const role = modalRole.value;
-
-if (!fullName || !email) {
-  modalError.textContent   = 'Please fill in all fields.';
-  modalError.style.display = 'block';
-  return;
-}
-
-const nameParts = fullName.split(' ');
-const firstName = nameParts[0];
-const lastName  = nameParts.slice(1).join(' ') || '';
-
-if (editingRow) {
-  // Update existing user
-  const index = users.findIndex(u => u.id === editingRow);
-  if (index !== -1) {
-    users[index] = { ...users[index], firstName, lastName, email, role };
+  // ── Auth guard — admin only ───────────────────
+  requireAuth();
+  var user = getStoredUser();
+  if (!user || user.role !== 'admin') {
+    window.location.href = '../pages/sign-in.html';
+    return;
   }
-} else {
-  // Add new user
-  const newUser = {
-    id:        Date.now().toString(),
-    firstName,
-    lastName,
-    email,
-    role,
-    status:    'pending'
-  };
-  users.push(newUser);
+
+  // ── Load dashboard shell ──────────────────────
+  loadDashboardComponents('organizers');
+
+  // ── Back button → organizer-management ───────
+  var backBtn = document.getElementById('backBtn');
+  if (backBtn) {
+    backBtn.addEventListener('click', function () {
+      window.location.href = '../pages/organizer-management.html';
+    });
+  }
+
+  // ── Read organizerId from URL ─────────────────
+  var params      = new URLSearchParams(window.location.search);
+  var organizerId = params.get('organizerId');
+
+  if (organizerId) {
+    _fetchSingleOrganizer(organizerId);
+  } else {
+    _fetchAllOrganizers();
+  }
+
+  // ── Wire search + filter ──────────────────────
+  var searchInput = document.getElementById('searchInput');
+  var roleFilter  = document.getElementById('roleFilter');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      _currentPage = 1;
+      _renderTable();
+    });
+  }
+
+  if (roleFilter) {
+    roleFilter.addEventListener('change', function () {
+      _currentPage = 1;
+      _renderTable();
+    });
+  }
+
+  // ── Add Organizer button ──────────────────────
+  var addBtn = document.getElementById('addOrganizerBtn');
+  if (addBtn) addBtn.addEventListener('click', function () {
+    _openModal('Add Organizer', null);
+  });
+
+  // ── Modal buttons ─────────────────────────────
+  var cancelBtn = document.getElementById('modalCancelBtn');
+  var saveBtn   = document.getElementById('modalSaveBtn');
+  var overlay   = document.getElementById('modalOverlay');
+
+  if (cancelBtn) cancelBtn.addEventListener('click', _closeModal);
+  if (saveBtn)   saveBtn.addEventListener('click', _handleSave);
+
+  if (overlay) {
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) _closeModal();
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') _closeModal();
+  });
+
+});
+
+// ── Fetch single organizer ────────────────────────────────
+function _fetchSingleOrganizer(id) {
+  _setTableLoading();
+
+  fetch(API + '/admin/organizers/' + id, {
+    method:  'GET',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': 'Bearer ' + getStoredToken(),
+    },
+  })
+    .then(function (res) {
+      return res.json().then(function (data) {
+        return { ok: res.ok, data: data };
+      });
+    })
+    .then(function (result) {
+      if (!result.ok) {
+        _setTableError('Unable to load organizer. Please try again.');
+        return;
+      }
+      var organizer = result.data.organizer || result.data;
+      _allUsers = organizer ? [organizer] : [];
+      _renderTable();
+    })
+    .catch(function () {
+      _setTableError('Network error. Please check your connection.');
+    });
 }
 
-closeModal();
-renderTable();
-});
+// ── Fetch all organizers ──────────────────────────────────
+function _fetchAllOrganizers() {
+  _setTableLoading();
 
-// Edit and Delete — event delegation
-tableBody.addEventListener('click', (e) => {
-
-// Edit
-if (e.target.classList.contains('btn-edit')) {
-  const id   = e.target.dataset.id;
-  const user = users.find(u => u.id === id);
-  if (user) openModal('Edit Organizer', user);
+  fetch(API + '/admin/organizers', {
+    method:  'GET',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': 'Bearer ' + getStoredToken(),
+    },
+  })
+    .then(function (res) {
+      return res.json().then(function (data) {
+        return { ok: res.ok, data: data };
+      });
+    })
+    .then(function (result) {
+      if (!result.ok) {
+        _setTableError('Unable to load organizers. Please try again.');
+        return;
+      }
+      _allUsers = result.data.organizers || result.data || [];
+      _renderTable();
+    })
+    .catch(function () {
+      _setTableError('Network error. Please check your connection.');
+    });
 }
 
-// Delete
-if (e.target.classList.contains('btn-delete')) {
-  const id  = e.target.dataset.id;
-  const row = e.target.closest('tr');
+// ── Render table ──────────────────────────────────────────
+function _renderTable() {
+  var tbody      = document.getElementById('tableBody');
+  var searchVal  = (document.getElementById('searchInput') || {}).value || '';
+  var roleVal    = (document.getElementById('roleFilter')  || {}).value || 'all';
 
-  // Fade out then remove
-  row.style.opacity    = '0.4';
-  row.style.transition = 'opacity 0.2s ease-out';
+  searchVal = searchVal.toLowerCase();
 
-  setTimeout(() => {
-    users = users.filter(u => u.id !== id);
-    renderTable();
-  }, 200);
+  var filtered = _allUsers.filter(function (u) {
+    var fullName    = ((u.firstName || '') + ' ' + (u.lastName || '')).toLowerCase();
+    var matchSearch = fullName.indexOf(searchVal) !== -1 ||
+                      (u.email || '').toLowerCase().indexOf(searchVal) !== -1;
+    var matchRole   = roleVal === 'all' || u.role === roleVal;
+    return matchSearch && matchRole;
+  });
+
+  var totalPages = Math.ceil(filtered.length / ROWS_PER_PAGE) || 1;
+  if (_currentPage > totalPages) _currentPage = totalPages;
+
+  var start   = (_currentPage - 1) * ROWS_PER_PAGE;
+  var visible = filtered.slice(start, start + ROWS_PER_PAGE);
+
+  if (!tbody) return;
+
+  if (!visible.length) {
+    tbody.innerHTML = '<tr class="oa-loading-row"><td colspan="6">No organizers found.</td></tr>';
+    _renderPagination(totalPages);
+    return;
+  }
+
+  tbody.innerHTML = visible.map(function (u) {
+    var first    = u.firstName || '';
+    var last     = u.lastName  || '';
+    var initials = ((first[0] || '') + (last[0] || '')).toUpperCase() || '?';
+    var name     = _esc((first + ' ' + last).trim() || '—');
+    var email    = _esc(u.email || '—');
+    var role     = _esc(u.role  || '—');
+    var status   = (u.status || 'pending').toLowerCase();
+    var id       = _esc(u.id || u._id || '');
+
+    return '<tr data-id="' + id + '">'
+      + '<td><div class="oa-avatar">' + initials + '</div></td>'
+      + '<td>' + name + '</td>'
+      + '<td>' + email + '</td>'
+      + '<td>' + role + '</td>'
+      + '<td><span class="oa-status oa-status--' + status + '">'
+      +   status.charAt(0).toUpperCase() + status.slice(1)
+      + '</span></td>'
+      + '<td><div class="oa-action-buttons">'
+      +   '<button type="button" class="oa-btn-edit"   data-id="' + id + '">Edit</button>'
+      +   '<button type="button" class="oa-btn-delete" data-id="' + id + '">Delete</button>'
+      + '</div></td>'
+      + '</tr>';
+  }).join('');
+
+  // Wire edit + delete
+  tbody.querySelectorAll('.oa-btn-edit').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id   = btn.dataset.id;
+      var user = _allUsers.find(function (u) { return (u.id || u._id) === id; });
+      if (user) _openModal('Edit Organizer', user);
+    });
+  });
+
+  tbody.querySelectorAll('.oa-btn-delete').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id  = btn.dataset.id;
+      var row = btn.closest('tr');
+      if (!row) return;
+      row.style.opacity    = '0.4';
+      row.style.transition = 'opacity 0.2s ease-out';
+      setTimeout(function () {
+        _allUsers = _allUsers.filter(function (u) {
+          return (u.id || u._id) !== id;
+        });
+        _renderTable();
+      }, 200);
+    });
+  });
+
+  _renderPagination(totalPages);
 }
-});
 
-// Search and filter
-searchInput.addEventListener('input', () => {
-currentPage = 1;
-renderTable();
-});
+// ── Render pagination ─────────────────────────────────────
+function _renderPagination(totalPages) {
+  var nav = document.getElementById('pagination');
+  if (!nav) return;
+  nav.innerHTML = '';
 
-roleFilter.addEventListener('change', () => {
-currentPage = 1;
-renderTable();
-});
+  for (var i = 1; i <= totalPages; i++) {
+    var btn       = document.createElement('button');
+    btn.type      = 'button';
+    btn.className = 'oa-page-btn' + (i === _currentPage ? ' active' : '');
+    btn.textContent = i;
+    (function (page) {
+      btn.addEventListener('click', function () {
+        _currentPage = page;
+        _renderTable();
+      });
+    })(i);
+    nav.appendChild(btn);
+  }
 
-// Initial render
-renderTable();
+  if (totalPages > 1) {
+    var nextBtn       = document.createElement('button');
+    nextBtn.type      = 'button';
+    nextBtn.className = 'oa-next-btn';
+    nextBtn.textContent = 'Next →';
+    nextBtn.addEventListener('click', function () {
+      if (_currentPage < totalPages) {
+        _currentPage++;
+        _renderTable();
+      }
+    });
+    nav.appendChild(nextBtn);
+  }
+}
 
-});
+// ── Modal ─────────────────────────────────────────────────
+function _openModal(title, user) {
+  var overlay   = document.getElementById('modalOverlay');
+  var titleEl   = document.getElementById('modalTitle');
+  var nameInput = document.getElementById('modalName');
+  var emailInput = document.getElementById('modalEmail');
+  var roleInput = document.getElementById('modalRole');
+  var errorEl   = document.getElementById('modalError');
+
+  if (!overlay) return;
+
+  if (titleEl)   titleEl.textContent  = title;
+  if (nameInput) nameInput.value      = user ? ((user.firstName || '') + ' ' + (user.lastName || '')).trim() : '';
+  if (emailInput) emailInput.value    = user ? (user.email || '') : '';
+  if (roleInput) roleInput.value      = user ? (user.role || 'organizer') : 'organizer';
+  if (errorEl)   errorEl.className    = 'oa-modal__error';
+
+  _editingId = user ? (user.id || user._id || null) : null;
+
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  if (nameInput) nameInput.focus();
+}
+
+function _closeModal() {
+  var overlay = document.getElementById('modalOverlay');
+  if (overlay) overlay.style.display = 'none';
+  document.body.style.overflow = '';
+  _editingId = null;
+}
+
+// ── Save ──────────────────────────────────────────────────
+function _handleSave() {
+  var nameInput  = document.getElementById('modalName');
+  var emailInput = document.getElementById('modalEmail');
+  var roleInput  = document.getElementById('modalRole');
+  var errorEl    = document.getElementById('modalError');
+
+  var fullName = nameInput  ? nameInput.value.trim()  : '';
+  var email    = emailInput ? emailInput.value.trim()  : '';
+  var role     = roleInput  ? roleInput.value          : 'organizer';
+
+  if (!fullName || !email) {
+    if (errorEl) {
+      errorEl.textContent = 'Please fill in all fields.';
+      errorEl.className   = 'oa-modal__error show';
+    }
+    return;
+  }
+
+  var parts     = fullName.split(' ');
+  var firstName = parts[0];
+  var lastName  = parts.slice(1).join(' ') || '';
+
+  if (_editingId) {
+    var idx = _allUsers.findIndex(function (u) {
+      return (u.id || u._id) === _editingId;
+    });
+    if (idx !== -1) {
+      _allUsers[idx] = Object.assign({}, _allUsers[idx], {
+        firstName: firstName, lastName: lastName, email: email, role: role
+      });
+    }
+  } else {
+    _allUsers.push({
+      id:        Date.now().toString(),
+      firstName: firstName,
+      lastName:  lastName,
+      email:     email,
+      role:      role,
+      status:    'pending',
+    });
+  }
+
+  _closeModal();
+  _renderTable();
+}
+
+// ── Utilities ─────────────────────────────────────────────
+function _setTableLoading() {
+  var tbody = document.getElementById('tableBody');
+  if (tbody) {
+    tbody.innerHTML = '<tr class="oa-loading-row"><td colspan="6">'
+      + '<div class="spinner" role="status" aria-label="Loading"></div>'
+      + '</td></tr>';
+  }
+}
+
+function _setTableError(msg) {
+  var tbody = document.getElementById('tableBody');
+  if (tbody) {
+    tbody.innerHTML = '<tr class="oa-loading-row"><td colspan="6">' + _esc(msg) + '</td></tr>';
+  }
+}
+
+function _esc(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
