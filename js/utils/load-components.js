@@ -1,27 +1,11 @@
 // ================================================
 //  EventPro — Dashboard Component Loader
 //  js/utils/load-components.js
-//  HOW TO USE:
-//  1. HTML slots:
-//       <div id="sidebarSlot"></div>
-//       <div class="sidebar-overlay" id="sidebarOverlay"></div>
-//       <div id="topbarSlot"></div>
 //
-//  2. Script load order (bottom of body):
-//       <script src="../js/services/auth-service.js"></script>
-//       <script src="../js/utils/load-components.js"></script>
-//       <script src="../js/your-page.js"></script>
-//
-//  3. First two lines of every dashboard page JS:
-//       requireAuth();
-//       await loadDashboardComponents('PAGE_KEY');
-//
-//  PAGE KEYS:
-//  'dashboard' | 'events' | 'checkin' |
-//  'organizers' | 'attendees' | 'reports' | 'settings'
+//  Sidebar + topbar HTML embedded as JS strings.
+//  No fetch, no file, no cache issues.
 // ================================================
 
-// ── Sidebar HTML ──────────────────────────────────
 var _SIDEBAR_HTML = '<aside class="sidebar" id="sidebar">'
   + '<div class="sidebar-logo">'
   +   '<img src="../assets/images/logo.png" alt="EventPro" class="sidebar-logo-icon" onerror="this.style.display=\'none\'" />'
@@ -32,11 +16,11 @@ var _SIDEBAR_HTML = '<aside class="sidebar" id="sidebar">'
   +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/></svg>'
   +     '<span>Dashboard</span>'
   +   '</a>'
-  +   '<a href="../pages/attendees.html?tab=events" class="sidebar-link" data-page="events">'
+  +   '<a href="../pages/admin-events.html" class="sidebar-link" data-page="events">'
   +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
   +     '<span>Events</span>'
   +   '</a>'
-  +   '<a href="../pages/ticket-details.html" class="sidebar-link" data-page="checkin">'
+  +   '<a href="../pages/real-time-attendance.html" class="sidebar-link" data-page="checkin">'
   +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
   +     '<span>Check-In</span>'
   +   '</a>'
@@ -62,10 +46,7 @@ var _SIDEBAR_HTML = '<aside class="sidebar" id="sidebar">'
   + '</button>'
   + '</aside>';
 
-// ── Topbar HTML ───────────────────────────────────
 var _TOPBAR_HTML = '<header class="topbar" id="topbar">'
-
-  // Hamburger — visible on mobile only (CSS controls display)
   + '<button type="button" class="topbar-hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">'
   +   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none">'
   +     '<line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
@@ -73,37 +54,19 @@ var _TOPBAR_HTML = '<header class="topbar" id="topbar">'
   +     '<line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
   +   '</svg>'
   + '</button>'
-
-  // Welcome text
   + '<p class="topbar-welcome">Welcome, <span class="topbar-username" id="topbarUsername">...</span></p>'
-
-  // Right controls
   + '<div class="topbar-controls">'
-
-  //   Search button — shown by default, hidden when overlay opens
   +   '<button type="button" class="topbar-icon-btn" id="topbarSearchBtn" aria-label="Open search">'
-  +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none">'
-  +       '<circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>'
-  +       '<path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
-  +     '</svg>'
+  +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
   +   '</button>'
-
-  //   Search overlay — hidden by default, shown on search click
   +   '<div class="topbar-search-overlay" id="topbarSearchOverlay" style="display:none;">'
   +     '<input type="search" class="topbar-search-input" id="topbarSearchInput" placeholder="Search pages, events, attendees…" autocomplete="off" aria-label="Search" />'
   +     '<button type="button" class="topbar-search-close" id="topbarSearchClose" aria-label="Close search">&#x2715;</button>'
   +   '</div>'
-
-  //   Notification bell with red dot
   +   '<button type="button" class="topbar-icon-btn topbar-bell" id="topbarBellBtn" aria-label="Notifications">'
-  +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none">'
-  +       '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
-  +       '<path d="M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
-  +     '</svg>'
+  +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
   +     '<span class="topbar-bell-dot" aria-hidden="true"></span>'
   +   '</button>'
-
-  //   Avatar + profile dropdown
   +   '<div class="topbar-avatar-wrap" id="topbarAvatarWrap">'
   +     '<button type="button" class="topbar-avatar" id="topbarAvatar" aria-label="Account menu" aria-haspopup="true" aria-expanded="false"></button>'
   +     '<div class="topbar-dropdown" id="topbarDropdown" style="display:none;" role="menu">'
@@ -127,13 +90,9 @@ var _TOPBAR_HTML = '<header class="topbar" id="topbar">'
   +       '</button>'
   +     '</div>'
   +   '</div>'
-
   + '</div>'
   + '</header>';
 
-// ════════════════════════════════════════════════
-//  PUBLIC — call from every dashboard page
-// ════════════════════════════════════════════════
 function loadDashboardComponents(activePage) {
   _loadSidebar(activePage);
   _loadTopbar();
@@ -144,26 +103,21 @@ function loadDashboardComponents(activePage) {
   _wireBell();
 }
 
-// ── Inject Sidebar ────────────────────────────────
 function _loadSidebar(activePage) {
   var slot = document.getElementById('sidebarSlot');
   if (!slot) return;
-
   slot.innerHTML = _SIDEBAR_HTML;
 
-  // Highlight active nav link
   if (activePage) {
     var link = slot.querySelector('[data-page="' + activePage + '"]');
     if (link) link.classList.add('active');
   }
 
-  // Show admin-only links via body class
   var user = getStoredUser();
   if (user && user.role === 'admin') {
     document.body.classList.add('role-admin');
   }
 
-  // Reports link points to correct page per role
   var reportsLink = document.getElementById('sidebarReportsLink');
   if (reportsLink && user) {
     reportsLink.href = user.role === 'organizer'
@@ -172,21 +126,17 @@ function _loadSidebar(activePage) {
   }
 }
 
-// ── Inject Topbar ─────────────────────────────────
 function _loadTopbar() {
   var slot = document.getElementById('topbarSlot');
   if (!slot) return;
-
   slot.innerHTML = _TOPBAR_HTML;
 
   var user = getStoredUser();
   if (!user) return;
 
-  // Welcome name
   var nameEl = document.getElementById('topbarUsername');
   if (nameEl) nameEl.textContent = user.firstName || user.email || 'User';
 
-  // Avatar initials
   var avatarEl = document.getElementById('topbarAvatar');
   if (avatarEl) {
     var initials = [user.firstName, user.lastName]
@@ -197,7 +147,6 @@ function _loadTopbar() {
     avatarEl.textContent = initials;
   }
 
-  // Dropdown user info
   var dropName  = document.getElementById('dropdownName');
   var dropEmail = document.getElementById('dropdownEmail');
   var dropRole  = document.getElementById('dropdownRole');
@@ -205,7 +154,6 @@ function _loadTopbar() {
   if (dropEmail) dropEmail.textContent = user.email || '—';
   if (dropRole)  dropRole.textContent  = user.role  || 'user';
 
-  // Dashboard link in dropdown — role based
   var dropDashboard = document.getElementById('dropdownDashboard');
   if (dropDashboard) {
     if (user.role === 'organizer') {
@@ -218,7 +166,6 @@ function _loadTopbar() {
   }
 }
 
-// ── Mobile Sidebar Toggle ─────────────────────────
 function _wireSidebarToggle() {
   var sidebar   = document.getElementById('sidebar');
   var overlay   = document.getElementById('sidebarOverlay');
@@ -245,25 +192,21 @@ function _wireSidebarToggle() {
   if (closeBtn) closeBtn.addEventListener('click', _closeSidebar);
   if (overlay)  overlay.addEventListener('click', _closeSidebar);
 
-  // Close sidebar on nav link click (mobile UX)
   var navLinks = sidebar.querySelectorAll('.sidebar-link');
   navLinks.forEach(function (link) {
     link.addEventListener('click', _closeSidebar);
   });
 
-  // Close on Escape
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') _closeSidebar();
   });
 }
 
-// ── Logout (sidebar + dropdown) ───────────────────
 function _wireLogout() {
   var dropdownLogout = document.getElementById('dropdownLogout');
   if (dropdownLogout) dropdownLogout.addEventListener('click', logoutUser);
 }
 
-// ── Search ────────────────────────────────────────
 function _wireSearch() {
   var searchBtn     = document.getElementById('topbarSearchBtn');
   var searchOverlay = document.getElementById('topbarSearchOverlay');
@@ -275,10 +218,7 @@ function _wireSearch() {
   function _openSearch() {
     searchOverlay.style.display = 'flex';
     searchBtn.style.display     = 'none';
-    if (searchInput) {
-      searchInput.value = '';
-      searchInput.focus();
-    }
+    if (searchInput) { searchInput.value = ''; searchInput.focus(); }
   }
 
   function _closeSearch() {
@@ -288,7 +228,6 @@ function _wireSearch() {
   }
 
   searchBtn.addEventListener('click', _openSearch);
-
   if (searchClose) {
     searchClose.addEventListener('click', function (e) {
       e.stopPropagation();
@@ -296,16 +235,10 @@ function _wireSearch() {
     });
   }
 
-  // Search on Enter — route to best matching page
   if (searchInput) {
     searchInput.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') {
-        _closeSearch();
-        return;
-      }
-
+      if (e.key === 'Escape') { _closeSearch(); return; }
       if (e.key !== 'Enter') return;
-
       var q = searchInput.value.trim().toLowerCase();
       if (!q) { _closeSearch(); return; }
 
@@ -313,8 +246,8 @@ function _wireSearch() {
         'event':      '../pages/attendees.html?tab=events',
         'attendee':   '../pages/attendees.html',
         'report':     '../pages/admin-report.html',
-        'checkin':    '../pages/ticket-details.html',
-        'check-in':   '../pages/ticket-details.html',
+        'checkin':    '../pages/real-time-attendance.html',
+        'check-in':   '../pages/real-time-attendance.html',
         'organizer':  '../pages/organizer-management.html',
         'setting':    '../pages/settings.html',
         'dashboard':  '../pages/admin-dashboard.html',
@@ -334,26 +267,19 @@ function _wireSearch() {
   }
 }
 
-// ── Bell notification ──────────────────────────────
 function _wireBell() {
   var bellBtn = document.getElementById('topbarBellBtn');
   if (!bellBtn) return;
-
-  // TODO: wire to real notifications endpoint when available
-  // For now — clicking bell shows a toast placeholder
   bellBtn.addEventListener('click', function () {
     var toast = document.getElementById('toast');
     if (!toast) return;
     toast.textContent = 'No new notifications';
     toast.className   = 'toast show';
     clearTimeout(toast._t);
-    toast._t = setTimeout(function () {
-      toast.className = 'toast';
-    }, 3000);
+    toast._t = setTimeout(function () { toast.className = 'toast'; }, 3000);
   });
 }
 
-// ── Profile Dropdown ──────────────────────────────
 function _wireProfileDropdown() {
   var avatarBtn = document.getElementById('topbarAvatar');
   var dropdown  = document.getElementById('topbarDropdown');
@@ -384,14 +310,10 @@ function _wireProfileDropdown() {
     _toggleDropdown();
   });
 
-  // Close when clicking anywhere outside
   document.addEventListener('click', function (e) {
-    if (wrap && !wrap.contains(e.target)) {
-      _closeDropdown();
-    }
+    if (wrap && !wrap.contains(e.target)) _closeDropdown();
   });
 
-  // Close on Escape
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') _closeDropdown();
   });
