@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Events | EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/dashboard-layout.css" />
+  <link rel="stylesheet" href="../styles/organizer-events.css" />
+</head>
+<body>
+
+  <div class="dashboard-shell">
+
+    <div id="sidebarSlot"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="dashboard-main">
+
+      <div id="topbarSlot"></div>
+
+      <main class="dashboard-content">
+
+        <!-- Page heading -->
+        <div class="oe-heading">
+          <div class="oe-heading__left">
+            <h1 class="page-title">My Events</h1>
+            <p class="page-breadcrumb">
+              <span class="breadcrumb-parent">Organizer</span>
+              <span class="breadcrumb-sep"> / </span>
+              <a href="../pages/organizer-events.html" class="breadcrumb-current">Events</a>
+            </p>
+          </div>
+          <a href="../pages/create-event.html" class="oe-btn-create">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            Create Event
+          </a>
+        </div>
+
+        <!-- Summary strip -->
+        <div class="oe-summary">
+          <div class="oe-summary__stat">
+            <span class="oe-summary__label">My Events</span>
+            <strong class="oe-summary__value" id="sumTotal">—</strong>
+          </div>
+          <div class="oe-summary__divider"></div>
+          <div class="oe-summary__stat">
+            <span class="oe-summary__label">Active</span>
+            <strong class="oe-summary__value oe-summary__value--active" id="sumActive">—</strong>
+          </div>
+          <div class="oe-summary__divider"></div>
+          <div class="oe-summary__stat">
+            <span class="oe-summary__label">Upcoming</span>
+            <strong class="oe-summary__value oe-summary__value--upcoming" id="sumUpcoming">—</strong>
+          </div>
+          <div class="oe-summary__divider"></div>
+          <div class="oe-summary__stat">
+            <span class="oe-summary__label">Completed</span>
+            <strong class="oe-summary__value oe-summary__value--completed" id="sumCompleted">—</strong>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="oe-controls">
+          <div class="oe-search-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input type="text" id="searchInput"
+              class="oe-search" placeholder="Search my events…"
+              aria-label="Search events" />
+          </div>
+          <div class="oe-filters">
+            <select id="filterStatus" class="oe-select">
+              <option value="">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="upcoming">Upcoming</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="draft">Draft</option>
+            </select>
+            <select id="filterCategory" class="oe-select">
+              <option value="">All Categories</option>
+              <option value="music">Music</option>
+              <option value="sports">Sports</option>
+              <option value="tech">Tech</option>
+              <option value="food">Food</option>
+              <option value="art">Art</option>
+              <option value="business">Business</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Table card -->
+        <div class="oe-table-card">
+          <div class="oe-table-wrap">
+            <table class="oe-table" id="eventsTable">
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Date</th>
+                  <th>Location</th>
+                  <th>Registered</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="eventsTableBody">
+                <tr>
+                  <td colspan="7">
+                    <div class="spinner" role="status" aria-label="Loading events"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table footer -->
+          <div class="oe-table-footer">
+            <p class="oe-footer-count" id="oeFooterCount">—</p>
+            <nav class="oe-pagination" id="oePagination" aria-label="Events pagination"></nav>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- Script load order — DO NOT change -->
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/utils/load-components.js"></script>
+  <script src="../js/organizer-events.js"></script>
+
+</body>
+</html>

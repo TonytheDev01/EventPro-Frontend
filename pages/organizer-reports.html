@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports | EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../styles/dashboard-layout.css" />
+  <link rel="stylesheet" href="../styles/admin-report.css" />
+
+  <!-- Chart.js — defer so DOM is ready -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
+    defer></script>
+  <!-- jsPDF — defer -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+    defer></script>
+</head>
+<body>
+
+  <div class="dashboard-shell">
+
+    <div id="sidebarSlot"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="dashboard-main">
+
+      <div id="topbarSlot"></div>
+
+      <main class="dashboard-content">
+
+        <!-- Page heading -->
+        <div class="page-heading">
+          <h1 class="page-title">Reports</h1>
+          <p class="page-breadcrumb">
+            <span class="breadcrumb-parent">Organizer</span>
+            <span class="breadcrumb-sep"> / </span>
+            <a href="../pages/organizer-reports.html" class="breadcrumb-current">
+              Reports
+            </a>
+          </p>
+        </div>
+
+        <div class="rpt-main">
+
+          <!-- Card 1: Summary + stats -->
+          <div class="rpt-card rpt-card--top">
+
+            <div class="rpt-meta-section">
+              <h2 class="rpt-title">Summary Report</h2>
+              <div class="rpt-meta">
+                <p class="rpt-meta__item">
+                  <strong>Event:</strong>
+                  <span id="metaEvent">—</span>
+                </p>
+                <p class="rpt-meta__item">
+                  <strong>Date:</strong>
+                  <span id="metaDate">—</span>
+                </p>
+                <p class="rpt-meta__item">
+                  <strong>Organizer:</strong>
+                  <span id="metaOrganizer">—</span>
+                </p>
+              </div>
+            </div>
+
+            <ul class="rpt-stat-list" id="statList" role="list">
+              <li class="rpt-stat-row skeleton-row" aria-hidden="true"></li>
+              <li class="rpt-stat-row skeleton-row" aria-hidden="true"></li>
+              <li class="rpt-stat-row skeleton-row" aria-hidden="true"></li>
+              <li class="rpt-stat-row skeleton-row" aria-hidden="true"></li>
+              <li class="rpt-stat-row skeleton-row" aria-hidden="true"></li>
+            </ul>
+
+          </div>
+
+          <!-- Card 2: Chart + actions -->
+          <div class="rpt-card rpt-card--bottom">
+
+            <div class="rpt-chart-section">
+              <canvas id="attendanceChart"
+                aria-label="Attendees timeline chart"
+                role="img"></canvas>
+            </div>
+
+            <div class="rpt-actions">
+              <button type="button" class="btn-pdf" id="btn-pdf">
+                <svg width="16" height="16" viewBox="0 0 24 24"
+                  fill="currentColor" aria-hidden="true">
+                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                Download PDF Report
+              </button>
+              <button type="button" class="btn-csv" id="btn-csv">
+                <svg width="16" height="16" viewBox="0 0 24 24"
+                  fill="currentColor" aria-hidden="true">
+                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                Export CSV
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- Script load order — do NOT change -->
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/utils/load-components.js"></script>
+  <script src="../js/organizer-report.js"></script>
+
+</body>
+</html>
