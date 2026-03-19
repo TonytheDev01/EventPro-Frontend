@@ -27,9 +27,6 @@ if (toggleBtn) {
 }
 
 // ── Handle OAuth return from Appwrite ──────────
-// Runs immediately on page load.
-// If URL has ?oauth=success — exchange Appwrite
-// session JWT for an EventPro token.
 (function _checkOAuthReturn() {
   var params = new URLSearchParams(window.location.search);
 
@@ -47,14 +44,12 @@ if (toggleBtn) {
           _showError(result.message || 'Social login failed. Please try again.');
           return;
         }
-
         var user = getStoredUser();
-        var role = user && user.role;
-
-        if (!role) {
-          window.location.href = '../pages/role-selection.html';
+        // Admin goes straight to dashboard — everyone else picks role
+        if (user && user.role === 'admin') {
+          window.location.href = '../pages/admin-dashboard.html';
         } else {
-          _redirectByRole(role);
+          window.location.href = '../pages/role-selection.html';
         }
       })
       .catch(function () {
@@ -69,29 +64,10 @@ var facebookBtn  = document.getElementById('facebookLoginBtn');
 var microsoftBtn = document.getElementById('microsoftLoginBtn');
 var githubBtn    = document.getElementById('githubLoginBtn');
 
-if (googleBtn) {
-  googleBtn.addEventListener('click', function () {
-    loginWithGoogle();
-  });
-}
-
-if (facebookBtn) {
-  facebookBtn.addEventListener('click', function () {
-    loginWithFacebook();
-  });
-}
-
-if (microsoftBtn) {
-  microsoftBtn.addEventListener('click', function () {
-    loginWithMicrosoft();
-  });
-}
-
-if (githubBtn) {
-  githubBtn.addEventListener('click', function () {
-    loginWithGithub();
-  });
-}
+if (googleBtn)    googleBtn.addEventListener('click',    function () { loginWithGoogle();    });
+if (facebookBtn)  facebookBtn.addEventListener('click',  function () { loginWithFacebook();  });
+if (microsoftBtn) microsoftBtn.addEventListener('click', function () { loginWithMicrosoft(); });
+if (githubBtn)    githubBtn.addEventListener('click',    function () { loginWithGithub();    });
 
 // ── Validate on blur ───────────────────────────
 if (emailInput) {
@@ -149,10 +125,12 @@ if (form) {
         var user = getStoredUser();
         var role = user && user.role;
 
-        if (!role) {
-          window.location.href = '../pages/role-selection.html';
+        // Admin — straight to admin dashboard, no role selection needed
+        // Everyone else — always go to role selection to pick their role
+        if (role === 'admin') {
+          window.location.href = '../pages/admin-dashboard.html';
         } else {
-          _redirectByRole(role);
+          window.location.href = '../pages/role-selection.html';
         }
       })
       .catch(function () {
@@ -164,16 +142,6 @@ if (form) {
 }
 
 // ── Helpers ────────────────────────────────────
-function _redirectByRole(role) {
-  if (role === 'admin') {
-    window.location.href = '../pages/admin-dashboard.html';
-  } else if (role === 'organizer') {
-    window.location.href = '../pages/organizer-dashboard.html';
-  } else {
-    window.location.href = '../pages/attendees.html';
-  }
-}
-
 function _showError(msg) {
   var banner = document.getElementById('signinError');
   if (!banner) return;
