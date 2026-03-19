@@ -2,50 +2,86 @@
 //  EventPro — Dashboard Component Loader
 //  js/utils/load-components.js
 //
-//  Sidebar + topbar HTML embedded as JS strings.
-//  No fetch, no file, no cache issues.
+//  Role-aware sidebar:
+//  Admin    → Events → admin-events.html
+//             Organizers tab visible
+//  Organizer → Events → organizer-events.html
+//              No Organizers tab
 // ================================================
 
-var _SIDEBAR_HTML = '<aside class="sidebar" id="sidebar">'
-  + '<div class="sidebar-logo">'
-  +   '<img src="../assets/images/logo.png" alt="EventPro" class="sidebar-logo-icon" onerror="this.style.display=\'none\'" />'
-  +   '<span class="sidebar-logo-text">EventPro</span>'
-  + '</div>'
-  + '<nav class="sidebar-nav" aria-label="Dashboard navigation">'
-  +   '<a href="../pages/admin-dashboard.html" class="sidebar-link" data-page="dashboard">'
-  +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/></svg>'
-  +     '<span>Dashboard</span>'
-  +   '</a>'
-  +   '<a href="../pages/admin-events.html" class="sidebar-link" data-page="events">'
-  +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
-  +     '<span>Events</span>'
-  +   '</a>'
-  +   '<a href="../pages/real-time-attendance.html" class="sidebar-link" data-page="checkin">'
-  +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
-  +     '<span>Check-In</span>'
-  +   '</a>'
-  +   '<a href="../pages/organizer-management.html" class="sidebar-link sidebar-admin-only" data-page="organizers">'
-  +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="11" r="2" stroke="currentColor" stroke-width="2"/><path d="M23 21v-1a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
-  +     '<span>Organizers</span>'
-  +   '</a>'
-  +   '<a href="../pages/attendees.html" class="sidebar-link" data-page="attendees">'
-  +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 21v-1a4 4 0 00-3-3.87" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
-  +     '<span>Attendees</span>'
-  +   '</a>'
-  +   '<a href="#" class="sidebar-link" data-page="reports" id="sidebarReportsLink">'
-  +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 17V13M12 17V9M16 17V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
-  +     '<span>Reports</span>'
-  +   '</a>'
-  +   '<a href="../pages/settings.html" class="sidebar-link" data-page="settings">'
-  +     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="2"/></svg>'
-  +     '<span>Settings</span>'
-  +   '</a>'
-  + '</nav>'
-  + '<button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close menu">'
-  +   '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
-  + '</button>'
-  + '</aside>';
+// ── Shared nav items ──────────────────────────────────────
+var _NAV_DASHBOARD = '<a href="../pages/admin-dashboard.html" class="sidebar-link" data-page="dashboard">'
+  + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/></svg>'
+  + '<span>Dashboard</span></a>';
 
+var _NAV_EVENTS_ADMIN = '<a href="../pages/admin-events.html" class="sidebar-link" data-page="events">'
+  + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+  + '<span>Events</span></a>';
+
+var _NAV_EVENTS_ORGANIZER = '<a href="../pages/organizer-events.html" class="sidebar-link" data-page="events">'
+  + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+  + '<span>Events</span></a>';
+
+var _NAV_CHECKIN = '<a href="../pages/real-time-attendance.html" class="sidebar-link" data-page="checkin">'
+  + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+  + '<span>Check-In</span></a>';
+
+var _NAV_ORGANIZERS = '<a href="../pages/organizer-management.html" class="sidebar-link" data-page="organizers">'
+  + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="11" r="2" stroke="currentColor" stroke-width="2"/><path d="M23 21v-1a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+  + '<span>Organizers</span></a>';
+
+var _NAV_ATTENDEES = '<a href="../pages/attendees.html" class="sidebar-link" data-page="attendees">'
+  + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 21v-1a4 4 0 00-3-3.87" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+  + '<span>Attendees</span></a>';
+
+var _NAV_REPORTS = '<a href="#" class="sidebar-link" data-page="reports" id="sidebarReportsLink">'
+  + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 17V13M12 17V9M16 17V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+  + '<span>Reports</span></a>';
+
+var _NAV_SETTINGS = '<a href="../pages/settings.html" class="sidebar-link" data-page="settings">'
+  + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="2"/></svg>'
+  + '<span>Settings</span></a>';
+
+var _SIDEBAR_CLOSE = '<button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close menu">'
+  + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+  + '</button>';
+
+// ── Build sidebar HTML based on role ──────────────────────
+function _buildSidebarHTML(role) {
+  var logo = '<div class="sidebar-logo">'
+    + '<img src="../assets/images/logo.png" alt="EventPro" class="sidebar-logo-icon" onerror="this.style.display=\'none\'" />'
+    + '<span class="sidebar-logo-text">EventPro</span>'
+    + '</div>';
+
+  var nav = '';
+
+  if (role === 'admin') {
+    // Admin sidebar — full access including Organizers tab
+    nav = _NAV_DASHBOARD
+      + _NAV_EVENTS_ADMIN
+      + _NAV_CHECKIN
+      + _NAV_ORGANIZERS
+      + _NAV_ATTENDEES
+      + _NAV_REPORTS
+      + _NAV_SETTINGS;
+  } else {
+    // Organizer sidebar — no Organizers tab, Events → organizer-events
+    nav = _NAV_DASHBOARD.replace('admin-dashboard.html', 'organizer-dashboard.html')
+      + _NAV_EVENTS_ORGANIZER
+      + _NAV_CHECKIN
+      + _NAV_ATTENDEES
+      + _NAV_REPORTS
+      + _NAV_SETTINGS;
+  }
+
+  return '<aside class="sidebar" id="sidebar">'
+    + logo
+    + '<nav class="sidebar-nav" aria-label="Dashboard navigation">' + nav + '</nav>'
+    + _SIDEBAR_CLOSE
+    + '</aside>';
+}
+
+// ── Topbar HTML ───────────────────────────────────────────
 var _TOPBAR_HTML = '<header class="topbar" id="topbar">'
   + '<button type="button" class="topbar-hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">'
   +   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none">'
@@ -93,6 +129,9 @@ var _TOPBAR_HTML = '<header class="topbar" id="topbar">'
   + '</div>'
   + '</header>';
 
+// ════════════════════════════════════════════════
+//  PUBLIC — call from every dashboard page
+// ════════════════════════════════════════════════
 function loadDashboardComponents(activePage) {
   _loadSidebar(activePage);
   _loadTopbar();
@@ -103,29 +142,32 @@ function loadDashboardComponents(activePage) {
   _wireBell();
 }
 
+// ── Inject Sidebar ────────────────────────────────
 function _loadSidebar(activePage) {
   var slot = document.getElementById('sidebarSlot');
   if (!slot) return;
-  slot.innerHTML = _SIDEBAR_HTML;
 
+  var user = getStoredUser();
+  var role = user && user.role;
+
+  slot.innerHTML = _buildSidebarHTML(role);
+
+  // Highlight active nav link
   if (activePage) {
     var link = slot.querySelector('[data-page="' + activePage + '"]');
     if (link) link.classList.add('active');
   }
 
-  var user = getStoredUser();
-  if (user && user.role === 'admin') {
-    document.body.classList.add('role-admin');
-  }
-
+  // Reports link — role based
   var reportsLink = document.getElementById('sidebarReportsLink');
   if (reportsLink && user) {
-    reportsLink.href = user.role === 'organizer'
+    reportsLink.href = role === 'organizer'
       ? '../pages/organizer-reports.html'
       : '../pages/admin-report.html';
   }
 }
 
+// ── Inject Topbar ─────────────────────────────────
 function _loadTopbar() {
   var slot = document.getElementById('topbarSlot');
   if (!slot) return;
@@ -154,6 +196,7 @@ function _loadTopbar() {
   if (dropEmail) dropEmail.textContent = user.email || '—';
   if (dropRole)  dropRole.textContent  = user.role  || 'user';
 
+  // Dashboard dropdown link — role based
   var dropDashboard = document.getElementById('dropdownDashboard');
   if (dropDashboard) {
     if (user.role === 'organizer') {
@@ -166,6 +209,7 @@ function _loadTopbar() {
   }
 }
 
+// ── Mobile Sidebar Toggle ─────────────────────────
 function _wireSidebarToggle() {
   var sidebar   = document.getElementById('sidebar');
   var overlay   = document.getElementById('sidebarOverlay');
@@ -202,11 +246,13 @@ function _wireSidebarToggle() {
   });
 }
 
+// ── Logout ────────────────────────────────────────
 function _wireLogout() {
   var dropdownLogout = document.getElementById('dropdownLogout');
   if (dropdownLogout) dropdownLogout.addEventListener('click', logoutUser);
 }
 
+// ── Search ────────────────────────────────────────
 function _wireSearch() {
   var searchBtn     = document.getElementById('topbarSearchBtn');
   var searchOverlay = document.getElementById('topbarSearchOverlay');
@@ -239,11 +285,14 @@ function _wireSearch() {
     searchInput.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { _closeSearch(); return; }
       if (e.key !== 'Enter') return;
-      var q = searchInput.value.trim().toLowerCase();
+      var q    = searchInput.value.trim().toLowerCase();
+      var user = getStoredUser();
+      var role = user && user.role;
+
       if (!q) { _closeSearch(); return; }
 
-      var routes = {
-        'event':      '../pages/attendees.html?tab=events',
+      var adminRoutes = {
+        'event':      '../pages/admin-events.html',
         'attendee':   '../pages/attendees.html',
         'report':     '../pages/admin-report.html',
         'checkin':    '../pages/real-time-attendance.html',
@@ -254,6 +303,18 @@ function _wireSearch() {
         'create':     '../pages/create-event.html',
       };
 
+      var orgRoutes = {
+        'event':      '../pages/organizer-events.html',
+        'attendee':   '../pages/attendees.html',
+        'report':     '../pages/organizer-reports.html',
+        'checkin':    '../pages/real-time-attendance.html',
+        'check-in':   '../pages/real-time-attendance.html',
+        'setting':    '../pages/settings.html',
+        'dashboard':  '../pages/organizer-dashboard.html',
+        'create':     '../pages/create-event.html',
+      };
+
+      var routes  = role === 'organizer' ? orgRoutes : adminRoutes;
       var matched = Object.keys(routes).find(function (k) {
         return q.indexOf(k) !== -1;
       });
@@ -267,6 +328,7 @@ function _wireSearch() {
   }
 }
 
+// ── Bell notification ──────────────────────────────
 function _wireBell() {
   var bellBtn = document.getElementById('topbarBellBtn');
   if (!bellBtn) return;
@@ -280,6 +342,7 @@ function _wireBell() {
   });
 }
 
+// ── Profile Dropdown ──────────────────────────────
 function _wireProfileDropdown() {
   var avatarBtn = document.getElementById('topbarAvatar');
   var dropdown  = document.getElementById('topbarDropdown');
