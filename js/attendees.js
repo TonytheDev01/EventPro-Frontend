@@ -8,67 +8,84 @@
 //  Endpoints used:
 //  GET /events                              ← event name
 //  GET /events/{eventId}/attendees          ← attendees list
-//  POST /events/{eventId}/checkin/generate  ← check-in
 //
 //  URL params accepted:
 //  ?eventId=  — pre-select event
-//  ?tab=events — future tab support
+//
+//  Role behaviour:
+//  admin/organizer → full controls (Add Attendees, Export CSV)
+//  user/attendee   → read-only view, controls hidden
 // ================================================
 
-const API        = 'https://eventpro-fxfv.onrender.com/api';
-const PAGE_LIMIT = 24;
+var _ATT_API        = 'https://eventpro-fxfv.onrender.com/api';
+var _ATT_PAGE_LIMIT = 24;
 
-// ── State ─────────────────────────────────────────
-let _state = {
-  eventId:     null,
-  eventName:   '—',
-  allAttendees: [],   // full list for client-side filter
-  filtered:    [],    // filtered view
-  page:        1,
-  totalPages:  1,
-  filterType:  '',
-  filterStatus:'',
+var _attState = {
+  eventId:      null,
+  eventName:    '—',
+  allAttendees: [],
+  filtered:     [],
+  page:         1,
+  totalPages:   1,
+  filterType:   '',
+  filterStatus: '',
 };
 
-// ════════════════════════════════════════════════
-//  INIT
-// ════════════════════════════════════════════════
-
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', function () {
 
   requireAuth();
 
-  // Load sidebar + topbar — attendees tab active
-  await loadDashboardComponents('attendees');
+  loadDashboardComponents('attendees');
 
   // Read eventId from URL
-  const params = new URLSearchParams(window.location.search);
-  _state.eventId = params.get('eventId') ?? null;
+  var params = new URLSearchParams(window.location.search);
+  _attState.eventId = params.get('eventId') || null;
 
-  // Wire filters
-  document.getElementById('filterTicketType')
-    ?.addEventListener('change', _onFilterChange);
-  document.getElementById('filterStatus')
-    ?.addEventListener('change', _onFilterChange);
+  // ── Role-based controls ───────────────────────
+  var user    = getStoredUser();
+  var role    = user && user.role;
+  var isAdmin = role === 'admin' || role === 'organizer';
 
-  // Wire export
-  document.getElementById('exportCsvBtn')
-    ?.addEventListener('click', _exportCSV);
+  var addBtn    = document.getElementById('addAttendeeBtn');
+  var exportBtn = document.getElementById('exportCsvBtn');
 
-  // Wire add attendee
-document.getElementById('addAttendeeBtn')
-  ?.addEventListener('click', function () {
-    var dest = '../pages/upload.html';
-    if (_state.eventId) dest += '?eventId=' + encodeURIComponent(_state.eventId);
-    window.location.href = dest;
-  });
-  
-  // Load data
-  if (_state.eventId) {
-    await _loadEventName(_state.eventId);
-    await _loadAttendees(_state.eventId);
+  if (addBtn) {
+    if (isAdmin) {
+      addBtn.hidden = false;
+      addBtn.addEventListener('click', function () {
+        var dest = '../pages/upload.html';
+        if (_attState.eventId) {
+          dest += '?eventId=' + encodeURIComponent(_attState.eventId);
+        }
+        window.location.href = dest;
+      });
+    } else {
+      // Hide for attendees
+      addBtn.hidden = true;
+    }
+  }
+
+  if (exportBtn) {
+    if (isAdmin) {
+      exportBtn.hidden = false;
+      exportBtn.addEventListener('click', _attExportCSV);
+    } else {
+      exportBtn.hidden = true;
+    }
+  }
+
+  // ── Wire filters ──────────────────────────────
+  var filterTicketType = document.getElementById('filterTicketType');
+  var filterStatus     = document.getElementById('filterStatus');
+  if (filterTicketType) filterTicketType.addEventListener('change', _attOnFilterChange);
+  if (filterStatus)     filterStatus.addEventListener('change',     _attOnFilterChange);
+
+  // ── Load data ─────────────────────────────────
+  if (_attState.eventId) {
+    _attLoadEventName(_attState.eventId);
+    _attLoadAttendees(_attState.eventId);
   } else {
-    await _loadLatestEvent();
+    _attLoadLatestEvent();
   }
 
 });
@@ -77,220 +94,190 @@ document.getElementById('addAttendeeBtn')
 //  DATA LOADING
 // ════════════════════════════════════════════════
 
-async function _loadLatestEvent() {
-  try {
-    const res = await _apiFetch(
-      `${API}/events?limit=1&sort=recent`
-    );
-    const events = res?.events ?? res?.data ?? res ?? [];
-    if (events.length) {
-      _state.eventId = events[0]._id ?? events[0].id;
-      await _loadEventName(_state.eventId);
-      await _loadAttendees(_state.eventId);
-    } else {
-      _renderEmpty('No events found. Create an event first.');
-    }
-  } catch {
-    _renderEmpty('Unable to load events. Please try again.');
-  }
+function _attLoadLatestEvent() {
+  _attApiFetch(_ATT_API + '/events?limit=1&sort=recent')
+    .then(function (res) {
+      var events = (res && (res.events || res.data || res)) || [];
+      if (!Array.isArray(events)) events = [];
+      if (events.length) {
+        _attState.eventId = events[0]._id || events[0].id;
+        _attLoadEventName(_attState.eventId);
+        _attLoadAttendees(_attState.eventId);
+      } else {
+        _attRenderEmpty('No events found. Create an event first.');
+      }
+    })
+    .catch(function () {
+      _attRenderEmpty('Unable to load events. Please try again.');
+    });
 }
 
-async function _loadEventName(eventId) {
-  try {
-    const res = await _apiFetch(`${API}/events/${eventId}`);
-    _state.eventName = res?.name ?? res?.title ?? '—';
-    _setText('eventNameDisplay', _state.eventName);
-  } catch {
-    _setText('eventNameDisplay', '—');
-  }
+function _attLoadEventName(eventId) {
+  _attApiFetch(_ATT_API + '/events/' + eventId)
+    .then(function (res) {
+      _attState.eventName = (res && (res.name || res.title)) || '—';
+      _attSetText('eventNameDisplay', _attState.eventName);
+    })
+    .catch(function () {
+      _attSetText('eventNameDisplay', '—');
+    });
 }
 
-async function _loadAttendees(eventId) {
-  const tbody = document.getElementById('attendeeTableBody');
+function _attLoadAttendees(eventId) {
+  var tbody = document.getElementById('attendeeTableBody');
   if (tbody) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="7">
-          <div class="spinner" role="status" aria-label="Loading attendees"></div>
-        </td>
-      </tr>`;
+    tbody.innerHTML =
+      '<tr><td colspan="7"><div class="spinner" role="status" aria-label="Loading attendees"></div></td></tr>';
   }
 
-  try {
-    const res = await _apiFetch(
-      `${API}/events/${eventId}/attendees?limit=1000`
-    );
-
-    const attendees = res?.attendees ?? res?.data ?? res ?? [];
-
-    _state.allAttendees = Array.isArray(attendees) ? attendees : [];
-    _applyFilters();
-
-  } catch {
-    _renderEmpty('Unable to load attendees. Please try again.');
-  }
+  _attApiFetch(_ATT_API + '/events/' + eventId + '/attendees?limit=1000')
+    .then(function (res) {
+      var attendees = (res && (res.attendees || res.data || res)) || [];
+      _attState.allAttendees = Array.isArray(attendees) ? attendees : [];
+      _attApplyFilters();
+    })
+    .catch(function () {
+      _attRenderEmpty('Unable to load attendees. Please try again.');
+    });
 }
 
 // ════════════════════════════════════════════════
 //  FILTER
 // ════════════════════════════════════════════════
 
-function _onFilterChange() {
-  _state.filterType   = document.getElementById('filterTicketType')?.value ?? '';
-  _state.filterStatus = document.getElementById('filterStatus')?.value ?? '';
-  _state.page = 1;
-  _applyFilters();
+function _attOnFilterChange() {
+  var filterTicketType = document.getElementById('filterTicketType');
+  var filterStatus     = document.getElementById('filterStatus');
+  _attState.filterType   = filterTicketType ? filterTicketType.value : '';
+  _attState.filterStatus = filterStatus     ? filterStatus.value     : '';
+  _attState.page = 1;
+  _attApplyFilters();
 }
 
-function _applyFilters() {
-  let list = [..._state.allAttendees];
+function _attApplyFilters() {
+  var list = _attState.allAttendees.slice();
 
-  if (_state.filterType) {
-    list = list.filter(a =>
-      (a.ticketType ?? a.type ?? '').toLowerCase() ===
-      _state.filterType.toLowerCase()
-    );
+  if (_attState.filterType) {
+    list = list.filter(function (a) {
+      return (a.ticketType || a.type || '').toLowerCase() === _attState.filterType.toLowerCase();
+    });
   }
 
-  if (_state.filterStatus) {
-    list = list.filter(a => {
-      const s = (a.status ?? '').toLowerCase();
-      return _state.filterStatus === 'checked-in'
+  if (_attState.filterStatus) {
+    list = list.filter(function (a) {
+      var s = (a.status || '').toLowerCase();
+      return _attState.filterStatus === 'checked-in'
         ? s === 'checked-in' || s === 'checkedin' || a.checkedIn === true
         : s === 'pending' || (!a.checkedIn && s !== 'checked-in');
     });
   }
 
-  _state.filtered   = list;
-  _state.totalPages = Math.max(1, Math.ceil(list.length / PAGE_LIMIT));
-  if (_state.page > _state.totalPages) _state.page = 1;
+  _attState.filtered   = list;
+  _attState.totalPages = Math.max(1, Math.ceil(list.length / _ATT_PAGE_LIMIT));
+  if (_attState.page > _attState.totalPages) _attState.page = 1;
 
-  _renderStats();
-  _renderTable();
-  _renderPagination();
+  _attRenderStats();
+  _attRenderTable();
+  _attRenderPagination();
 }
 
 // ════════════════════════════════════════════════
 //  RENDER — STATS
 // ════════════════════════════════════════════════
 
-function _renderStats() {
-  const total     = _state.allAttendees.length;
-  const checkedIn = _state.allAttendees.filter(a =>
-    a.checkedIn === true ||
-    (a.status ?? '').toLowerCase() === 'checked-in'
-  ).length;
-  const pending   = total - checkedIn;
+function _attRenderStats() {
+  var total     = _attState.allAttendees.length;
+  var checkedIn = _attState.allAttendees.filter(function (a) {
+    return a.checkedIn === true || (a.status || '').toLowerCase() === 'checked-in';
+  }).length;
+  var pending   = total - checkedIn;
 
-  _setText('statTotal',     total.toLocaleString());
-  _setText('statCheckedIn', checkedIn.toLocaleString());
-  _setText('statPending',   pending.toLocaleString());
+  _attSetText('statTotal',     total.toLocaleString());
+  _attSetText('statCheckedIn', checkedIn.toLocaleString());
+  _attSetText('statPending',   pending.toLocaleString());
 }
 
 // ════════════════════════════════════════════════
 //  RENDER — TABLE
 // ════════════════════════════════════════════════
 
-function _renderTable() {
-  const tbody = document.getElementById('attendeeTableBody');
+function _attRenderTable() {
+  var tbody = document.getElementById('attendeeTableBody');
   if (!tbody) return;
 
-  const start = (_state.page - 1) * PAGE_LIMIT;
-  const slice = _state.filtered.slice(start, start + PAGE_LIMIT);
+  var start = (_attState.page - 1) * _ATT_PAGE_LIMIT;
+  var slice = _attState.filtered.slice(start, start + _ATT_PAGE_LIMIT);
 
   if (!slice.length) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="7" class="att-empty">No attendees found.</td>
-      </tr>`;
-    _setText('footerCount', 'Showing 0 attendees');
+    tbody.innerHTML = '<tr><td colspan="7" class="att-empty">No attendees found.</td></tr>';
+    _attSetText('footerCount', 'Showing 0 attendees');
     return;
   }
 
-  tbody.innerHTML = slice.map(a => {
-    const checkedIn  = _isCheckedIn(a);
-    const statusHtml = checkedIn
-      ? `<span class="att-badge att-badge--checked">
-           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-             <polyline points="20 6 9 17 4 12"
-               stroke="currentColor" stroke-width="2.5"
-               stroke-linecap="round" stroke-linejoin="round"/>
-           </svg>
-           Checked-In
-         </span>`
-      : `<span class="att-badge att-badge--pending">Pending</span>`;
+  tbody.innerHTML = slice.map(function (a) {
+    var checkedIn  = _attIsCheckedIn(a);
+    var statusHtml = checkedIn
+      ? '<span class="att-badge att-badge--checked">'
+      +   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
+      +     '<polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'
+      +   '</svg>'
+      +   ' Checked-In</span>'
+      : '<span class="att-badge att-badge--pending">Pending</span>';
 
-    const actionHtml = checkedIn
-      ? `<button type="button" class="att-action-btn"
-           title="View ticket" aria-label="View ticket for ${_escHtml(a.name ?? '')}">
-           <svg class="icon-check" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-             <polyline points="20 6 9 17 4 12"
-               stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"/>
-           </svg>
-         </button>`
-      : `<button type="button" class="att-action-btn"
-           title="View ticket" aria-label="View ticket for ${_escHtml(a.name ?? '')}">
-           <svg class="icon-eye" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round"
-             aria-hidden="true">
-             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-             <circle cx="12" cy="12" r="3"/>
-           </svg>
-         </button>`;
+    var actionHtml = checkedIn
+      ? '<button type="button" class="att-action-btn" title="View ticket">'
+      +   '<svg class="icon-check" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
+      +     '<polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+      +   '</svg></button>'
+      : '<button type="button" class="att-action-btn" title="View ticket">'
+      +   '<svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      +     '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>'
+      +     '<circle cx="12" cy="12" r="3"/>'
+      +   '</svg></button>';
 
-    return `
-      <tr
-        data-id="${_escHtml(a._id ?? a.id ?? '')}"
-        tabindex="0"
-        role="button"
-        aria-label="View ticket for ${_escHtml(a.name ?? 'attendee')}">
-        <td>${_escHtml(a.name          ?? a.attendeeName  ?? '—')}</td>
-        <td>${_escHtml(a.email         ?? a.attendeeEmail ?? '—')}</td>
-        <td>${_escHtml(a.phone         ?? a.phoneNumber   ?? '—')}</td>
-        <td>${_escHtml(_cap(a.ticketType ?? a.type ?? 'Standard'))}</td>
-        <td>${_escHtml(a.ticketId      ?? a.id            ?? '—')}</td>
-        <td>${statusHtml}</td>
-        <td>${actionHtml}</td>
-      </tr>`;
+    return '<tr data-id="' + _attEscHtml(a._id || a.id || '') + '" tabindex="0" role="button">'
+      + '<td>' + _attEscHtml(a.name          || a.attendeeName  || '—') + '</td>'
+      + '<td>' + _attEscHtml(a.email         || a.attendeeEmail || '—') + '</td>'
+      + '<td>' + _attEscHtml(a.phone         || a.phoneNumber   || '—') + '</td>'
+      + '<td>' + _attEscHtml(_attCap(a.ticketType || a.type || 'Standard')) + '</td>'
+      + '<td>' + _attEscHtml(a.ticketId      || a.id            || '—') + '</td>'
+      + '<td>' + statusHtml + '</td>'
+      + '<td>' + actionHtml + '</td>'
+      + '</tr>';
   }).join('');
 
   // Wire row clicks → ticket-details
-  tbody.querySelectorAll('tr[data-id]').forEach(row => {
-    const handler = () => _openTicket(row.dataset.id);
-    row.addEventListener('click', handler);
-    row.addEventListener('keydown', e => {
-      if (e.key === 'Enter') handler();
+  tbody.querySelectorAll('tr[data-id]').forEach(function (row) {
+    function _handler() { _attOpenTicket(row.dataset.id); }
+    row.addEventListener('click', _handler);
+    row.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') _handler();
     });
-
-    // Action button stops row propagation
-    row.querySelector('.att-action-btn')?.addEventListener('click', e => {
-      e.stopPropagation();
-      _openTicket(row.dataset.id);
-    });
+    var actionBtn = row.querySelector('.att-action-btn');
+    if (actionBtn) {
+      actionBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        _attOpenTicket(row.dataset.id);
+      });
+    }
   });
 
-  // Footer count
-  const total = _state.filtered.length;
-  const from  = start + 1;
-  const to    = Math.min(start + PAGE_LIMIT, total);
-  _setText('footerCount', `Showing ${from}–${to} of ${total} attendees`);
+  var total = _attState.filtered.length;
+  var from  = start + 1;
+  var to    = Math.min(start + _ATT_PAGE_LIMIT, total);
+  _attSetText('footerCount', 'Showing ' + from + '–' + to + ' of ' + total + ' attendees');
 }
 
-// ── Navigate to ticket-details ────────────────────
-function _openTicket(attendeeId) {
-  const attendee = _state.allAttendees.find(
-    a => (a._id ?? a.id) === attendeeId
-  );
+function _attOpenTicket(attendeeId) {
+  var attendee = _attState.allAttendees.find(function (a) {
+    return (a._id || a.id) === attendeeId;
+  });
   if (!attendee) return;
 
-  // Enrich with event name for ticket-details page
-  const payload = {
-    ...attendee,
-    eventName: _state.eventName,
-    eventId:   _state.eventId,
-  };
+  var payload = Object.assign({}, attendee, {
+    eventName: _attState.eventName,
+    eventId:   _attState.eventId,
+  });
 
   localStorage.setItem('eventpro_selected_attendee', JSON.stringify(payload));
   window.location.href = '../pages/ticket-details.html';
@@ -300,168 +287,162 @@ function _openTicket(attendeeId) {
 //  RENDER — PAGINATION
 // ════════════════════════════════════════════════
 
-function _renderPagination() {
-  const nav = document.getElementById('pagination');
+function _attRenderPagination() {
+  var nav = document.getElementById('pagination');
   if (!nav) return;
 
-  const { page, totalPages } = _state;
-  let html = '';
+  var page       = _attState.page;
+  var totalPages = _attState.totalPages;
+  var html       = '';
 
-  // Prev
-  html += `<button class="att-page-btn" ${page === 1 ? 'disabled' : ''}
-    data-page="${page - 1}" aria-label="Previous page">&lt;</button>`;
+  html += '<button class="att-page-btn" ' + (page === 1 ? 'disabled' : '') + ' data-page="' + (page - 1) + '" aria-label="Previous page">&lt;</button>';
 
-  // Page numbers — show max 4 around current
-  const range = _pageRange(page, totalPages);
-  range.forEach(p => {
-    html += `<button class="att-page-btn ${p === page ? 'active' : ''}"
-      data-page="${p}" aria-label="Page ${p}"
-      ${p === page ? 'aria-current="page"' : ''}>${p}</button>`;
+  _attPageRange(page, totalPages).forEach(function (p) {
+    html += '<button class="att-page-btn ' + (p === page ? 'active' : '') + '" data-page="' + p + '" aria-label="Page ' + p + '" ' + (p === page ? 'aria-current="page"' : '') + '>' + p + '</button>';
   });
 
-  // Next
-  html += `<button class="att-page-btn" ${page === totalPages ? 'disabled' : ''}
-    data-page="${page + 1}" aria-label="Next page">&gt;</button>`;
+  html += '<button class="att-page-btn" ' + (page === totalPages ? 'disabled' : '') + ' data-page="' + (page + 1) + '" aria-label="Next page">&gt;</button>';
 
   nav.innerHTML = html;
 
-  nav.querySelectorAll('.att-page-btn:not([disabled])').forEach(btn => {
-    btn.addEventListener('click', () => {
-      _state.page = Number(btn.dataset.page);
-      _renderTable();
-      _renderPagination();
-      // Scroll table into view
-      document.getElementById('attendeeTable')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  nav.querySelectorAll('.att-page-btn:not([disabled])').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      _attState.page = Number(btn.dataset.page);
+      _attRenderTable();
+      _attRenderPagination();
+      var table = document.getElementById('attendeeTable');
+      if (table) table.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
 }
 
-function _pageRange(current, total) {
-  const delta = 1;
-  const range = [];
-  const left  = Math.max(1, current - delta);
-  const right = Math.min(total, current + delta);
-  for (let i = left; i <= right; i++) range.push(i);
-  // Always show first and last
-  if (range[0] > 1)      range.unshift(1);
-  if (range[range.length - 1] < total) range.push(total);
-  return [...new Set(range)].sort((a, b) => a - b);
+function _attPageRange(current, total) {
+  var delta = 1;
+  var left  = Math.max(1, current - delta);
+  var right = Math.min(total, current + delta);
+  var range = [];
+  for (var i = left; i <= right; i++) range.push(i);
+  if (range[0] > 1)                        range.unshift(1);
+  if (range[range.length - 1] < total)     range.push(total);
+  var seen = {};
+  return range.filter(function (v) {
+    if (seen[v]) return false;
+    seen[v] = true;
+    return true;
+  }).sort(function (a, b) { return a - b; });
 }
 
 // ════════════════════════════════════════════════
-//  EXPORT CSV
+//  EXPORT CSV — admin/organizer only
 // ════════════════════════════════════════════════
 
-function _exportCSV() {
-  const rows = _state.filtered;
+function _attExportCSV() {
+  var rows = _attState.filtered;
   if (!rows.length) {
-    _showToast('No data to export.', 'error');
+    _attShowToast('No data to export.', 'error');
     return;
   }
 
-  const headers = ['Name', 'Email', 'Phone', 'Ticket Type', 'Ticket ID', 'Status'];
-  const lines   = [headers.join(',')];
+  var headers = ['Name', 'Email', 'Phone', 'Ticket Type', 'Ticket ID', 'Status'];
+  var lines   = [headers.join(',')];
 
-  rows.forEach(a => {
+  rows.forEach(function (a) {
     lines.push([
-      _csvEscape(a.name          ?? a.attendeeName  ?? ''),
-      _csvEscape(a.email         ?? a.attendeeEmail ?? ''),
-      _csvEscape(a.phone         ?? a.phoneNumber   ?? ''),
-      _csvEscape(a.ticketType    ?? a.type          ?? 'Standard'),
-      _csvEscape(a.ticketId      ?? a.id            ?? ''),
-      _csvEscape(_isCheckedIn(a) ? 'Checked-In' : 'Pending'),
+      _attCsvEscape(a.name          || a.attendeeName  || ''),
+      _attCsvEscape(a.email         || a.attendeeEmail || ''),
+      _attCsvEscape(a.phone         || a.phoneNumber   || ''),
+      _attCsvEscape(a.ticketType    || a.type          || 'Standard'),
+      _attCsvEscape(a.ticketId      || a.id            || ''),
+      _attCsvEscape(_attIsCheckedIn(a) ? 'Checked-In' : 'Pending'),
     ].join(','));
   });
 
-  const blob  = new Blob([lines.join('\n')], { type: 'text/csv' });
-  const url   = URL.createObjectURL(blob);
-  const link  = document.createElement('a');
-  link.href   = url;
-  link.download = `attendees-${_state.eventId ?? 'export'}.csv`;
+  var blob     = new Blob([lines.join('\n')], { type: 'text/csv' });
+  var url      = URL.createObjectURL(blob);
+  var link     = document.createElement('a');
+  link.href     = url;
+  link.download = 'attendees-' + (_attState.eventId || 'export') + '.csv';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 
-  _showToast('CSV exported successfully.', 'success');
+  _attShowToast('CSV exported successfully.', 'success');
 }
 
 // ════════════════════════════════════════════════
 //  UI HELPERS
 // ════════════════════════════════════════════════
 
-function _renderEmpty(msg) {
-  const tbody = document.getElementById('attendeeTableBody');
+function _attRenderEmpty(msg) {
+  var tbody = document.getElementById('attendeeTableBody');
   if (tbody) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="7" class="att-empty">${_escHtml(msg)}</td>
-      </tr>`;
+    tbody.innerHTML = '<tr><td colspan="7" class="att-empty">' + _attEscHtml(msg) + '</td></tr>';
   }
-  _setText('footerCount', 'Showing 0 attendees');
-  _setText('statTotal',     '0');
-  _setText('statCheckedIn', '0');
-  _setText('statPending',   '0');
+  _attSetText('footerCount',    'Showing 0 attendees');
+  _attSetText('statTotal',      '0');
+  _attSetText('statCheckedIn',  '0');
+  _attSetText('statPending',    '0');
 }
 
-function _setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val ?? '—';
+function _attSetText(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val != null ? val : '—';
 }
 
-function _isCheckedIn(a) {
+function _attIsCheckedIn(a) {
   return a.checkedIn === true
-    || (a.status ?? '').toLowerCase() === 'checked-in'
-    || (a.status ?? '').toLowerCase() === 'checkedin';
+    || (a.status || '').toLowerCase() === 'checked-in'
+    || (a.status || '').toLowerCase() === 'checkedin';
 }
 
-function _showToast(message, type = '') {
-  const toast = document.getElementById('toast');
+function _attShowToast(message, type) {
+  var toast = document.getElementById('toast');
   if (!toast) return;
   toast.textContent = message;
-  toast.className   = `toast show ${type}`.trim();
+  toast.className   = ('toast show ' + (type || '')).trim();
   clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => { toast.className = 'toast'; }, 3500);
+  toast._timer = setTimeout(function () { toast.className = 'toast'; }, 3500);
 }
 
 // ════════════════════════════════════════════════
 //  API HELPER
 // ════════════════════════════════════════════════
 
-async function _apiFetch(url) {
-  const res = await fetch(url, {
+function _attApiFetch(url) {
+  return fetch(url, {
     method:  'GET',
     headers: {
       'Content-Type':  'application/json',
-      'Authorization': `Bearer ${getStoredToken()}`,
+      'Authorization': 'Bearer ' + getStoredToken(),
     },
-    signal: AbortSignal.timeout(15000),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  })
+    .then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    });
 }
 
 // ════════════════════════════════════════════════
 //  UTILITIES
 // ════════════════════════════════════════════════
 
-function _cap(str) {
+function _attCap(str) {
   if (!str) return '—';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-function _escHtml(str) {
-  return String(str ?? '')
+function _attEscHtml(str) {
+  return String(str || '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
 
-function _csvEscape(str) {
-  const s = String(str ?? '');
-  return s.includes(',') || s.includes('"') || s.includes('\n')
-    ? `"${s.replace(/"/g, '""')}"`
+function _attCsvEscape(str) {
+  var s = String(str || '');
+  return s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1
+    ? '"' + s.replace(/"/g, '""') + '"'
     : s;
 }
