@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSV Validation Results | EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/dashboard-layout.css" />
+  <link rel="stylesheet" href="../styles/csv-validation.css" />
+</head>
+<body>
+
+  <div class="dashboard-shell">
+
+    <div id="sidebarSlot"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="dashboard-main">
+
+      <div id="topbarSlot"></div>
+
+      <main class="dashboard-content">
+
+        <!-- Page heading -->
+        <div class="cv-heading">
+          <h1 class="page-title">CSV Validation Results</h1>
+          <p class="page-breadcrumb">
+            <span class="breadcrumb-parent">Attendees</span>
+            <span class="breadcrumb-sep"> / </span>
+            <span class="breadcrumb-current">CSV Validation</span>
+          </p>
+        </div>
+
+        <!-- Status banner -->
+        <div class="cv-banner cv-banner--success" id="cvBanner" hidden>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" fill="#166534"/>
+            <path d="M8 12l3 3 5-5" stroke="#fff" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span id="cvBannerText">CSV file upload completed.</span>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="cv-stat-cards" id="cvStatCards">
+          <div class="cv-stat-card cv-stat-card--valid">
+            <p class="cv-stat-card__label">Valid Entries</p>
+            <p class="cv-stat-card__value" id="statValid">—</p>
+          </div>
+          <div class="cv-stat-card cv-stat-card--error">
+            <p class="cv-stat-card__label">Rows with Errors</p>
+            <p class="cv-stat-card__value" id="statErrors">—</p>
+          </div>
+          <div class="cv-stat-card cv-stat-card--warning">
+            <p class="cv-stat-card__label">Warnings</p>
+            <p class="cv-stat-card__value" id="statWarnings">—</p>
+          </div>
+        </div>
+
+        <!-- Validation issues -->
+        <div class="cv-issues-card">
+
+          <h2 class="cv-issues-card__title">Validation Issues</h2>
+
+          <!-- Tabs -->
+          <div class="cv-tabs" role="tablist">
+            <button type="button" class="cv-tab cv-tab--active"
+              id="tabErrors" role="tab"
+              aria-selected="true" aria-controls="panelErrors">
+              Error Details (<span id="tabErrorCount">0</span>)
+            </button>
+            <button type="button" class="cv-tab"
+              id="tabWarnings" role="tab"
+              aria-selected="false" aria-controls="panelWarnings">
+              Warning Details (<span id="tabWarningCount">0</span>)
+            </button>
+          </div>
+
+          <!-- Errors panel -->
+          <div class="cv-panel" id="panelErrors" role="tabpanel" aria-labelledby="tabErrors">
+            <div class="cv-table-wrap">
+              <table class="cv-table" id="errorsTable">
+                <thead>
+                  <tr>
+                    <th>Row</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Issue</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="errorsTableBody">
+                  <tr>
+                    <td colspan="5">
+                      <div class="spinner" role="status" aria-label="Loading"></div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Footer -->
+            <div class="cv-table-footer">
+              <p class="cv-footer-count" id="errorsFooterCount">—</p>
+              <div class="cv-footer-actions">
+                <nav class="cv-pagination" id="errorsPagination" aria-label="Error pages"></nav>
+                <button type="button" class="cv-btn-download" id="btnDownloadErrors">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                  </svg>
+                  Download Error Report
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Warnings panel -->
+          <div class="cv-panel cv-panel--hidden" id="panelWarnings"
+            role="tabpanel" aria-labelledby="tabWarnings">
+            <div class="cv-table-wrap">
+              <table class="cv-table" id="warningsTable">
+                <thead>
+                  <tr>
+                    <th>Row</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Issue</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="warningsTableBody">
+                  <tr>
+                    <td colspan="5" class="cv-empty">No warnings found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="cv-table-footer">
+              <p class="cv-footer-count" id="warningsFooterCount">—</p>
+              <nav class="cv-pagination" id="warningsPagination" aria-label="Warning pages"></nav>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Back button -->
+        <div class="cv-back-wrap">
+          <button type="button" class="cv-btn-back" id="btnBack">
+            ← Back to Attendees
+          </button>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- Script load order — DO NOT change -->
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/utils/load-components.js"></script>
+  <script src="../js/csv-validation.js"></script>
+
+</body>
+</html>
