@@ -1,0 +1,319 @@
+/* ================================================
+   EventPro — Settings
+   styles/settings.css
+   Extends: styles/dashboard-layout.css
+
+   ================================================ */
+
+.st-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.st-heading__actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.st-btn-save {
+  padding: 0.625rem 1.375rem;
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s ease-out, opacity 0.18s;
+}
+
+.st-btn-save:hover:not(:disabled) { background: var(--color-primary-hover); }
+.st-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.st-btn-cancel {
+  padding: 0.625rem 1.375rem;
+  background: var(--color-white);
+  color: var(--color-text-dark);
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s ease-out;
+}
+
+.st-btn-cancel:hover { background: var(--color-border-light); }
+
+.st-alert {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.st-alert--error {
+  background: #FEF2F2;
+  color: #991B1B;
+  border: 1px solid var(--color-danger);
+}
+
+.st-alert--success {
+  background: #F0FDF4;
+  color: #166534;
+  border: 1px solid #BBF7D0;
+}
+
+.st-card {
+  background: var(--color-card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-card);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.st-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.st-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+.st-section-sub {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.st-section-desc {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.st-field-section-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-dark);
+}
+
+.st-divider {
+  border: none;
+  border-top: 1px solid var(--color-border-light);
+  margin: 0;
+}
+
+.st-avatar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.st-avatar-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-dark);
+}
+
+.st-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.st-avatar-wrap {
+  flex-shrink: 0;
+}
+
+.st-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  letter-spacing: 0.03em;
+}
+
+.st-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.st-btn-photo {
+  padding: 0.5625rem 1.125rem;
+  background: var(--color-white);
+  color: var(--color-text-dark);
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.st-btn-photo:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.st-btn-delete-photo {
+  padding: 0.5625rem 1.125rem;
+  background: var(--color-white);
+  color: var(--color-danger);
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.st-btn-delete-photo:hover {
+  background: #FEF2F2;
+  border-color: var(--color-danger);
+}
+
+.st-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.st-form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.st-two-col {
+  grid-template-columns: 1fr;
+}
+
+.st-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.st-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-dark);
+}
+
+/* ── Input wrap (for password eye toggle) ────────────────── */
+.st-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.st-input-wrap .st-input {
+  padding-right: 2.75rem;
+}
+
+.st-eye {
+  position: absolute;
+  right: 0.875rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.st-eye:hover { color: var(--color-primary); }
+
+/* ── Input ───────────────────────────────────────────────── */
+.st-input {
+  width: 100%;
+  height: 3rem;
+  padding: 0 0.9375rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  color: var(--color-text-dark);
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.18s ease-out, box-shadow 0.18s;
+}
+
+.st-input::placeholder { color: var(--color-text-muted); }
+
+.st-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.st-input.is-error { border-color: var(--color-danger); }
+
+/* Read-only role field */
+.st-input--readonly {
+  background: var(--color-border-light);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.st-input--readonly:focus {
+  border-color: var(--color-border);
+  box-shadow: none;
+}
+
+/* Field error */
+.st-field-err {
+  font-size: 0.75rem;
+  color: var(--color-danger);
+  min-height: 1rem;
+  display: block;
+}
+
+@media (min-width: 40rem) {
+  .st-two-col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 30rem) {
+  .st-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .st-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .st-heading__actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

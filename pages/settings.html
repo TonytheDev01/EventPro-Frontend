@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings | EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/dashboard-layout.css" />
+  <link rel="stylesheet" href="../styles/settings.css" />
+</head>
+<body>
+
+  <div class="dashboard-shell">
+
+    <div id="sidebarSlot"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="dashboard-main">
+
+      <div id="topbarSlot"></div>
+
+      <main class="dashboard-content">
+
+        <!-- Page heading -->
+        <div class="st-heading">
+          <h1 class="page-title">Settings</h1>
+          <div class="st-heading__actions">
+            <button type="button" class="st-btn-save" id="btnSave">
+              Save Changes
+            </button>
+            <button type="button" class="st-btn-cancel" id="btnCancel">
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- Inline feedback banners -->
+        <div class="st-alert st-alert--error"   id="stError"   role="alert"  aria-live="polite" hidden></div>
+        <div class="st-alert st-alert--success" id="stSuccess" role="status" aria-live="polite" hidden></div>
+
+        <!-- Profile card -->
+        <div class="st-card">
+
+          <!-- Section title -->
+          <div class="st-section-header">
+            <h2 class="st-section-title">Personal Information <span class="st-section-sub">(Profile)</span></h2>
+            <p class="st-section-desc">Update your personal details and contact information</p>
+          </div>
+
+          <!-- Profile picture -->
+          <div class="st-avatar-section">
+            <h3 class="st-avatar-label">Edit Profile Picture</h3>
+            <div class="st-avatar-row">
+              <div class="st-avatar-wrap">
+                <div class="st-avatar" id="avatarPreview" aria-label="Profile picture">
+                  <!-- Initials filled by JS -->
+                </div>
+                <input type="file" id="avatarInput"
+                  accept="image/jpeg,image/png,image/webp" hidden />
+              </div>
+              <button type="button" class="st-btn-photo" id="btnUploadPhoto">
+                Upload New Photo
+              </button>
+              <button type="button" class="st-btn-delete-photo" id="btnDeletePhoto">
+                Delete
+              </button>
+            </div>
+          </div>
+
+          <hr class="st-divider" />
+
+          <!-- Personal Details -->
+          <div class="st-section-header">
+            <h3 class="st-field-section-title">Personal Details</h3>
+          </div>
+
+          <div class="st-form">
+
+            <!-- Row 1: First Name + Last Name -->
+            <div class="st-form-row st-two-col">
+              <div class="st-form-group">
+                <label for="firstName" class="st-label">First Name</label>
+                <input type="text" id="firstName" class="st-input"
+                  placeholder="Robin" autocomplete="given-name" />
+                <span class="st-field-err" id="firstNameErr"></span>
+              </div>
+              <div class="st-form-group">
+                <label for="lastName" class="st-label">Last Name</label>
+                <input type="text" id="lastName" class="st-input"
+                  placeholder="James" autocomplete="family-name" />
+                <span class="st-field-err" id="lastNameErr"></span>
+              </div>
+            </div>
+
+            <!-- Row 2: Email + Phone -->
+            <div class="st-form-row st-two-col">
+              <div class="st-form-group">
+                <label for="email" class="st-label">Email Address</label>
+                <input type="email" id="email" class="st-input"
+                  placeholder="email@example.com" autocomplete="email" />
+                <span class="st-field-err" id="emailErr"></span>
+              </div>
+              <div class="st-form-group">
+                <label for="phone" class="st-label">Phone Number</label>
+                <input type="tel" id="phone" class="st-input"
+                  placeholder="+234 000 000 0000" autocomplete="tel" />
+                <span class="st-field-err" id="phoneErr"></span>
+              </div>
+            </div>
+
+            <!-- Row 3: Organisation + Role -->
+            <div class="st-form-row st-two-col">
+              <div class="st-form-group">
+                <label for="organisation" class="st-label">Organisation</label>
+                <input type="text" id="organisation" class="st-input"
+                  placeholder="Your organisation" autocomplete="organization" />
+              </div>
+              <div class="st-form-group">
+                <label for="role" class="st-label">Role</label>
+                <input type="text" id="role" class="st-input st-input--readonly"
+                  readonly aria-readonly="true" />
+              </div>
+            </div>
+
+          </div><!-- /.st-form -->
+
+          <hr class="st-divider" />
+
+          <!-- Change Password section -->
+          <div class="st-section-header">
+            <h3 class="st-field-section-title">Change Password</h3>
+            <p class="st-section-desc">Leave blank to keep your current password</p>
+          </div>
+
+          <div class="st-form">
+
+            <div class="st-form-row st-two-col">
+              <div class="st-form-group">
+                <label for="currentPassword" class="st-label">Current Password</label>
+                <div class="st-input-wrap">
+                  <input type="password" id="currentPassword" class="st-input"
+                    placeholder="Enter current password" autocomplete="current-password" />
+                  <button type="button" class="st-eye" data-target="currentPassword"
+                    aria-label="Toggle password visibility">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <circle cx="12" cy="12" r="3"
+                        stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="st-form-group">
+                <label for="newPassword" class="st-label">New Password</label>
+                <div class="st-input-wrap">
+                  <input type="password" id="newPassword" class="st-input"
+                    placeholder="Enter new password" autocomplete="new-password" />
+                  <button type="button" class="st-eye" data-target="newPassword"
+                    aria-label="Toggle password visibility">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <circle cx="12" cy="12" r="3"
+                        stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div><!-- /.st-card -->
+
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- Script load order — DO NOT change -->
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/utils/load-components.js"></script>
+  <script src="../js/settings.js"></script>
+
+</body>
+</html>
