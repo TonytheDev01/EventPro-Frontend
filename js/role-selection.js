@@ -1,78 +1,98 @@
 // ================================================
 //  EventPro — Role Selection
 //  js/role-selection.js
-//  Depends on: auth-service.js
+//  Requires: auth-service.js
 //
-//  After login, non-admin users land here to
-//  select their active role for the session.
+//  HTML uses radio inputs with name="role"
+//  and a single button id="continueBtn"
 //
-//  Routing after selection:
-//  admin     → admin-dashboard.html   (shouldn't reach here)
-//  organizer → organizer-dashboard.html
-//  user      → attendees.html
+//  Flow:
+//  1. requireAuth()
+//  2. User picks radio — attendee / organiser / vendor
+//  3. Click Continue → PUT /auth/profile { role }
+//  4. Redirect based on role
 // ================================================
 
 document.addEventListener('DOMContentLoaded', function () {
 
   requireAuth();
 
-  var user = getStoredUser();
+  var continueBtn = document.getElementById('continueBtn');
+  var errorBanner = document.getElementById('rpError');
 
-  // Admin should never reach role selection
-  if (user && user.role === 'admin') {
-    window.location.href = '../pages/admin-dashboard.html';
-    return;
-  }
+  if (!continueBtn) return;
 
-  // Wire role cards
-  var cards = document.querySelectorAll('[data-role]');
-  cards.forEach(function (card) {
-    card.addEventListener('click', function () {
-      var role = card.dataset.role;
-      _selectRole(role);
-    });
-    card.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        _selectRole(card.dataset.role);
-      }
-    });
+  continueBtn.addEventListener('click', function () {
+    var selected = document.querySelector('input[name="role"]:checked');
+
+    if (!selected) {
+      _showError('Please select a role to continue.');
+      return;
+    }
+
+    var role = selected.value;
+
+    // Vendor disabled — safety net
+    if (role === 'vendor') {
+      _showToast('Vendor accounts are coming soon.');
+      return;
+    }
+
+    _setLoading(true);
+
+    updateUserProfile({ role: role })
+      .then(function (result) {
+        _setLoading(false);
+
+        if (result.success) {
+          var existingUser = getStoredUser();
+          var updatedUser  = (result.data && result.data.user)
+            ? result.data.user
+            : Object.assign({}, existingUser, { role: role });
+
+          storeUser(updatedUser);
+          _routeByRole(role);
+          return;
+        }
+
+        _showError(result.message || 'Failed to save role. Please try again.');
+      })
+      .catch(function () {
+        _setLoading(false);
+        _showError('Network error. Please check your connection and try again.');
+      });
   });
 
-  // Wire continue button if present
-  var continueBtn = document.getElementById('continueBtn');
-  if (continueBtn) {
-    continueBtn.addEventListener('click', function () {
-      var selected = document.querySelector('[data-role].selected');
-      if (selected) _selectRole(selected.dataset.role);
-    });
+  function _routeByRole(role) {
+    if (role === 'admin') {
+      window.location.href = '../pages/admin-dashboard.html';
+    } else if (role === 'organizer') {
+      window.location.href = '../pages/organizer-dashboard.html';
+    } else {
+      window.location.href = '../pages/attendees.html';
+    }
+  }
+
+  function _setLoading(on) {
+    continueBtn.disabled    = on;
+    continueBtn.textContent = on ? 'Saving…' : 'Continue';
+  }
+
+  function _showError(msg) {
+    if (!errorBanner) return;
+    errorBanner.textContent = msg;
+    errorBanner.hidden      = false;
+  }
+
+  function _showToast(msg) {
+    var toast = document.getElementById('rpToast');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(function () {
+      toast.classList.remove('show');
+    }, 3000);
   }
 
 });
-
-function _selectRole(role) {
-  // Update profile role on backend
-  updateUserProfile({ role: role })
-    .then(function (result) {
-      if (!result.success) {
-        // Even if update fails, route based on selected role
-        _routeByRole(role);
-        return;
-      }
-      _routeByRole(role);
-    })
-    .catch(function () {
-      _routeByRole(role);
-    });
-}
-
-function _routeByRole(role) {
-  if (role === 'admin') {
-    window.location.href = '../pages/admin-dashboard.html';
-  } else if (role === 'organizer') {
-    window.location.href = '../pages/organizer-dashboard.html';
-  } else {
-    // user / attendee
-    window.location.href = '../pages/attendees.html';
-  }
-}
