@@ -8,86 +8,87 @@
 //  Endpoints used (Swagger confirmed):
 //  GET  /admin/organizers?page&limit&search&status
 //    ← paginated organizer list
-//  POST /auth/signup { firstName,lastName,email,password }
-//    ← create organizer account (no dedicated endpoint in Swagger)
-//    ⚠️  Will be swapped for a dedicated admin endpoint
-//        once Ezekiel adds POST /admin/organizers
+//  POST /auth/signup/organizer
+//    ← create organizer account (confirmed Ezekiel March 2026)
 //
 //  Row click → organizer-accounts.html?organizerId=...
 // ================================================
 
-const API        = 'https://eventpro-fxfv.onrender.com/api';
-const PAGE_LIMIT = 10;
+var _OM_API        = 'https://eventpro-fxfv.onrender.com/api';
+var _OM_PAGE_LIMIT = 10;
 
-// ── State ─────────────────────────────────────────
-let _page        = 1;
-let _totalPages  = 1;
-let _searchTimer = null;
+var _omPage        = 1;
+var _omTotalPages  = 1;
+var _omSearchTimer = null;
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', function () {
 
   // ── Auth guard — admin only ───────────────────
   requireAuth();
-  const user = getStoredUser();
-  if (user?.role !== 'admin') {
+  var user = getStoredUser();
+  if (!user || user.role !== 'admin') {
     window.location.href = '../pages/sign-in.html';
     return;
   }
 
   // ── Load sidebar + topbar ─────────────────────
-  await loadDashboardComponents('organizers');
+  loadDashboardComponents('organizers');
 
   // ── Load first page ───────────────────────────
-  await _loadOrganizers();
+  _omLoadOrganizers();
 
   // ── Wire search ───────────────────────────────
-  document.getElementById('searchInput')
-    ?.addEventListener('input', () => {
-      clearTimeout(_searchTimer);
-      _searchTimer = setTimeout(() => {
-        _page = 1;
-        _loadOrganizers();
+  var searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      clearTimeout(_omSearchTimer);
+      _omSearchTimer = setTimeout(function () {
+        _omPage = 1;
+        _omLoadOrganizers();
       }, 400);
     });
+  }
 
   // ── Wire status filter ────────────────────────
-  document.getElementById('filterStatus')
-    ?.addEventListener('change', () => {
-      _page = 1;
-      _loadOrganizers();
+  var filterStatus = document.getElementById('filterStatus');
+  if (filterStatus) {
+    filterStatus.addEventListener('change', function () {
+      _omPage = 1;
+      _omLoadOrganizers();
     });
+  }
 
   // ── Wire Add Organizer button ─────────────────
-  document.getElementById('btnAddOrganizer')
-    ?.addEventListener('click', _openModal);
+  var btnAdd = document.getElementById('btnAddOrganizer');
+  if (btnAdd) btnAdd.addEventListener('click', _omOpenModal);
 
   // ── Wire modal close buttons ──────────────────
-  document.getElementById('btnClose')
-    ?.addEventListener('click', _closeModal);
-  document.getElementById('btnCancel')
-    ?.addEventListener('click', _closeModal);
+  var btnClose  = document.getElementById('btnClose');
+  var btnCancel = document.getElementById('btnCancel');
+  if (btnClose)  btnClose.addEventListener('click', _omCloseModal);
+  if (btnCancel) btnCancel.addEventListener('click', _omCloseModal);
 
   // ── Close on overlay click ────────────────────
-  document.getElementById('modalOverlay')
-    ?.addEventListener('click', e => {
-      if (e.target === document.getElementById('modalOverlay')) {
-        _closeModal();
-      }
+  var modalOverlay = document.getElementById('modalOverlay');
+  if (modalOverlay) {
+    modalOverlay.addEventListener('click', function (e) {
+      if (e.target === modalOverlay) _omCloseModal();
     });
+  }
 
   // ── Close on Escape ───────────────────────────
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') _closeModal();
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') _omCloseModal();
   });
 
   // ── Wire form submit ──────────────────────────
-  document.getElementById('addOrganizerForm')
-    ?.addEventListener('submit', _handleSubmit);
+  var form = document.getElementById('addOrganizerForm');
+  if (form) form.addEventListener('submit', _omHandleSubmit);
 
   // ── Wire inline field clearing ────────────────
-  ['firstName', 'lastName', 'orgEmail', 'orgPhone'].forEach(id => {
-    document.getElementById(id)
-      ?.addEventListener('input', () => _clearFieldError(id));
+  ['firstName', 'lastName', 'orgEmail', 'orgPhone'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', function () { _omClearFieldError(id); });
   });
 
 });
@@ -97,356 +98,333 @@ document.addEventListener('DOMContentLoaded', async () => {
 //  GET /admin/organizers
 // ════════════════════════════════════════════════
 
-async function _loadOrganizers() {
-  const tbody = document.getElementById('organizerTableBody');
+function _omLoadOrganizers() {
+  var tbody = document.getElementById('organizerTableBody');
   if (tbody) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6">
-          <div class="spinner" role="status"
-            aria-label="Loading organizers"></div>
-        </td>
-      </tr>`;
+    tbody.innerHTML =
+      '<tr><td colspan="6"><div class="spinner" role="status" aria-label="Loading organizers"></div></td></tr>';
   }
 
-  const search = document.getElementById('searchInput')?.value.trim() ?? '';
-  const status = document.getElementById('filterStatus')?.value ?? '';
+  var searchInput  = document.getElementById('searchInput');
+  var filterStatus = document.getElementById('filterStatus');
+  var search = searchInput  ? searchInput.value.trim()  : '';
+  var status = filterStatus ? filterStatus.value        : '';
 
-  const params = new URLSearchParams({
-    page:  _page,
-    limit: PAGE_LIMIT,
-    ...(search && { search }),
-    ...(status && { status }),
-  });
+  var params = new URLSearchParams({ page: _omPage, limit: _OM_PAGE_LIMIT });
+  if (search) params.set('search', search);
+  if (status) params.set('status', status);
 
-  try {
-    const res = await fetch(`${API}/admin/organizers?${params}`, {
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${getStoredToken()}`,
-      },
-      signal: AbortSignal.timeout(15000),
+  fetch(_OM_API + '/admin/organizers?' + params.toString(), {
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': 'Bearer ' + getStoredToken(),
+    },
+  })
+    .then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function (data) {
+      var organizers = data.organizers || [];
+      var pagination = data.pagination || {};
+      var summary    = data.summary    || {};
+
+      _omTotalPages = pagination.pages || 1;
+
+      _omRenderSummary(summary, pagination.total || organizers.length);
+      _omRenderTable(organizers);
+      _omRenderPagination();
+    })
+    .catch(function (err) {
+      if (tbody) {
+        tbody.innerHTML =
+          '<tr><td colspan="6" class="om-empty">'
+          + (err.name === 'AbortError'
+            ? 'Request timed out. Please refresh.'
+            : 'Unable to load organizers. Please try again.')
+          + '</td></tr>';
+      }
     });
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
-    const organizers = data.organizers ?? [];
-    const pagination = data.pagination ?? {};
-    const summary    = data.summary    ?? {};
-
-    _totalPages = pagination.pages ?? 1;
-
-    _renderSummary(summary, pagination.total ?? organizers.length);
-    _renderTable(organizers);
-    _renderPagination();
-
-  } catch (err) {
-    if (tbody) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="6" class="om-empty">
-            ${err.name === 'TimeoutError'
-              ? 'Request timed out. Please refresh.'
-              : 'Unable to load organizers. Please try again.'}
-          </td>
-        </tr>`;
-    }
-  }
 }
 
 // ════════════════════════════════════════════════
 //  RENDER — SUMMARY
 // ════════════════════════════════════════════════
 
-function _renderSummary(summary, total) {
-  const el = document.getElementById('omSummary');
+function _omRenderSummary(summary, total) {
+  var el = document.getElementById('omSummary');
   if (el) el.hidden = false;
-  _setText('sumTotal',   total ?? '—');
-  _setText('sumVerified', summary.verifiedOrganizers  ?? '—');
-  _setText('sumSms',      summary.smsEnabledOrganizers ?? '—');
+  _omSetText('sumTotal',    total != null ? total : '—');
+  _omSetText('sumVerified', summary.verifiedOrganizers   != null ? summary.verifiedOrganizers   : '—');
+  _omSetText('sumSms',      summary.smsEnabledOrganizers != null ? summary.smsEnabledOrganizers : '—');
 }
 
 // ════════════════════════════════════════════════
 //  RENDER — TABLE
 // ════════════════════════════════════════════════
 
-function _renderTable(organizers) {
-  const tbody = document.getElementById('organizerTableBody');
+function _omRenderTable(organizers) {
+  var tbody = document.getElementById('organizerTableBody');
   if (!tbody) return;
 
   if (!organizers.length) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" class="om-empty">No organizers found.</td>
-      </tr>`;
-    _setText('omFooterCount', 'Showing 0 organizers');
+    tbody.innerHTML = '<tr><td colspan="6" class="om-empty">No organizers found.</td></tr>';
+    _omSetText('omFooterCount', 'Showing 0 organizers');
     return;
   }
 
-  tbody.innerHTML = organizers.map(org => {
-    const name   = _escHtml(
-      `${org.firstName ?? ''} ${org.lastName ?? ''}`.trim() || '—'
+  tbody.innerHTML = organizers.map(function (org) {
+    var name  = _omEscHtml(
+      ((org.firstName || '') + ' ' + (org.lastName || '')).trim() || '—'
     );
-    const email  = _escHtml(org.email  ?? '—');
-    const phone  = _escHtml(org.phone  ?? '—');
-    const sms    = org.smsEnabled ? 'Yes' : 'No';
-    const badge  = org.isVerified
-      ? `<span class="om-badge om-badge--verified">Verified</span>`
-      : `<span class="om-badge om-badge--pending">Pending</span>`;
-    const orgId  = _escHtml(org.id ?? org._id ?? '');
+    var email = _omEscHtml(org.email || '—');
+    var phone = _omEscHtml(org.phone || '—');
+    var sms   = org.smsEnabled ? 'Yes' : 'No';
+    var badge = org.isVerified
+      ? '<span class="om-badge om-badge--verified">Verified</span>'
+      : '<span class="om-badge om-badge--pending">Pending</span>';
+    var orgId = _omEscHtml(org.id || org._id || '');
 
-    return `
-      <tr
-        data-id="${orgId}"
-        tabindex="0"
-        role="button"
-        aria-label="View ${name}">
-        <td>${name}</td>
-        <td>${email}</td>
-        <td>${phone}</td>
-        <td>${sms}</td>
-        <td>${badge}</td>
-        <td>
-          <button type="button" class="om-action-btn"
-            data-id="${orgId}"
-            title="View organizer profile"
-            aria-label="View ${name}">
-            <svg width="16" height="16" viewBox="0 0 24 24"
-              fill="none" aria-hidden="true">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-                stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="12" cy="12" r="3"
-                stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </button>
-        </td>
-      </tr>`;
+    return '<tr data-id="' + orgId + '" tabindex="0" role="button" aria-label="View ' + name + '">'
+      + '<td>' + name  + '</td>'
+      + '<td>' + email + '</td>'
+      + '<td>' + phone + '</td>'
+      + '<td>' + sms   + '</td>'
+      + '<td>' + badge + '</td>'
+      + '<td>'
+      +   '<button type="button" class="om-action-btn" data-id="' + orgId + '" title="View organizer profile" aria-label="View ' + name + '">'
+      +     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
+      +       '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+      +       '<circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>'
+      +     '</svg>'
+      +   '</button>'
+      + '</td>'
+      + '</tr>';
   }).join('');
 
   // Wire row + action button clicks
-  tbody.querySelectorAll('tr[data-id]').forEach(row => {
-    const id = row.dataset.id;
-    const go = () => {
-      window.location.href =
-        `../pages/organizer-accounts.html?organizerId=${id}`;
-    };
-    row.addEventListener('click', go);
-    row.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+  tbody.querySelectorAll('tr[data-id]').forEach(function (row) {
+    var id = row.dataset.id;
+    function _go() {
+      window.location.href = '../pages/organizer-accounts.html?organizerId=' + encodeURIComponent(id);
+    }
+    row.addEventListener('click', _go);
+    row.addEventListener('keydown', function (e) { if (e.key === 'Enter') _go(); });
 
-    row.querySelector('.om-action-btn')?.addEventListener('click', e => {
-      e.stopPropagation();
-      go();
-    });
+    var actionBtn = row.querySelector('.om-action-btn');
+    if (actionBtn) {
+      actionBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        _go();
+      });
+    }
   });
 
   // Footer count
-  const start = (_page - 1) * PAGE_LIMIT + 1;
-  const end   = Math.min(_page * PAGE_LIMIT, organizers.length + (_page - 1) * PAGE_LIMIT);
-  _setText('omFooterCount', `Showing ${start}–${end} organizers`);
+  var start = (_omPage - 1) * _OM_PAGE_LIMIT + 1;
+  var end   = Math.min(_omPage * _OM_PAGE_LIMIT, (_omPage - 1) * _OM_PAGE_LIMIT + organizers.length);
+  _omSetText('omFooterCount', 'Showing ' + start + '–' + end + ' organizers');
 }
 
 // ════════════════════════════════════════════════
 //  RENDER — PAGINATION
 // ════════════════════════════════════════════════
 
-function _renderPagination() {
-  const nav = document.getElementById('omPagination');
+function _omRenderPagination() {
+  var nav = document.getElementById('omPagination');
   if (!nav) return;
 
-  let html = `
-    <button class="om-page-btn" data-page="${_page - 1}"
-      ${_page === 1 ? 'disabled' : ''}
-      aria-label="Previous page">&lt;</button>`;
+  var html = '<button class="om-page-btn" data-page="' + (_omPage - 1) + '" '
+    + (_omPage === 1 ? 'disabled' : '') + ' aria-label="Previous page">&lt;</button>';
 
-  _pageRange(_page, _totalPages).forEach(p => {
-    html += `
-      <button class="om-page-btn ${p === _page ? 'active' : ''}"
-        data-page="${p}" aria-label="Page ${p}"
-        ${p === _page ? 'aria-current="page"' : ''}>${p}</button>`;
+  _omPageRange(_omPage, _omTotalPages).forEach(function (p) {
+    html += '<button class="om-page-btn ' + (p === _omPage ? 'active' : '') + '" '
+      + 'data-page="' + p + '" aria-label="Page ' + p + '" '
+      + (p === _omPage ? 'aria-current="page"' : '') + '>' + p + '</button>';
   });
 
-  html += `
-    <button class="om-page-btn" data-page="${_page + 1}"
-      ${_page === _totalPages ? 'disabled' : ''}
-      aria-label="Next page">&gt;</button>`;
+  html += '<button class="om-page-btn" data-page="' + (_omPage + 1) + '" '
+    + (_omPage === _omTotalPages ? 'disabled' : '') + ' aria-label="Next page">&gt;</button>';
 
   nav.innerHTML = html;
 
-  nav.querySelectorAll('.om-page-btn:not([disabled])').forEach(btn => {
-    btn.addEventListener('click', () => {
-      _page = Number(btn.dataset.page);
-      _loadOrganizers();
+  nav.querySelectorAll('.om-page-btn:not([disabled])').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      _omPage = Number(btn.dataset.page);
+      _omLoadOrganizers();
     });
   });
 }
 
-function _pageRange(current, total) {
-  const delta = 1;
-  const left  = Math.max(1, current - delta);
-  const right = Math.min(total, current + delta);
-  const range = [];
-  for (let i = left; i <= right; i++) range.push(i);
+function _omPageRange(current, total) {
+  var delta = 1;
+  var left  = Math.max(1, current - delta);
+  var right = Math.min(total, current + delta);
+  var range = [];
+  for (var i = left; i <= right; i++) range.push(i);
   if (range[0] > 1) range.unshift(1);
   if (range[range.length - 1] < total) range.push(total);
-  return [...new Set(range)].sort((a, b) => a - b);
+  var seen = {};
+  return range.filter(function (v) {
+    if (seen[v]) return false;
+    seen[v] = true;
+    return true;
+  }).sort(function (a, b) { return a - b; });
 }
 
 // ════════════════════════════════════════════════
 //  MODAL
 // ════════════════════════════════════════════════
 
-function _openModal() {
-  const overlay = document.getElementById('modalOverlay');
+function _omOpenModal() {
+  var overlay = document.getElementById('modalOverlay');
   if (overlay) overlay.hidden = false;
   document.body.style.overflow = 'hidden';
-  setTimeout(() => document.getElementById('firstName')?.focus(), 50);
+  setTimeout(function () {
+    var first = document.getElementById('firstName');
+    if (first) first.focus();
+  }, 50);
 }
 
-function _closeModal() {
-  const overlay = document.getElementById('modalOverlay');
+function _omCloseModal() {
+  var overlay = document.getElementById('modalOverlay');
   if (overlay) overlay.hidden = true;
   document.body.style.overflow = '';
-  _resetForm();
+  _omResetForm();
 }
 
 // ════════════════════════════════════════════════
 //  ADD ORGANIZER
-//  ⚠️  Uses POST /auth/signup (no dedicated admin
-//      create-organizer endpoint in Swagger).
-//      A temp password is generated — organizer
-//      must use forgot-password to set their own.
-//      Will swap for POST /admin/organizers once
-//      Ezekiel adds it.
+//  POST /auth/signup/organizer (confirmed Ezekiel March 2026)
 // ════════════════════════════════════════════════
 
-async function _handleSubmit(e) {
+function _omHandleSubmit(e) {
   e.preventDefault();
-  if (!_validateForm()) return;
+  if (!_omValidateForm()) return;
 
-  _setSubmitLoading(true);
+  _omSetSubmitLoading(true);
 
-  const phone = document.getElementById('orgPhone')?.value.trim();
+  var phone = document.getElementById('orgPhone');
+  var phoneVal = phone ? phone.value.trim() : '';
 
-  const payload = {
-    firstName: document.getElementById('firstName')?.value.trim(),
-    lastName:  document.getElementById('lastName')?.value.trim(),
-    email:     document.getElementById('orgEmail')?.value.trim(),
+  var payload = {
+    firstName: document.getElementById('firstName').value.trim(),
+    lastName:  document.getElementById('lastName').value.trim(),
+    email:     document.getElementById('orgEmail').value.trim(),
     // Temp password — organizer resets via forgot-password flow
     password:  'EventPro@' + Math.random().toString(36).slice(2, 10),
-    ...(phone && { phone: `+234${phone}` }),
   };
+  if (phoneVal) payload.phone = '+234' + phoneVal;
 
-  try {
-    const res = await fetch(`${API}/auth/signup`, {
-      method:  'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${getStoredToken()}`,
-      },
-      body:   JSON.stringify(payload),
-      signal: AbortSignal.timeout(15000),
-    });
+  fetch(_OM_API + '/auth/signup/organizer', {
+    method:  'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': 'Bearer ' + getStoredToken(),
+    },
+    body: JSON.stringify(payload),
+  })
+    .then(function (res) {
+      return res.json().then(function (data) {
+        return { ok: res.ok, data: data };
+      });
+    })
+    .then(function (result) {
+      _omSetSubmitLoading(false);
 
-    const data = await res.json();
-
-    if (res.ok) {
-      _showToast(
-        `${payload.firstName} ${payload.lastName} added successfully!`,
-        'success'
-      );
-      _closeModal();
-      // Refresh list to include new organizer
-      _page = 1;
-      await _loadOrganizers();
-
-    } else {
-      _showToast(
-        data.message || 'Failed to add organizer. Please try again.',
+      if (result.ok) {
+        _omShowToast(payload.firstName + ' ' + payload.lastName + ' added successfully!', 'success');
+        _omCloseModal();
+        _omPage = 1;
+        _omLoadOrganizers();
+      } else {
+        _omShowToast(result.data.message || 'Failed to add organizer. Please try again.', 'error');
+      }
+    })
+    .catch(function (err) {
+      _omSetSubmitLoading(false);
+      _omShowToast(
+        err.name === 'AbortError'
+          ? 'Request timed out. Please try again.'
+          : 'Network error. Please check your connection.',
         'error'
       );
-    }
-
-  } catch (err) {
-    _showToast(
-      err.name === 'TimeoutError'
-        ? 'Request timed out. Please try again.'
-        : 'Network error. Please check your connection.',
-      'error'
-    );
-  } finally {
-    _setSubmitLoading(false);
-  }
+    });
 }
 
 // ════════════════════════════════════════════════
 //  FORM VALIDATION
 // ════════════════════════════════════════════════
 
-function _validateForm() {
-  let valid = true;
+function _omValidateForm() {
+  var valid = true;
 
-  const firstName = document.getElementById('firstName')?.value.trim();
-  const lastName  = document.getElementById('lastName')?.value.trim();
-  const email     = document.getElementById('orgEmail')?.value.trim();
-  const phone     = document.getElementById('orgPhone')?.value.trim();
+  var firstName = document.getElementById('firstName');
+  var lastName  = document.getElementById('lastName');
+  var email     = document.getElementById('orgEmail');
+  var phone     = document.getElementById('orgPhone');
 
-  _clearFieldError('firstName');
-  _clearFieldError('lastName');
-  _clearFieldError('orgEmail');
-  _clearFieldError('orgPhone');
+  _omClearFieldError('firstName');
+  _omClearFieldError('lastName');
+  _omClearFieldError('orgEmail');
+  _omClearFieldError('orgPhone');
 
-  if (!firstName) {
-    _showFieldError('firstName', 'firstNameError', 'First name is required.');
+  if (!firstName || !firstName.value.trim()) {
+    _omShowFieldError('firstName', 'firstNameError', 'First name is required.');
     valid = false;
   }
-  if (!lastName) {
-    _showFieldError('lastName', 'lastNameError', 'Last name is required.');
+  if (!lastName || !lastName.value.trim()) {
+    _omShowFieldError('lastName', 'lastNameError', 'Last name is required.');
     valid = false;
   }
-  if (!email) {
-    _showFieldError('orgEmail', 'orgEmailError', 'Email address is required.');
+  if (!email || !email.value.trim()) {
+    _omShowFieldError('orgEmail', 'orgEmailError', 'Email address is required.');
     valid = false;
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    _showFieldError('orgEmail', 'orgEmailError', 'Enter a valid email address.');
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
+    _omShowFieldError('orgEmail', 'orgEmailError', 'Enter a valid email address.');
     valid = false;
   }
-  if (phone && !/^[\d\s\-]{7,15}$/.test(phone)) {
-    _showFieldError('orgPhone', 'orgPhoneError', 'Enter a valid phone number.');
-    document.getElementById('orgPhoneWrap')?.classList.add('error');
+  if (phone && phone.value.trim() && !/^[\d\s\-]{7,15}$/.test(phone.value.trim())) {
+    _omShowFieldError('orgPhone', 'orgPhoneError', 'Enter a valid phone number.');
+    var wrap = document.getElementById('orgPhoneWrap');
+    if (wrap) wrap.classList.add('error');
     valid = false;
   }
 
   return valid;
 }
 
-function _showFieldError(inputId, errorId, msg) {
-  document.getElementById(inputId)?.classList.add('error');
-  const el = document.getElementById(errorId);
-  if (el) { el.textContent = msg; el.classList.add('show'); }
+function _omShowFieldError(inputId, errorId, msg) {
+  var input = document.getElementById(inputId);
+  var el    = document.getElementById(errorId);
+  if (input) input.classList.add('error');
+  if (el)   { el.textContent = msg; el.classList.add('show'); }
 }
 
-function _clearFieldError(inputId) {
-  const errorId = inputId + 'Error';
-  document.getElementById(inputId)?.classList.remove('error');
-  document.getElementById(errorId)?.classList.remove('show');
+function _omClearFieldError(inputId) {
+  var errorId = inputId + 'Error';
+  var input   = document.getElementById(inputId);
+  var el      = document.getElementById(errorId);
+  if (input) input.classList.remove('error');
+  if (el)    el.classList.remove('show');
   if (inputId === 'orgPhone') {
-    document.getElementById('orgPhoneWrap')?.classList.remove('error');
+    var wrap = document.getElementById('orgPhoneWrap');
+    if (wrap) wrap.classList.remove('error');
   }
 }
 
-function _resetForm() {
-  document.getElementById('addOrganizerForm')?.reset();
-  ['firstName', 'lastName', 'orgEmail', 'orgPhone'].forEach(_clearFieldError);
-  _setSubmitLoading(false);
+function _omResetForm() {
+  var form = document.getElementById('addOrganizerForm');
+  if (form) form.reset();
+  ['firstName', 'lastName', 'orgEmail', 'orgPhone'].forEach(_omClearFieldError);
+  _omSetSubmitLoading(false);
 }
 
-function _setSubmitLoading(loading) {
-  const btn     = document.getElementById('btnSubmit');
-  const spinner = document.getElementById('submitSpinner');
-  const label   = document.getElementById('submitLabel');
-  if (btn)     btn.disabled    = loading;
+function _omSetSubmitLoading(loading) {
+  var btn     = document.getElementById('btnSubmit');
+  var spinner = document.getElementById('submitSpinner');
+  var label   = document.getElementById('submitLabel');
+  if (btn)     btn.disabled      = loading;
   if (spinner) spinner.classList.toggle('show', loading);
   if (label)   label.textContent = loading ? 'Adding…' : 'Add Organizer';
 }
@@ -455,22 +433,22 @@ function _setSubmitLoading(loading) {
 //  UTILITIES
 // ════════════════════════════════════════════════
 
-function _setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val ?? '—';
+function _omSetText(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val != null ? val : '—';
 }
 
-function _showToast(msg, type = 'success') {
-  const toast = document.getElementById('toast');
+function _omShowToast(msg, type) {
+  var toast = document.getElementById('toast');
   if (!toast) return;
   toast.textContent = msg;
-  toast.className   = `toast show ${type}`;
+  toast.className   = ('toast show ' + (type || '')).trim();
   clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => { toast.className = 'toast'; }, 4000);
+  toast._timer = setTimeout(function () { toast.className = 'toast'; }, 4000);
 }
 
-function _escHtml(str) {
-  return String(str ?? '')
+function _omEscHtml(str) {
+  return String(str || '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
