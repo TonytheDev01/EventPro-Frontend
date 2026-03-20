@@ -37,9 +37,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   loadDashboardComponents('attendees');
 
-  // Read eventId from URL
+  // Read URL params
   var params = new URLSearchParams(window.location.search);
   _attState.eventId = params.get('eventId') || null;
+
+  // Tab=events — show events discovery list for attendees
+  if (params.get('tab') === 'events') {
+    _attShowEventsTab();
+    return;
+  }
 
   // ── Role-based controls ───────────────────────
   var user    = getStoredUser();
@@ -445,4 +451,142 @@ function _attCsvEscape(str) {
   return s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1
     ? '"' + s.replace(/"/g, '""') + '"'
     : s;
+}
+
+// ════════════════════════════════════════════════
+//  EVENTS TAB — show browsable events list
+//  Triggered when URL has ?tab=events
+//  Replaces attendees table with events grid
+// ════════════════════════════════════════════════
+
+function _attShowEventsTab() {
+  // Hide attendees-specific UI
+  var attTable   = document.getElementById('attendeeTable');
+  var attFilters = document.querySelector('.att-controls');
+  var attStats   = document.querySelector('.att-stats');
+  var addBtn     = document.getElementById('addAttendeeBtn');
+  var exportBtn  = document.getElementById('exportCsvBtn');
+
+  if (attTable)   attTable.style.display   = 'none';
+  if (attFilters) attFilters.style.display = 'none';
+  if (attStats)   attStats.style.display   = 'none';
+  if (addBtn)     addBtn.hidden            = true;
+  if (exportBtn)  exportBtn.hidden         = true;
+
+  // Update page heading
+  var heading = document.getElementById('eventNameDisplay');
+  if (heading) heading.textContent = 'All Events';
+
+  // Inject events container
+  var main = document.querySelector('.dashboard-content');
+  if (!main) return;
+
+  var eventsSection = document.createElement('div');
+  eventsSection.id = 'eventsDiscovery';
+  eventsSection.innerHTML =
+    '<div class="att-events-grid" id="eventsGrid">'
+    + '<div class="spinner" role="status" aria-label="Loading events"></div>'
+    + '</div>';
+  main.appendChild(eventsSection);
+
+  // Add styles inline for events grid
+  var style = document.createElement('style');
+  style.textContent =
+    '.att-events-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem; }'
+    + '@media(min-width:40rem){ .att-events-grid{ grid-template-columns: repeat(2,1fr); } }'
+    + '@media(min-width:64rem){ .att-events-grid{ grid-template-columns: repeat(3,1fr); } }'
+    + '.att-event-card { background: var(--color-card-bg); border: 1px solid var(--color-border-light); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; box-shadow: var(--shadow-card); }'
+    + '.att-event-card__title { font-size: 0.9375rem; font-weight: 700; color: var(--color-text-dark); }'
+    + '.att-event-card__meta { font-size: 0.8125rem; color: var(--color-text-muted); display: flex; flex-direction: column; gap: 0.25rem; }'
+    + '.att-event-card__badge { display: inline-flex; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.6875rem; font-weight: 600; background: #DCFCE7; color: #166534; align-self: flex-start; }'
+    + '.att-event-card__btn { margin-top: auto; padding: 0.625rem; background: var(--color-primary); color: var(--color-white); border: none; border-radius: 8px; font-family: Poppins,sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-align: center; transition: background 0.18s; }'
+    + '.att-event-card__btn:hover { background: var(--color-primary-hover); }'
+    + '.att-event-card__btn:disabled { background: #C4B5FD; cursor: not-allowed; }'
+    + '.att-events-empty { text-align: center; padding: 3rem 1rem; color: var(--color-text-muted); font-size: 0.875rem; grid-column: 1/-1; }';
+  document.head.appendChild(style);
+
+  // Fetch all events
+  fetch(_ATT_API + '/events?limit=50&sort=recent', {
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': 'Bearer ' + getStoredToken(),
+    },
+  })
+    .then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function (data) {
+      var events = (data.events || data.data || (Array.isArray(data) ? data : []));
+      _attRenderEventsGrid(events);
+    })
+    .catch(function () {
+      var grid = document.getElementById('eventsGrid');
+      if (grid) grid.innerHTML = '<p class="att-events-empty">Unable to load events. Please try again.</p>';
+    });
+}
+
+function _attRenderEventsGrid(events) {
+  var grid = document.getElementById('eventsGrid');
+  if (!grid) return;
+
+  if (!events.length) {
+    grid.innerHTML = '<p class="att-events-empty">No events found.</p>';
+    return;
+  }
+
+  grid.innerHTML = events.map(function (ev) {
+    var id       = _attEscHtml(ev.id || ev._id || '');
+    var title    = _attEscHtml(ev.title || ev.name || 'Unnamed Event');
+    var date     = ev.startDate ? new Date(ev.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+    var location = _attEscHtml(ev.location || ev.city || '—');
+    var status   = (ev.status || 'active').toLowerCase();
+    var capacity = ev.capacity ? ev.capacity.toLocaleString() : '—';
+
+    return '<div class="att-event-card">'
+      + '<span class="att-event-card__badge">' + status.charAt(0).toUpperCase() + status.slice(1) + '</span>'
+      + '<p class="att-event-card__title">' + title + '</p>'
+      + '<div class="att-event-card__meta">'
+      +   '<span>📅 ' + date + '</span>'
+      +   '<span>📍 ' + location + '</span>'
+      +   '<span>👥 Capacity: ' + capacity + '</span>'
+      + '</div>'
+      + '<button type="button" class="att-event-card__btn" data-id="' + id + '">Register</button>'
+      + '</div>';
+  }).join('');
+
+  // Wire Register buttons
+  grid.querySelectorAll('.att-event-card__btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var eventId = btn.dataset.id;
+      btn.disabled    = true;
+      btn.textContent = 'Registering…';
+
+      fetch(_ATT_API + '/events/' + eventId + '/register', {
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': 'Bearer ' + getStoredToken(),
+        },
+      })
+        .then(function (res) {
+          return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+        })
+        .then(function (result) {
+          if (result.ok) {
+            btn.textContent = '✓ Registered';
+            btn.style.background = '#22C55E';
+          } else {
+            btn.disabled    = false;
+            btn.textContent = result.data.message || 'Failed. Try again.';
+            setTimeout(function () { btn.textContent = 'Register'; }, 3000);
+          }
+        })
+        .catch(function () {
+          btn.disabled    = false;
+          btn.textContent = 'Network error. Try again.';
+          setTimeout(function () { btn.textContent = 'Register'; }, 3000);
+        });
+    });
+  });
 }
