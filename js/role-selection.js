@@ -5,12 +5,6 @@
 //
 //  HTML uses radio inputs with name="role"
 //  and a single button id="continueBtn"
-//
-//  Flow:
-//  1. requireAuth()
-//  2. User picks radio — attendee / organiser / vendor
-//  3. Click Continue → PUT /auth/profile { role }
-//  4. Redirect based on role
 // ================================================
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -26,40 +20,43 @@ document.addEventListener('DOMContentLoaded', function () {
     var selected = document.querySelector('input[name="role"]:checked');
 
     if (!selected) {
-      _showError('Please select a role to continue.');
+      if (errorBanner) {
+        errorBanner.textContent = 'Please select a role to continue.';
+        errorBanner.hidden = false;
+      }
       return;
     }
 
     var role = selected.value;
 
-    // Vendor disabled — safety net
     if (role === 'vendor') {
-      _showToast('Vendor accounts are coming soon.');
+      var toast = document.getElementById('rpToast');
+      if (toast) {
+        toast.textContent = 'Vendor accounts are coming soon.';
+        toast.classList.add('show');
+        setTimeout(function () { toast.classList.remove('show'); }, 3000);
+      }
       return;
     }
 
-    _setLoading(true);
+    continueBtn.disabled    = true;
+    continueBtn.textContent = 'Saving…';
 
+    // Save role locally immediately
+    var existingUser = getStoredUser();
+    var updatedUser  = Object.assign({}, existingUser, { role: role });
+    storeUser(updatedUser);
+
+    // Try backend — route regardless of result
     updateUserProfile({ role: role })
       .then(function (result) {
-        _setLoading(false);
-
-        if (result.success) {
-          var existingUser = getStoredUser();
-          var updatedUser  = (result.data && result.data.user)
-            ? result.data.user
-            : Object.assign({}, existingUser, { role: role });
-
-          storeUser(updatedUser);
-          _routeByRole(role);
-          return;
+        if (result.success && result.data && result.data.user) {
+          storeUser(result.data.user);
         }
-
-        _showError(result.message || 'Failed to save role. Please try again.');
+        _routeByRole(role);
       })
       .catch(function () {
-        _setLoading(false);
-        _showError('Network error. Please check your connection and try again.');
+        _routeByRole(role);
       });
   });
 
@@ -71,28 +68,6 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
       window.location.href = '../pages/attendees.html';
     }
-  }
-
-  function _setLoading(on) {
-    continueBtn.disabled    = on;
-    continueBtn.textContent = on ? 'Saving…' : 'Continue';
-  }
-
-  function _showError(msg) {
-    if (!errorBanner) return;
-    errorBanner.textContent = msg;
-    errorBanner.hidden      = false;
-  }
-
-  function _showToast(msg) {
-    var toast = document.getElementById('rpToast');
-    if (!toast) return;
-    toast.textContent = msg;
-    toast.classList.add('show');
-    clearTimeout(toast._timer);
-    toast._timer = setTimeout(function () {
-      toast.classList.remove('show');
-    }, 3000);
   }
 
 });
