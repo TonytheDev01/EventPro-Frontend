@@ -344,14 +344,16 @@ function _wireAddOrganizerModal() {
       firstName: firstName.value.trim(),
       lastName:  lastName.value.trim(),
       email:     email.value.trim(),
-      role:      'organizer'
+      role:      'organizer',
+      // Temp password — organizer resets via forgot-password flow
+      password:  'EventPro@' + Math.random().toString(36).slice(2, 10),
     };
     if (phone && phone.value.trim()) {
       payload.phone = '+234' + phone.value.trim();
     }
 
-    // TODO: confirm exact endpoint path in Swagger with Ezekiel
-    fetch(API + '/admin/organizers', {
+    // Confirmed endpoint with Ezekiel — March 2026
+    fetch(API + '/auth/signup/organizer', {
       method:  'POST',
       headers: {
         'Content-Type':  'application/json',
