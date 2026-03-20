@@ -56,11 +56,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     ?.addEventListener('click', _exportCSV);
 
   // Wire add attendee
-  document.getElementById('addAttendeeBtn')
-    ?.addEventListener('click', () => {
-      _showToast('Add Attendee — coming soon.', '');
-    });
-
+document.getElementById('addAttendeeBtn')
+  ?.addEventListener('click', function () {
+    var dest = '../pages/upload.html';
+    if (_state.eventId) dest += '?eventId=' + encodeURIComponent(_state.eventId);
+    window.location.href = dest;
+  });
+  
   // Load data
   if (_state.eventId) {
     await _loadEventName(_state.eventId);
