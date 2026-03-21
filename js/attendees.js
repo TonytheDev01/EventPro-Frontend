@@ -47,6 +47,12 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
+  // Tab=tickets — show user's registered tickets
+  if (params.get('tab') === 'tickets') {
+    _attShowMyTickets();
+    return;
+  }
+
   // ── Role-based controls ───────────────────────
   var user    = getStoredUser();
   var role    = user && user.role;
@@ -558,7 +564,15 @@ function _attRenderEventsGrid(events) {
   // Wire Register buttons
   grid.querySelectorAll('.att-event-card__btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var eventId = btn.dataset.id;
+      var eventId   = btn.dataset.id;
+      var regUser   = getStoredUser();
+      var regPhone  = regUser && regUser.phone;
+
+      if (!regPhone) {
+        _attShowToast('Please add your phone number in Settings before registering.', 'error');
+        return;
+      }
+
       btn.disabled    = true;
       btn.textContent = 'Registering…';
 
@@ -568,7 +582,7 @@ function _attRenderEventsGrid(events) {
           'Content-Type':  'application/json',
           'Authorization': 'Bearer ' + getStoredToken(),
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ phone: regPhone }),
       })
         .then(function (res) {
           return res.json().then(function (data) { return { ok: res.ok, data: data }; });
@@ -588,6 +602,144 @@ function _attRenderEventsGrid(events) {
           btn.textContent = 'Network error. Try again.';
           setTimeout(function () { btn.textContent = 'Register'; }, 3000);
         });
+    });
+  });
+}
+
+// ════════════════════════════════════════════════
+//  MY TICKETS TAB
+//  Triggered when URL has ?tab=tickets
+//  Endpoint: GET /auth/profile/registrations
+//  (To be built by Ezekiel — see spec below)
+// ════════════════════════════════════════════════
+
+function _attShowMyTickets() {
+  // Hide attendees-specific UI
+  var attTable   = document.getElementById('attendeeTable');
+  var attFilters = document.querySelector('.att-controls');
+  var attStats   = document.querySelector('.att-stats');
+  var addBtn     = document.getElementById('addAttendeeBtn');
+  var exportBtn  = document.getElementById('exportCsvBtn');
+
+  if (attTable)   attTable.style.display   = 'none';
+  if (attFilters) attFilters.style.display = 'none';
+  if (attStats)   attStats.style.display   = 'none';
+  if (addBtn)     addBtn.hidden            = true;
+  if (exportBtn)  exportBtn.hidden         = true;
+
+  // Update heading
+  var heading = document.getElementById('eventNameDisplay');
+  if (heading) heading.textContent = 'My Tickets';
+
+  // Inject tickets container
+  var main = document.querySelector('.dashboard-content');
+  if (!main) return;
+
+  var section = document.createElement('div');
+  section.id  = 'myTicketsSection';
+  section.innerHTML =
+    '<div class="att-tickets-grid" id="ticketsGrid">'
+    + '<div class="spinner" role="status" aria-label="Loading tickets"></div>'
+    + '</div>';
+  main.appendChild(section);
+
+  // Inject styles
+  var style = document.createElement('style');
+  style.textContent =
+    '.att-tickets-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem; }'
+    + '@media(min-width:40rem){ .att-tickets-grid{ grid-template-columns: repeat(2,1fr); } }'
+    + '@media(min-width:64rem){ .att-tickets-grid{ grid-template-columns: repeat(3,1fr); } }'
+    + '.att-ticket-card { background: var(--color-card-bg); border: 1px solid var(--color-border-light); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; box-shadow: var(--shadow-card); position: relative; overflow: hidden; }'
+    + '.att-ticket-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--color-primary); }'
+    + '.att-ticket-card__title { font-size: 0.9375rem; font-weight: 700; color: var(--color-text-dark); }'
+    + '.att-ticket-card__id { font-size: 0.75rem; color: var(--color-text-muted); font-family: monospace; background: var(--color-bg-muted, #F5F6FA); padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-block; }'
+    + '.att-ticket-card__meta { font-size: 0.8125rem; color: var(--color-text-muted); display: flex; flex-direction: column; gap: 0.25rem; }'
+    + '.att-ticket-card__status { display: inline-flex; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.6875rem; font-weight: 600; align-self: flex-start; }'
+    + '.att-ticket-card__status--confirmed { background: #DCFCE7; color: #166534; }'
+    + '.att-ticket-card__status--pending   { background: #FEF9C3; color: #854D0E; }'
+    + '.att-ticket-card__status--cancelled { background: #FEE2E2; color: #991B1B; }'
+    + '.att-ticket-card__btn { margin-top: auto; padding: 0.625rem; background: transparent; color: var(--color-primary); border: 1.5px solid var(--color-primary); border-radius: 8px; font-family: Poppins,sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.18s; }'
+    + '.att-ticket-card__btn:hover { background: var(--color-primary); color: #fff; }'
+    + '.att-tickets-empty { text-align: center; padding: 3rem 1rem; color: var(--color-text-muted); font-size: 0.875rem; grid-column: 1/-1; }'
+    + '.att-tickets-empty svg { width: 3rem; height: 3rem; margin: 0 auto 1rem; display: block; color: #D1D5DB; }'
+    + '.att-tickets-empty p { margin: 0; }'
+    + '.att-tickets-empty a { color: var(--color-primary); font-weight: 600; text-decoration: none; }';
+  document.head.appendChild(style);
+
+  // Fetch user's registered tickets
+  // Endpoint: GET /auth/profile/registrations
+  fetch(_ATT_API + '/auth/profile/registrations', {
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': 'Bearer ' + getStoredToken(),
+    },
+  })
+    .then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function (data) {
+      var tickets = data.registrations || data.tickets || data.data || (Array.isArray(data) ? data : []);
+      _attRenderTicketsGrid(tickets);
+    })
+    .catch(function () {
+      var grid = document.getElementById('ticketsGrid');
+      if (grid) {
+        grid.innerHTML =
+          '<div class="att-tickets-empty">'
+          + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>'
+          + '<p>Unable to load your tickets. Please try again later.</p>'
+          + '</div>';
+      }
+    });
+}
+
+function _attRenderTicketsGrid(tickets) {
+  var grid = document.getElementById('ticketsGrid');
+  if (!grid) return;
+
+  if (!tickets || !tickets.length) {
+    grid.innerHTML =
+      '<div class="att-tickets-empty">'
+      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>'
+      + '<p>You have not registered for any events yet.<br>'
+      + '<a href="../pages/attendees.html?tab=events">Browse Events</a> to get started.</p>'
+      + '</div>';
+    return;
+  }
+
+  grid.innerHTML = tickets.map(function (t) {
+    var eventName  = _attEscHtml(t.eventName  || t.event && t.event.title || t.event && t.event.name || 'Event');
+    var ticketId   = _attEscHtml(t.ticketId   || t.id  || t._id  || '—');
+    var date       = t.eventDate || (t.event && (t.event.startDate || t.event.date));
+    var dateStr    = date ? new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+    var location   = _attEscHtml(t.eventLocation || (t.event && t.event.location) || '—');
+    var status     = (t.status || 'confirmed').toLowerCase();
+    var statusClass = status === 'confirmed' ? 'confirmed' : status === 'cancelled' ? 'cancelled' : 'pending';
+    var statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+
+    return '<div class="att-ticket-card">'
+      + '<span class="att-ticket-card__status att-ticket-card__status--' + statusClass + '">' + statusLabel + '</span>'
+      + '<p class="att-ticket-card__title">' + eventName + '</p>'
+      + '<span class="att-ticket-card__id">🎟 ' + ticketId + '</span>'
+      + '<div class="att-ticket-card__meta">'
+      +   '<span>📅 ' + dateStr  + '</span>'
+      +   '<span>📍 ' + location + '</span>'
+      + '</div>'
+      + '<button type="button" class="att-ticket-card__btn" data-id="' + _attEscHtml(t.eventId || (t.event && (t.event.id || t.event._id)) || '') + '" data-ticket="' + _attEscHtml(JSON.stringify(t)) + '">View Ticket</button>'
+      + '</div>';
+  }).join('');
+
+  // Wire View Ticket buttons
+  grid.querySelectorAll('.att-ticket-card__btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      try {
+        var ticketData = JSON.parse(btn.dataset.ticket);
+        localStorage.setItem('eventpro_selected_attendee', JSON.stringify(ticketData));
+        window.location.href = '../pages/ticket-details.html';
+      } catch (e) {
+        _attShowToast('Unable to open ticket. Please try again.', 'error');
+      }
     });
   });
 }
