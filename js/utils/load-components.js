@@ -307,7 +307,6 @@ function _wireSearch() {
       if (!q) { _closeSearch(); return; }
 
       var adminRoutes = {
-        'event':      '../pages/admin-events.html',
         'attendee':   '../pages/attendees.html',
         'report':     '../pages/admin-report.html',
         'checkin':    '../pages/real-time-attendance.html',
