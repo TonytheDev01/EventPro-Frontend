@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Sign In | EventPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/form-input.css" />
+  <link rel="stylesheet" href="../styles/sign-in.css" />
+  <style>
+    .admin-portal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      background: #FEF3C7;
+      color: #92400E;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.875rem;
+      border-radius: 999px;
+      margin-bottom: 0.75rem;
+    }
+    .admin-portal-badge svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+    .back-to-signin {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8125rem;
+      color: #6B7280;
+      text-decoration: none;
+      margin-top: 1.25rem;
+      transition: color 0.18s;
+    }
+    .back-to-signin:hover { color: #6F00FF; }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrapper">
+
+    <div class="illustration-card">
+      <img src="../assets/images/image-login.jpg" alt="Admin sign in illustration" />
+    </div>
+
+    <div class="form-card">
+
+      <div class="title-group">
+        <div>
+          <span class="admin-portal-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Admin Portal
+          </span>
+        </div>
+        <h1 class="form-title">Admin Sign In</h1>
+        <p class="new-user-text">Restricted to authorised administrators only.</p>
+      </div>
+
+      <div class="form-banner form-banner--error"
+        id="adminLoginError" role="alert" aria-live="polite" hidden></div>
+
+      <form class="login-form" id="adminLoginForm" novalidate>
+
+        <div class="fields-group">
+
+          <div class="form-group">
+            <div class="input-with-icon">
+              <span class="input-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                    stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="22,6 12,13 2,6"
+                    stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <input type="email" id="email"
+                placeholder="Admin Email Address" autocomplete="email" />
+            </div>
+            <span class="helper-text" id="emailHelper"></span>
+          </div>
+
+          <div class="form-group">
+            <div class="input-with-icon">
+              <span class="input-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"
+                    stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"
+                    stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <input type="password" id="password"
+                placeholder="Password" autocomplete="current-password" />
+              <button type="button" class="toggle-password"
+                id="togglePassword" aria-label="Show password">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                    stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3"
+                    stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <span class="helper-text" id="passwordHelper"></span>
+          </div>
+
+        </div>
+
+        <button type="submit" class="btn-login" id="adminLoginBtn">Sign In as Admin</button>
+
+        <div style="text-align:center">
+          <a href="sign-in.html" class="back-to-signin">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+            Back to regular sign in
+          </a>
+        </div>
+
+        <p class="privacy-text">
+          By signing in you agree to EventPro's<br>
+          <a href="#" class="privacy-link">Terms of service</a> and
+          <a href="#" class="privacy-link">Privacy Policy</a>
+        </p>
+
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/form-input.js"></script>
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/admin-login.js"></script>
+
+</body>
+</html>
