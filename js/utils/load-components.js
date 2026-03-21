@@ -33,7 +33,7 @@ var _NAV_ATTENDEES = '<a href="../pages/attendees.html" class="sidebar-link" dat
   + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 21v-1a4 4 0 00-3-3.87" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
   + '<span>Attendees</span></a>';
 
-var _NAV_MY_TICKETS = '<a href="../pages/attendees.html" class="sidebar-link" data-page="attendees">'
+var _NAV_MY_TICKETS = '<a href="../pages/attendees.html?tab=tickets" class="sidebar-link" data-page="attendees">'
   + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="14" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
   + '<span>My Tickets</span></a>';
 
