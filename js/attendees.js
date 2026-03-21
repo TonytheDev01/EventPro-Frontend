@@ -568,6 +568,7 @@ function _attRenderEventsGrid(events) {
           'Content-Type':  'application/json',
           'Authorization': 'Bearer ' + getStoredToken(),
         },
+        body: JSON.stringify({}),
       })
         .then(function (res) {
           return res.json().then(function (data) { return { ok: res.ok, data: data }; });
@@ -578,7 +579,7 @@ function _attRenderEventsGrid(events) {
             btn.style.background = '#22C55E';
           } else {
             btn.disabled    = false;
-            btn.textContent = result.data.message || 'Failed. Try again.';
+            btn.textContent = result.data.message || result.data.error || 'Failed. Try again.';
             setTimeout(function () { btn.textContent = 'Register'; }, 3000);
           }
         })
