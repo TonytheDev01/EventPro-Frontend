@@ -27,23 +27,22 @@
 
       <main class="dashboard-content">
 
-        <!-- ══ HEADER — 1036×99 | gap 8px ══════════ -->
+        <!-- ══ HEADER ══════════════════════════════ -->
         <div class="att-header">
           <div class="att-header__left">
             <h1 class="att-header__title">Attendees</h1>
             <p class="att-header__event" id="eventNameDisplay">—</p>
-            <p class="att-header__desc">Manage all event attendees and check-in status</p>
+            <p class="att-header__desc">Manage event attendees and check-in status</p>
           </div>
+          <!-- FIX: removed "Admin /" from breadcrumb — page is role-neutral -->
           <p class="page-breadcrumb">
-            <span class="breadcrumb-parent">Admin</span>
-            <span class="breadcrumb-sep"> / </span>
-            <a href="../pages/admin-dashboard.html" class="breadcrumb-current">
+            <a href="#" class="breadcrumb-current" id="breadcrumbDashLink">
               Attendees
             </a>
           </p>
         </div>
 
-        <!-- ══ CONTROLS + STATS — 1036×100 | gap 20px ══ -->
+        <!-- ══ CONTROLS + STATS ═════════════════════ -->
         <div class="att-controls-wrap">
 
           <!-- Row 1: Filters + Actions -->
@@ -61,7 +60,8 @@
               </select>
             </div>
             <div class="att-actions">
-              <button type="button" class="btn-add" id="addAttendeeBtn">
+              <!-- FIX: Add Attendees — shown for organizer only, hidden by JS -->
+              <button type="button" class="btn-add" id="addAttendeeBtn" hidden>
                 <svg width="14" height="14" viewBox="0 0 24 24"
                   fill="none" aria-hidden="true">
                   <path d="M12 5v14M5 12h14"
@@ -70,7 +70,7 @@
                 </svg>
                 Add Attendees
               </button>
-              <button type="button" class="btn-export" id="exportCsvBtn">
+              <button type="button" class="btn-export" id="exportCsvBtn" hidden>
                 <svg width="14" height="14" viewBox="0 0 24 24"
                   fill="none" aria-hidden="true">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"
@@ -103,10 +103,9 @@
 
         </div><!-- /.att-controls-wrap -->
 
-        <!-- ══ TABLE CARD — 1036×613 ════════════════ -->
+        <!-- ══ TABLE CARD ════════════════════════════ -->
         <div class="att-table-card">
 
-          <!-- Table — header 45px, rows 42px -->
           <div class="att-table-wrap">
             <table class="att-table" id="attendeeTable">
               <thead>
@@ -122,7 +121,7 @@
               </thead>
               <tbody id="attendeeTableBody">
                 <tr>
-                  <td colspan="8">
+                  <td colspan="7">
                     <div class="spinner" role="status"
                       aria-label="Loading attendees"></div>
                   </td>
@@ -131,7 +130,6 @@
             </table>
           </div>
 
-          <!-- Footer — 1036×64 | space-between | p 20px 11px | border-top -->
           <div class="att-table-footer">
             <p class="att-footer-count" id="footerCount">
               Showing — of — attendees
