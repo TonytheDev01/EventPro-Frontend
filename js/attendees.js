@@ -37,6 +37,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   loadDashboardComponents('attendees');
 
+  // Update breadcrumb dashboard link based on role
+  var _bUser = getStoredUser();
+  var _bLink = document.getElementById('breadcrumbDashLink');
+  if (_bLink && _bUser) {
+    if (_bUser.role === 'admin') {
+      _bLink.href = '../pages/admin-dashboard.html';
+    } else if (_bUser.role === 'organizer') {
+      _bLink.href = '../pages/organizer-dashboard.html';
+    } else {
+      _bLink.href = '../pages/attendees.html';
+    }
+  }
+
   // Read URL params
   var params = new URLSearchParams(window.location.search);
   _attState.eventId = params.get('eventId') || null;
@@ -56,13 +69,16 @@ document.addEventListener('DOMContentLoaded', function () {
   // ── Role-based controls ───────────────────────
   var user    = getStoredUser();
   var role    = user && user.role;
-  var isAdmin = role === 'admin' || role === 'organizer';
+  // FIX: Add Attendees is organizer only — admin oversees, does not operate
+  var isOrganizer = role === 'organizer';
+  // Export CSV available to both admin and organizer
+  var canExport = role === 'admin' || role === 'organizer';
 
   var addBtn    = document.getElementById('addAttendeeBtn');
   var exportBtn = document.getElementById('exportCsvBtn');
 
   if (addBtn) {
-    if (isAdmin) {
+    if (isOrganizer) {
       addBtn.hidden = false;
       addBtn.addEventListener('click', function () {
         var dest = '../pages/upload.html';
@@ -72,13 +88,12 @@ document.addEventListener('DOMContentLoaded', function () {
         window.location.href = dest;
       });
     } else {
-      // Hide for attendees
       addBtn.hidden = true;
     }
   }
 
   if (exportBtn) {
-    if (isAdmin) {
+    if (canExport) {
       exportBtn.hidden = false;
       exportBtn.addEventListener('click', _attExportCSV);
     } else {
@@ -142,7 +157,7 @@ function _attLoadAttendees(eventId) {
       '<tr><td colspan="7"><div class="spinner" role="status" aria-label="Loading attendees"></div></td></tr>';
   }
 
-  _attApiFetch(_ATT_API + '/events/' + eventId + '/attendees?limit=1000')
+  _attApiFetch(_ATT_API + '/events/' + eventId + '/attendees?limit=500')
     .then(function (res) {
       var attendees = (res && (res.attendees || res.data || res)) || [];
       _attState.allAttendees = Array.isArray(attendees) ? attendees : [];

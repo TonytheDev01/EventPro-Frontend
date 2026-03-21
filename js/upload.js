@@ -85,9 +85,9 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // 500MB limit
-      if (file.size > 500 * 1024 * 1024) {
-        _showFileError(file.name, 'File exceeds 500 MB limit.');
+      // 10MB limit
+      if (file.size > 10 * 1024 * 1024) {
+        _showFileError(file.name, 'File exceeds 10 MB limit.');
         return;
       }
 
