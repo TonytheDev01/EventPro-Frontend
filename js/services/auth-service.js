@@ -98,9 +98,13 @@ function loginUser(email, password) {
       storeUser(result.data.user);
       // Fetch full profile to get firstName, lastName etc
       // so topbar shows name not email
+      // Use fresh token directly — getStoredToken() now has it after storeToken above
       return request('/auth/profile', {
         method:  'GET',
-        headers: buildHeaders(),
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': 'Bearer ' + result.data.token,
+        },
       }).then(function (profileResult) {
         if (profileResult.success && profileResult.data) {
           storeUser(profileResult.data);
