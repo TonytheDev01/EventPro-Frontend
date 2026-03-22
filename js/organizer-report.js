@@ -39,7 +39,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   Promise.allSettled([
     _apiFetch(_API + '/organizer/dashboard/stats', headers),
-    _apiFetch(_API + '/reports/timeline',          headers),
+    // Timeline not in Swagger — use organizer stats only
+    Promise.resolve({ success: false }),
   ]).then(function (results) {
     _renderMeta(results[0]);
     _renderStats(results[0]);
