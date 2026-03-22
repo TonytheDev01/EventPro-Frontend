@@ -23,8 +23,10 @@
         <header class="rta-page-header">
           <div class="rta-page-header__text">
             <h1 class="rta-page-header__title">Real-Time Attendance</h1>
+            <!-- FIX: id added so JS can set role dynamically (Admin / Organizer) -->
             <p class="rta-page-header__crumb">
-              Admin / <span class="rta-page-header__crumb-light">Real-Time Attendance</span>
+              <span id="rtaBreadcrumbRole">Admin</span>
+              / <span class="rta-page-header__crumb-light">Real-Time Attendance</span>
             </p>
           </div>
           <button class="rta-btn-switch" id="switchEventBtn">Switch Event</button>
@@ -154,17 +156,17 @@
                 <li class="rta-legend__row">
                   <span class="rta-legend__dot rta-legend__dot--vip"></span>
                   <span class="rta-legend__name">VIP</span>
-                  <span class="rta-legend__pct" id="vipPct">—</span>
+                  <span class="rta-legend__pct" id="vipPct">0%</span>
                 </li>
                 <li class="rta-legend__row">
                   <span class="rta-legend__dot rta-legend__dot--regular"></span>
                   <span class="rta-legend__name">Regular</span>
-                  <span class="rta-legend__pct" id="regularPct">—</span>
+                  <span class="rta-legend__pct" id="regularPct">0%</span>
                 </li>
                 <li class="rta-legend__row">
                   <span class="rta-legend__dot rta-legend__dot--speaker"></span>
                   <span class="rta-legend__name">Speakers</span>
-                  <span class="rta-legend__pct" id="speakerPct">—</span>
+                  <span class="rta-legend__pct" id="speakerPct">0%</span>
                 </li>
               </ul>
               <div class="rta-summary-card">

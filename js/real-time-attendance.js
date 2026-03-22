@@ -20,6 +20,14 @@ var _allEvents      = [];
 document.addEventListener('DOMContentLoaded', function () {
 
   requireAuth();
+
+  // Fix breadcrumb to show correct role instead of hardcoded Admin
+  var _rtaUser = getStoredUser();
+  var _rtaRole = _rtaUser && _rtaUser.role;
+  var _rtaBreadcrumb = document.getElementById('rtaBreadcrumbRole');
+  if (_rtaBreadcrumb) {
+    _rtaBreadcrumb.textContent = _rtaRole === 'organizer' ? 'Organizer' : 'Admin';
+  }
   loadDashboardComponents('checkin');
 
   _bindEvents();
@@ -203,7 +211,7 @@ function _fetchAttendance(eventId) {
 function _renderStats(attendees, stats) {
   var checkedIn = _countChecked(attendees);
   var total     = (stats && stats.totalAttendees) ? stats.totalAttendees : attendees.length;
-  var capacity  = (stats && stats.capacity)       ? stats.capacity       : 2000;
+  var capacity  = (stats && stats.capacity)       ? stats.capacity       : 500;
   var pct       = total > 0 ? Math.round((checkedIn / total) * 100) : 0;
   var yet       = Math.max(total - checkedIn, 0);
   var fill      = total > 0 ? Math.min((checkedIn / total) * 100, 100) : 0;
@@ -260,12 +268,15 @@ function _renderTable(attendees) {
 
 // ── Render Donut Chart ────────────────────────────────────
 function _renderChart(attendees) {
-  var total   = attendees.length || 1;
+  var total   = attendees.length;
   var vip     = attendees.filter(function (a) { return _ticketClass(a.ticketType) === 'vip'; }).length;
   var speaker = attendees.filter(function (a) { return _ticketClass(a.ticketType) === 'speaker'; }).length;
-  var vipPct  = Math.round((vip     / total) * 100);
-  var spkPct  = Math.round((speaker / total) * 100);
-  var regPct  = 100 - vipPct - spkPct;
+  var regular = total - vip - speaker;
+
+  // Show real counts — no fake 100% when empty
+  var vipPct  = total > 0 ? Math.round((vip     / total) * 100) : 0;
+  var spkPct  = total > 0 ? Math.round((speaker / total) * 100) : 0;
+  var regPct  = total > 0 ? Math.round((regular / total) * 100) : 0;
 
   _setText('vipPct',     vipPct + '%');
   _setText('regularPct', regPct + '%');
@@ -277,7 +288,8 @@ function _renderChart(attendees) {
   var spkClr = st.getPropertyValue('--color-accent').trim()  || '#F97316';
 
   if (_chart) {
-    _chart.data.datasets[0].data = [vipPct, regPct, spkPct];
+    // Use actual counts not percentages for correct proportional rendering
+    _chart.data.datasets[0].data = total > 0 ? [vipPct, regPct, spkPct] : [0, 0, 0];
     _chart.update('active');
     return;
   }
