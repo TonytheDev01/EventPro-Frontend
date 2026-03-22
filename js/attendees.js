@@ -602,14 +602,21 @@ function _attRenderEventsGrid(events) {
           if (result.ok) {
             btn.textContent = '✓ Registered';
             btn.style.background = '#22C55E';
-            // Store ticket with user details so ticket-details.html can show them
-            var regUser = getStoredUser();
-            var ticketData = Object.assign({}, result.data, {
-              name:      (regUser && ((regUser.firstName || '') + ' ' + (regUser.lastName || '')).trim()) || '',
-              email:     (regUser && regUser.email)  || '',
-              phone:     (regUser && regUser.phone)  || '',
-              eventId:   eventId,
-              status:    'confirmed',
+            // Store ticket with attendee details from response + stored user fallback
+            var regUser     = getStoredUser();
+            var regAttendee = result.data.attendee || {};
+            var ticketData  = Object.assign({}, result.data, {
+              // Flatten attendee fields for ticket-details.js to read
+              firstName:  regAttendee.firstName  || (regUser && regUser.firstName)  || '',
+              lastName:   regAttendee.lastName   || (regUser && regUser.lastName)   || '',
+              name:       (regAttendee.firstName || regAttendee.lastName)
+                            ? ((regAttendee.firstName || '') + ' ' + (regAttendee.lastName || '')).trim()
+                            : (regUser && ((regUser.firstName || '') + ' ' + (regUser.lastName || '')).trim()) || '',
+              email:      regAttendee.email  || (regUser && regUser.email)  || '',
+              phone:      regAttendee.phone  || (regUser && regUser.phone)  || '',
+              eventId:    eventId,
+              status:     'confirmed',
+              ticketId:   result.data.ticketId || result.data._id || result.data.id || '',
             });
             localStorage.setItem('eventpro_selected_attendee', JSON.stringify(ticketData));
           } else {
