@@ -1,6 +1,6 @@
 # EventPro Frontend
 
- A multi-role event management web application — built for organizers, administrators, and attendees.
+> A multi-role event management web application — built for organizers, administrators, and attendees.
 
 
 **Live:** [tonythedev01.github.io/EventPro-Frontend](https://tonythedev01.github.io/EventPro-Frontend)  
@@ -25,7 +25,7 @@
 - [Known Limitations](#known-limitations)
 - [Team](#team)
 
-
+---
 
 ## Overview
 
@@ -33,6 +33,7 @@ EventPro is a full-featured event management platform built as a capstone projec
 
 The frontend is built with plain HTML, CSS, and vanilla JavaScript — no frameworks, no bundlers — and integrates with a Node.js/Express REST API backend hosted on Render.
 
+---
 
 ## Features
 
@@ -65,6 +66,7 @@ The frontend is built with plain HTML, CSS, and vanilla JavaScript — no framew
 - CSV import with validation and error reporting
 - Appwrite JWT integration for social login
 
+---
 
 ## Tech Stack
 
@@ -82,9 +84,11 @@ The frontend is built with plain HTML, CSS, and vanilla JavaScript — no framew
 
 > **No frameworks.** No React, no Vue, no bundler. Plain HTML/CSS/JS throughout.
 
+---
 
 ## Folder Structure
 
+```
 EventPro-Frontend/
 ├── assets/
 │   └── images/              — logos, illustrations, icons
@@ -189,11 +193,11 @@ EventPro-Frontend/
 
 EventPro uses three roles. Role is stored in `localStorage` after login and enforced on every page via `requireAuth()`.
 
-| Feature          | Admin | Organizer | Attendee |
-|---------         |-------|-----------|----------|
-| View all events   | ✅ | ✅ own only | ✅ |
-| Create events     | ❌ | ✅ | ❌ |
-| Delete events     | ✅ | ❌ | ❌ |
+| Feature | Admin | Organizer | Attendee |
+|---------|-------|-----------|----------|
+| View all events | ✅ | ✅ own only | ✅ |
+| Create events | ❌ | ✅ | ❌ |
+| Delete events | ✅ | ❌ | ❌ |
 | Add attendees via CSV | ❌ | ✅ | ❌ |
 | Export attendee CSV | ✅ | ✅ | ❌ |
 | Register for events | ❌ | ❌ | ✅ |
@@ -204,6 +208,7 @@ EventPro uses three roles. Role is stored in `localStorage` after login and enfo
 
 **Admin login** is accessed via a private URL not linked anywhere in the app. Admins use `POST /auth/login/admin`.
 
+---
 
 ## API Integration
 
@@ -213,6 +218,7 @@ All authenticated requests include:
 ```
 Authorization: Bearer {token}
 Content-Type: application/json
+```
 
 ### Key Endpoints Used
 
@@ -237,13 +243,16 @@ Content-Type: application/json
 
 ### Auth Flow
 
+```
 Login → POST /auth/login → store token + basic user
      → GET /auth/profile → store full user (firstName, lastName etc)
      → Check role → redirect to correct dashboard
+```
 
 New users with no role → `role-selection.html`  
 Existing users with known role → dashboard directly
 
+---
 
 ## Getting Started
 
@@ -271,7 +280,7 @@ No build step, no npm install, no environment variables needed for the frontend.
 
 Contact the team lead for test credentials. Do not commit credentials to the repo.
 
-
+---
 
 ## Branch & PR Workflow
 
