@@ -583,6 +583,14 @@ function _attRenderEventsGrid(events) {
   grid.querySelectorAll('.att-event-card__btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var eventId   = btn.dataset.id;
+      var regUser   = getStoredUser();
+      var regPhone  = regUser && regUser.phone;
+
+      if (!regPhone) {
+        _attShowToast('Please add your phone number in Settings before registering for an event.', 'error');
+        return;
+      }
+
       btn.disabled    = true;
       btn.textContent = 'Registering…';
 
