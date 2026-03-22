@@ -168,9 +168,10 @@ document.addEventListener('DOMContentLoaded', function () {
     btnSave.textContent = 'Saving…';
 
     var payload = {
-      firstName:    firstNameInput.value.trim(),
-      lastName:     lastNameInput.value.trim(),
+      // Ezekiel's PUT /auth/profile expects: { name, phone, smsEnabled }
+      name:         (firstNameInput.value.trim() + ' ' + lastNameInput.value.trim()).trim(),
       phone:        phoneInput.value.trim(),
+      smsEnabled:   false,
       organisation: orgInput.value.trim(),
     };
 

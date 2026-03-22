@@ -182,7 +182,7 @@ function _renderTable(events) {
       +     '<button type="button" class="ae-action-btn ae-btn-view" data-id="' + id + '" title="View event" aria-label="View ' + title + '">'
       +       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>'
       +     '</button>'
-      +     '<button type="button" class="ae-action-btn ae-action-btn--danger ae-btn-deact" data-id="' + id + '" title="Deactivate event" aria-label="Deactivate ' + title + '">'
+      +     '<button type="button" class="ae-action-btn ae-action-btn--danger ae-btn-deact" data-id="' + id + '" title="Delete event" aria-label="Deactivate ' + title + '">'
       +       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
       +     '</button>'
       +   '</div>'
@@ -319,7 +319,7 @@ function _renderDrawer(ev) {
 
   if (deactBtn) {
     deactBtn.onclick = function () { _deactivateEvent(id); };
-    deactBtn.textContent = status === 'cancelled' ? 'Reactivate Event' : 'Deactivate Event';
+    deactBtn.textContent = 'Delete Event';
   }
 
   var banner = ev.bannerUrl || ev.banner || '';
@@ -376,12 +376,12 @@ function _closeDrawer() {
   document.body.style.overflow = '';
 }
 
-// ── Deactivate Event ──────────────────────────────────────
+// ── Delete Event — hard delete (Swagger: DELETE /events/{id}) ──
 function _deactivateEvent(eventId) {
-  // TODO: confirm exact endpoint in Swagger with Ezekiel
-  // Expected: POST /events/{id}/deactivate or DELETE /events/{id}
-  fetch(_API + '/events/' + eventId + '/deactivate', {
-    method:  'POST',
+  if (!confirm('Are you sure you want to permanently delete this event? This cannot be undone.')) return;
+
+  fetch(_API + '/events/' + eventId, {
+    method:  'DELETE',
     headers: {
       'Content-Type':  'application/json',
       'Authorization': 'Bearer ' + getStoredToken(),
@@ -390,11 +390,11 @@ function _deactivateEvent(eventId) {
     .then(function (res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       _closeDrawer();
-      _showToast('Event deactivated successfully.');
+      _showToast('Event deleted successfully.');
       _loadEvents();
     })
     .catch(function () {
-      _showToast('Unable to deactivate event. Please try again.');
+      _showToast('Unable to delete event. Please try again.');
     });
 }
 
