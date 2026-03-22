@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   Promise.allSettled([
-    _orgApiFetch(_ORG_API + '/dashboard/stats',            headers),
+    _orgApiFetch(_ORG_API + '/organizer/dashboard/stats', headers),
     _orgApiFetch(_ORG_API + '/events?limit=6&sort=recent', headers),
   ]).then(function (results) {
     try { _renderStatCards(results[0]); }   catch(e) {}
