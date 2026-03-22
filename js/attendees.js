@@ -606,15 +606,15 @@ function _attRenderEventsGrid(events) {
         .then(function (res) {
           return res.json().then(function (data) { return { ok: res.ok, data: data }; });
         })
+        .then(function (res) {
+          return res.json().then(function (data) { return { ok: res.ok, status: res.status, data: data }; });
+        })
         .then(function (result) {
-          if (result.ok) {
-            btn.textContent = '✓ Registered';
-            btn.style.background = '#22C55E';
-            // Store ticket with attendee details from response + stored user fallback
+          if (result.ok || result.status === 201) {
+            // Registration successful — store ticket data and show verification modal
             var regUser     = getStoredUser();
             var regAttendee = result.data.attendee || {};
             var ticketData  = Object.assign({}, result.data, {
-              // Flatten attendee fields for ticket-details.js to read
               firstName:  regAttendee.firstName  || (regUser && regUser.firstName)  || '',
               lastName:   regAttendee.lastName   || (regUser && regUser.lastName)   || '',
               name:       (regAttendee.firstName || regAttendee.lastName)
@@ -623,10 +623,18 @@ function _attRenderEventsGrid(events) {
               email:      regAttendee.email  || (regUser && regUser.email)  || '',
               phone:      regAttendee.phone  || (regUser && regUser.phone)  || '',
               eventId:    eventId,
-              status:     'confirmed',
-              ticketId:   result.data.ticketId || result.data._id || result.data.id || '',
+              status:     'pending',
+              ticketId:   result.data.ticketId || (regAttendee && regAttendee._id) || result.data._id || '',
             });
             localStorage.setItem('eventpro_selected_attendee', JSON.stringify(ticketData));
+            btn.textContent = 'Verify Code';
+            // Show verification modal
+            _attShowVerifyModal(eventId, regUser && regUser.phone, btn, ticketData);
+          } else if (result.status === 400) {
+            // Already registered
+            btn.disabled    = false;
+            btn.textContent = 'Already Registered';
+            btn.style.background = '#F59E0B';
           } else {
             btn.disabled    = false;
             btn.textContent = result.data.message || result.data.error || 'Failed. Try again.';
@@ -778,4 +786,218 @@ function _attRenderTicketsGrid(tickets) {
       }
     });
   });
+}
+
+// ════════════════════════════════════════════════
+//  SMS VERIFICATION MODAL
+//  Shown after successful registration
+//  Calls POST /events/{eventId}/verify
+// ════════════════════════════════════════════════
+
+function _attShowVerifyModal(eventId, phone, registerBtn, ticketData) {
+  // Remove any existing modal
+  var existing = document.getElementById('attVerifyModal');
+  if (existing) existing.remove();
+
+  var maskedPhone = phone ? phone.slice(0, 4) + '****' + phone.slice(-3) : 'your phone';
+
+  // Inject modal styles
+  var style = document.createElement('style');
+  style.id  = 'attVerifyStyles';
+  style.textContent =
+    '.att-verify-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 1rem; }'
+    + '.att-verify-modal { background: var(--color-card-bg, #fff); border-radius: 16px; padding: 2rem 1.5rem; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); text-align: center; }'
+    + '.att-verify-modal__icon { width: 3rem; height: 3rem; background: #EDE9FE; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }'
+    + '.att-verify-modal__title { font-size: 1.125rem; font-weight: 700; color: var(--color-text-dark, #1A1A1A); margin-bottom: 0.5rem; }'
+    + '.att-verify-modal__sub { font-size: 0.8125rem; color: var(--color-text-muted, #6B7280); margin-bottom: 1.5rem; }'
+    + '.att-verify-modal__sub strong { color: var(--color-text-dark, #1A1A1A); }'
+    + '.att-verify-inputs { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.25rem; }'
+    + '.att-verify-input { width: 2.75rem; height: 3rem; border: 2px solid var(--color-border-light, #E5E7EB); border-radius: 8px; text-align: center; font-size: 1.25rem; font-weight: 700; font-family: Poppins,sans-serif; color: var(--color-text-dark, #1A1A1A); outline: none; transition: border-color 0.18s; }'
+    + '.att-verify-input:focus { border-color: var(--color-primary, #6F00FF); }'
+    + '.att-verify-input.is-error { border-color: #EF4444; }'
+    + '.att-verify-modal__error { font-size: 0.8125rem; color: #EF4444; margin-bottom: 1rem; min-height: 1.25rem; }'
+    + '.att-verify-btn { width: 100%; padding: 0.75rem; background: var(--color-primary, #6F00FF); color: #fff; border: none; border-radius: 10px; font-family: Poppins,sans-serif; font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background 0.18s; margin-bottom: 0.75rem; }'
+    + '.att-verify-btn:hover { background: var(--color-primary-hover, #5A00CC); }'
+    + '.att-verify-btn:disabled { background: #C4B5FD; cursor: not-allowed; }'
+    + '.att-verify-resend { font-size: 0.8125rem; color: var(--color-text-muted, #6B7280); background: none; border: none; cursor: pointer; font-family: Poppins,sans-serif; }'
+    + '.att-verify-resend:not(:disabled) { color: var(--color-primary, #6F00FF); font-weight: 600; }'
+    + '.att-verify-resend:disabled { cursor: not-allowed; }';
+  document.head.appendChild(style);
+
+  // Build modal HTML
+  var overlay = document.createElement('div');
+  overlay.id        = 'attVerifyModal';
+  overlay.className = 'att-verify-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'attVerifyTitle');
+
+  overlay.innerHTML =
+    '<div class="att-verify-modal">'
+    + '<div class="att-verify-modal__icon">'
+    +   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6F00FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    +     '<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.0 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/>'
+    +   '</svg>'
+    + '</div>'
+    + '<h2 class="att-verify-modal__title" id="attVerifyTitle">Verify Your Registration</h2>'
+    + '<p class="att-verify-modal__sub">We sent a 6-digit code to <strong>' + maskedPhone + '</strong>. Enter it below to confirm your registration.</p>'
+    + '<div class="att-verify-inputs" id="attVerifyInputs">'
+    +   '<input class="att-verify-input" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1" />'
+    +   '<input class="att-verify-input" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2" />'
+    +   '<input class="att-verify-input" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3" />'
+    +   '<input class="att-verify-input" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4" />'
+    +   '<input class="att-verify-input" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 5" />'
+    +   '<input class="att-verify-input" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 6" />'
+    + '</div>'
+    + '<p class="att-verify-modal__error" id="attVerifyError"></p>'
+    + '<button type="button" class="att-verify-btn" id="attVerifyBtn">Verify & Confirm</button>'
+    + '<button type="button" class="att-verify-resend" id="attVerifyResend" disabled>Resend Code (60s)</button>'
+    + '</div>';
+
+  document.body.appendChild(overlay);
+
+  // Wire digit inputs — auto advance
+  var inputs = overlay.querySelectorAll('.att-verify-input');
+  inputs.forEach(function (input, i) {
+    input.addEventListener('input', function () {
+      input.value = input.value.replace(/[^0-9]/g, '').slice(-1);
+      if (input.value && i < inputs.length - 1) {
+        inputs[i + 1].focus();
+      }
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Backspace' && !input.value && i > 0) {
+        inputs[i - 1].focus();
+      }
+    });
+    input.addEventListener('paste', function (e) {
+      e.preventDefault();
+      var pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+      pasted.split('').forEach(function (digit, idx) {
+        if (inputs[idx]) inputs[idx].value = digit;
+      });
+      if (inputs[pasted.length - 1]) inputs[pasted.length - 1].focus();
+    });
+  });
+  if (inputs[0]) inputs[0].focus();
+
+  // Resend cooldown
+  var cooldown = 60;
+  var resendBtn = overlay.querySelector('#attVerifyResend');
+  var timer = setInterval(function () {
+    cooldown -= 1;
+    if (cooldown <= 0) {
+      clearInterval(timer);
+      resendBtn.disabled     = false;
+      resendBtn.textContent  = 'Resend Code';
+    } else {
+      resendBtn.textContent = 'Resend Code (' + cooldown + 's)';
+    }
+  }, 1000);
+
+  resendBtn.addEventListener('click', function () {
+    resendBtn.disabled    = true;
+    resendBtn.textContent = 'Sending…';
+    // Re-call register to trigger new SMS
+    fetch(_ATT_API + '/events/' + eventId + '/register', {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + getStoredToken(),
+      },
+      body: JSON.stringify({}),
+    })
+      .then(function () {
+        cooldown = 60;
+        resendBtn.disabled    = true;
+        resendBtn.textContent = 'Resend Code (60s)';
+        var countdown = setInterval(function () {
+          cooldown -= 1;
+          if (cooldown <= 0) {
+            clearInterval(countdown);
+            resendBtn.disabled    = false;
+            resendBtn.textContent = 'Resend Code';
+          } else {
+            resendBtn.textContent = 'Resend Code (' + cooldown + 's)';
+          }
+        }, 1000);
+        _attShowToast('New code sent to your phone.', 'success');
+      })
+      .catch(function () {
+        resendBtn.disabled    = false;
+        resendBtn.textContent = 'Resend Code';
+        _attShowToast('Failed to resend. Try again.', 'error');
+      });
+  });
+
+  // Verify button
+  var verifyBtn  = overlay.querySelector('#attVerifyBtn');
+  var errorEl    = overlay.querySelector('#attVerifyError');
+
+  verifyBtn.addEventListener('click', function () {
+    var code = Array.from(inputs).map(function (i) { return i.value; }).join('');
+
+    if (code.length < 6) {
+      errorEl.textContent = 'Please enter all 6 digits.';
+      inputs.forEach(function (i) { i.classList.add('is-error'); });
+      return;
+    }
+
+    inputs.forEach(function (i) { i.classList.remove('is-error'); });
+    errorEl.textContent   = '';
+    verifyBtn.disabled    = true;
+    verifyBtn.textContent = 'Verifying…';
+
+    fetch(_ATT_API + '/events/' + eventId + '/verify', {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + getStoredToken(),
+      },
+      body: JSON.stringify({ phone: phone, code: code }),
+    })
+      .then(function (res) {
+        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+      })
+      .then(function (result) {
+        if (result.ok) {
+          // Update ticket status to confirmed
+          var confirmed = Object.assign({}, ticketData, {
+            status:   'confirmed',
+            ticketId: (result.data.attendee && result.data.attendee.ticketId) || ticketData.ticketId,
+          });
+          localStorage.setItem('eventpro_selected_attendee', JSON.stringify(confirmed));
+
+          // Close modal and show success
+          clearInterval(timer);
+          overlay.remove();
+
+          // Update register button
+          if (registerBtn) {
+            registerBtn.textContent      = '✓ Registered';
+            registerBtn.style.background = '#22C55E';
+            registerBtn.disabled         = true;
+          }
+
+          // Show success with View Ticket option
+          _attShowVerifySuccess(eventId);
+
+        } else {
+          verifyBtn.disabled    = false;
+          verifyBtn.textContent = 'Verify & Confirm';
+          errorEl.textContent   = (result.data && result.data.message) || 'Invalid or expired code. Please try again.';
+          inputs.forEach(function (i) { i.classList.add('is-error'); i.value = ''; });
+          if (inputs[0]) inputs[0].focus();
+        }
+      })
+      .catch(function () {
+        verifyBtn.disabled    = false;
+        verifyBtn.textContent = 'Verify & Confirm';
+        errorEl.textContent   = 'Network error. Please try again.';
+      });
+  });
+}
+
+function _attShowVerifySuccess(eventId) {
+  _attShowToast('Registration confirmed! You can view your ticket in My Tickets.', 'success');
 }
