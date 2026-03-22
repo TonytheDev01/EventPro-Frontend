@@ -35,7 +35,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   requireAuth();
 
-  loadDashboardComponents('attendees');
+  // Detect tab for correct sidebar active state
+  var _tabParam = new URLSearchParams(window.location.search).get('tab');
+  var _activeTab = _tabParam === 'events' ? 'att-events' : _tabParam === 'tickets' ? 'att-tickets' : 'attendees';
+  loadDashboardComponents(_activeTab);
 
   // Update breadcrumb dashboard link based on role
   var _bUser = getStoredUser();
@@ -606,6 +609,16 @@ function _attRenderEventsGrid(events) {
           if (result.ok) {
             btn.textContent = '✓ Registered';
             btn.style.background = '#22C55E';
+            // Store ticket with user details so ticket-details.html can show them
+            var regUser = getStoredUser();
+            var ticketData = Object.assign({}, result.data, {
+              name:      (regUser && ((regUser.firstName || '') + ' ' + (regUser.lastName || '')).trim()) || '',
+              email:     (regUser && regUser.email)  || '',
+              phone:     (regUser && regUser.phone)  || '',
+              eventId:   eventId,
+              status:    'confirmed',
+            });
+            localStorage.setItem('eventpro_selected_attendee', JSON.stringify(ticketData));
           } else {
             btn.disabled    = false;
             btn.textContent = result.data.message || result.data.error || 'Failed. Try again.';

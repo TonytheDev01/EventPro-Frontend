@@ -45,11 +45,13 @@ if (toggleBtn) {
           return;
         }
         var user = getStoredUser();
-        // Admin goes straight to dashboard — everyone else picks role
-        if (user && user.role === 'admin') {
-          window.location.href = '../pages/admin-dashboard.html';
-        } else {
+        var role  = user && user.role;
+        // Only show role-selection for brand new users with no role
+        var knownRoles = ['admin', 'organizer', 'user'];
+        if (!role || knownRoles.indexOf(role) === -1) {
           window.location.href = '../pages/role-selection.html';
+        } else {
+          _redirectByRole(role);
         }
       })
       .catch(function () {
@@ -125,12 +127,13 @@ if (form) {
         var user = getStoredUser();
         var role = user && user.role;
 
-        // Admin — straight to admin dashboard, no role selection needed
-        // Everyone else — always go to role selection to pick their role
-        if (role === 'admin') {
-          window.location.href = '../pages/admin-dashboard.html';
-        } else {
+        // Existing users with a known role go straight to their dashboard
+        // Only brand new users with no role see role-selection
+        var knownRoles = ['admin', 'organizer', 'user'];
+        if (!role || knownRoles.indexOf(role) === -1) {
           window.location.href = '../pages/role-selection.html';
+        } else {
+          _redirectByRole(role);
         }
       })
       .catch(function () {
