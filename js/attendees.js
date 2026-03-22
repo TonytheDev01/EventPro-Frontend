@@ -583,14 +583,6 @@ function _attRenderEventsGrid(events) {
   grid.querySelectorAll('.att-event-card__btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var eventId   = btn.dataset.id;
-      var regUser   = getStoredUser();
-      var regPhone  = regUser && regUser.phone;
-
-      if (!regPhone) {
-        _attShowToast('Please add your phone number in Settings before registering.', 'error');
-        return;
-      }
-
       btn.disabled    = true;
       btn.textContent = 'Registering…';
 
@@ -600,7 +592,8 @@ function _attRenderEventsGrid(events) {
           'Content-Type':  'application/json',
           'Authorization': 'Bearer ' + getStoredToken(),
         },
-        body: JSON.stringify({ phone: regPhone }),
+        // Ezekiel's register endpoint uses Bearer token to identify user — no body needed
+        body: JSON.stringify({}),
       })
         .then(function (res) {
           return res.json().then(function (data) { return { ok: res.ok, data: data }; });
