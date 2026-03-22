@@ -144,6 +144,17 @@ if (form) {
   });
 }
 
+// ── Role redirect ──────────────────────────────
+function _redirectByRole(role) {
+  if (role === 'admin') {
+    window.location.href = '../pages/admin-dashboard.html';
+  } else if (role === 'organizer') {
+    window.location.href = '../pages/organizer-dashboard.html';
+  } else {
+    window.location.href = '../pages/attendees.html';
+  }
+}
+
 // ── Helpers ────────────────────────────────────
 function _showError(msg) {
   var banner = document.getElementById('signinError');
