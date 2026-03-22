@@ -22,7 +22,8 @@ var USER_KEY  = 'eventpro_user';
 
 // ── Appwrite config (confirmed March 2026) ──────────────────
 var APPWRITE_ENDPOINT   = 'https://fra.cloud.appwrite.io/v1';
-var APPWRITE_PROJECT_ID = 'evenpro';
+var APPWRITE_PROJECT_ID = 'standard_5cd487d9a445f60de9321bd70839df61214e561aaa746c386e715d3b3fb4698f6b352d970c2f7e6710f221c8b5452841fb95543cf6c1fcae0977bb440045e5d19648b7378816d30448c540367cacc52adf2ded82bbf07ea826beda85a40ce4b94394595f689bd43cfa752fab166199b0f1637b9f2776da78067536b2ad66ff5b';
+
 // ── Internal Helpers ────────────────────────────────────────
 
 function buildHeaders(requiresAuth) {
@@ -95,6 +96,20 @@ function loginUser(email, password) {
     if (result.success) {
       storeToken(result.data.token);
       storeUser(result.data.user);
+      // Fetch full profile to get firstName, lastName etc
+      // so topbar shows name not email
+      return request('/auth/profile', {
+        method:  'GET',
+        headers: buildHeaders(),
+      }).then(function (profileResult) {
+        if (profileResult.success && profileResult.data) {
+          storeUser(profileResult.data);
+        }
+        return result;
+      }).catch(function () {
+        // Profile fetch failed — not critical, login still succeeded
+        return result;
+      });
     }
     return result;
   });
