@@ -37,15 +37,38 @@ document.addEventListener('DOMContentLoaded', function () {
     'Authorization': 'Bearer ' + getStoredToken(),
   };
 
-  Promise.allSettled([
-    _apiFetch(_API + '/organizer/dashboard/stats', headers),
-    // Timeline not in Swagger — use organizer stats only
-    Promise.resolve({ success: false }),
-  ]).then(function (results) {
-    _renderMeta(results[0]);
-    _renderStats(results[0]);
-    _waitForChart(function () { _renderChart(results[1]); });
-  });
+  // Reports need eventId — fetch organizer's latest event first
+  _apiFetch(_API + '/events/organizer/my-events?limit=1', headers)
+    .then(function (evData) {
+      var events  = (evData && (evData.events || evData.data)) || [];
+      var eventId = events.length ? (events[0]._id || events[0].id) : null;
+
+      var summaryUrl  = eventId
+        ? _API + '/reports/summary?eventId='  + eventId
+        : null;
+      var timelineUrl = eventId
+        ? _API + '/reports/timeline?eventId=' + eventId
+        : null;
+
+      return Promise.allSettled([
+        summaryUrl  ? _apiFetch(summaryUrl,  headers) : _apiFetch(_API + '/organizer/dashboard/stats', headers),
+        timelineUrl ? _apiFetch(timelineUrl, headers) : Promise.resolve({ success: false }),
+      ]);
+    })
+    .then(function (results) {
+      _renderMeta(results[0]);
+      _renderStats(results[0]);
+      _waitForChart(function () { _renderChart(results[1]); });
+    })
+    .catch(function () {
+      // Fallback to organizer stats
+      _apiFetch(_API + '/organizer/dashboard/stats', headers)
+        .then(function (data) {
+          var r = { status: 'fulfilled', value: data };
+          _renderMeta(r);
+          _renderStats(r);
+        });
+    });
 
   // ── Wire buttons ──────────────────────────────
   var csvBtn = document.getElementById('btn-csv');

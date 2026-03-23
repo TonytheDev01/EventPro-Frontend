@@ -33,15 +33,38 @@ document.addEventListener('DOMContentLoaded', function () {
     'Authorization': 'Bearer ' + getStoredToken(),
   };
 
-  Promise.allSettled([
-    _rptApiFetch(_RPT_API + '/dashboard/stats',  headers),
-    // Timeline endpoint not confirmed in Swagger — skipping
-    Promise.resolve({ success: false }),
-  ]).then(function (results) {
-    _renderMeta(results[0]);
-    _renderStats(results[0]);
-    _waitForChart(function () { _renderChart(results[1]); });
-  });
+  // Reports need an eventId — fetch latest event first then load reports
+  _rptApiFetch(_RPT_API + '/events?limit=1', headers)
+    .then(function (evData) {
+      var events  = (evData && (evData.events || evData.data)) || [];
+      var eventId = events.length ? (events[0]._id || events[0].id) : null;
+
+      var summaryUrl  = eventId
+        ? _RPT_API + '/reports/summary?eventId='  + eventId
+        : _RPT_API + '/reports/summary?eventId=all';
+      var timelineUrl = eventId
+        ? _RPT_API + '/reports/timeline?eventId=' + eventId
+        : null;
+
+      return Promise.allSettled([
+        _rptApiFetch(summaryUrl, headers),
+        timelineUrl ? _rptApiFetch(timelineUrl, headers) : Promise.resolve({ success: false }),
+      ]);
+    })
+    .then(function (results) {
+      _renderMeta(results[0]);
+      _renderStats(results[0]);
+      _waitForChart(function () { _renderChart(results[1]); });
+    })
+    .catch(function () {
+      // Fallback to dashboard stats if reports fail
+      _rptApiFetch(_RPT_API + '/dashboard/stats', headers)
+        .then(function (data) {
+          var r = { status: 'fulfilled', value: data };
+          _renderMeta(r);
+          _renderStats(r);
+        });
+    });
 
   // ── Wire buttons ──────────────────────────────
   var csvBtn = document.getElementById('btn-csv');

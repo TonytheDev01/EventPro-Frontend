@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
     _rtaBreadcrumb.textContent = _rtaRole === 'organizer' ? 'Organizer' : 'Admin';
   }
   loadDashboardComponents('checkin');
+  _initScanUI();
 
   _bindEvents();
 
@@ -158,7 +159,7 @@ function _fetchEventMeta(eventId) {
       var ev = data.event || data;
       var nameEl = document.getElementById('eventName');
       var dateEl = document.getElementById('eventDate');
-      if (nameEl) nameEl.textContent = ev.title || ev.name || 'Unnamed Event';
+      if (nameEl) { nameEl.textContent = ev.title || ev.name || 'Unnamed Event'; nameEl.dataset.id = ev._id || ev.id || ''; }
       if (dateEl) dateEl.textContent = ev.startDate ? _fmtDate(ev.startDate) : '—';
     })
     .catch(function () {
@@ -505,4 +506,165 @@ function _esc(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+// ════════════════════════════════════════════════
+//  QR SCAN CHECK-IN
+//  Endpoint: POST /events/{eventId}/checkin/scan
+//  Body: { code: "string" }
+//  Triggered by organizer manually entering a code
+//  Full camera scan would require a third-party lib
+// ════════════════════════════════════════════════
+
+function _initScanUI() {
+  // Inject scan button next to View All button
+  var activityHead = document.querySelector('.rta-activity__head');
+  if (!activityHead || document.getElementById('rtaScanBtn')) return;
+
+  var scanBtn = document.createElement('button');
+  scanBtn.id        = 'rtaScanBtn';
+  scanBtn.type      = 'button';
+  scanBtn.className = 'rta-btn-viewall';
+  scanBtn.textContent = 'Scan / Enter Code';
+  scanBtn.style.marginLeft = '0.5rem';
+  activityHead.appendChild(scanBtn);
+
+  // Inject scan modal styles
+  var style = document.createElement('style');
+  style.textContent =
+    '.rta-scan-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9100; display:flex; align-items:center; justify-content:center; padding:1rem; }'
+    + '.rta-scan-modal { background:var(--color-card-bg,#fff); border-radius:16px; padding:2rem 1.5rem; width:100%; max-width:380px; box-shadow:0 20px 60px rgba(0,0,0,0.2); }'
+    + '.rta-scan-modal__title { font-size:1rem; font-weight:700; color:var(--color-text-dark,#1A1A1A); margin-bottom:1rem; }'
+    + '.rta-scan-modal__input { width:100%; padding:0.75rem 1rem; border:2px solid var(--color-border-light,#E5E7EB); border-radius:10px; font-size:1rem; font-family:Poppins,sans-serif; outline:none; margin-bottom:0.75rem; box-sizing:border-box; }'
+    + '.rta-scan-modal__input:focus { border-color:var(--color-primary,#6F00FF); }'
+    + '.rta-scan-modal__error { font-size:0.8125rem; color:#EF4444; margin-bottom:0.75rem; min-height:1.25rem; }'
+    + '.rta-scan-modal__result { padding:0.75rem 1rem; border-radius:10px; margin-bottom:0.75rem; font-size:0.875rem; }'
+    + '.rta-scan-modal__result--success { background:#DCFCE7; color:#166534; }'
+    + '.rta-scan-modal__result--duplicate { background:#FEF3C7; color:#92400E; }'
+    + '.rta-scan-modal__actions { display:flex; gap:0.75rem; }'
+    + '.rta-scan-modal__btn { flex:1; padding:0.625rem; border:none; border-radius:8px; font-family:Poppins,sans-serif; font-size:0.875rem; font-weight:600; cursor:pointer; }'
+    + '.rta-scan-modal__btn--primary { background:var(--color-primary,#6F00FF); color:#fff; }'
+    + '.rta-scan-modal__btn--primary:hover { background:var(--color-primary-hover,#5A00CC); }'
+    + '.rta-scan-modal__btn--primary:disabled { background:#C4B5FD; cursor:not-allowed; }'
+    + '.rta-scan-modal__btn--cancel { background:#F3F4F6; color:var(--color-text-dark,#1A1A1A); }';
+  document.head.appendChild(style);
+
+  scanBtn.addEventListener('click', function () {
+    _openScanModal();
+  });
+}
+
+function _openScanModal() {
+  var existing = document.getElementById('rtaScanOverlay');
+  if (existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id        = 'rtaScanOverlay';
+  overlay.className = 'rta-scan-overlay';
+
+  overlay.innerHTML =
+    '<div class="rta-scan-modal">'
+    + '<p class="rta-scan-modal__title">🔍 Scan or Enter Check-In Code</p>'
+    + '<input type="text" id="rtaScanInput" class="rta-scan-modal__input" placeholder="Enter attendee check-in code" autocomplete="off" />'
+    + '<p class="rta-scan-modal__error" id="rtaScanError"></p>'
+    + '<div id="rtaScanResult" style="display:none;" class="rta-scan-modal__result"></div>'
+    + '<div class="rta-scan-modal__actions">'
+    +   '<button type="button" class="rta-scan-modal__btn rta-scan-modal__btn--cancel" id="rtaScanCancel">Cancel</button>'
+    +   '<button type="button" class="rta-scan-modal__btn rta-scan-modal__btn--primary" id="rtaScanSubmit">Check In</button>'
+    + '</div>'
+    + '</div>';
+
+  document.body.appendChild(overlay);
+
+  var input     = overlay.querySelector('#rtaScanInput');
+  var errorEl   = overlay.querySelector('#rtaScanError');
+  var resultEl  = overlay.querySelector('#rtaScanResult');
+  var submitBtn = overlay.querySelector('#rtaScanSubmit');
+  var cancelBtn = overlay.querySelector('#rtaScanCancel');
+
+  if (input) input.focus();
+
+  cancelBtn.addEventListener('click', function () { overlay.remove(); });
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) overlay.remove();
+  });
+
+  // Submit on Enter
+  if (input) {
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') submitBtn.click();
+    });
+  }
+
+  submitBtn.addEventListener('click', function () {
+    var code    = input ? input.value.trim() : '';
+    var eventId = _rtaCurrentEventId();
+
+    errorEl.textContent  = '';
+    resultEl.style.display = 'none';
+
+    if (!code) {
+      errorEl.textContent = 'Please enter a check-in code.';
+      return;
+    }
+    if (!eventId) {
+      errorEl.textContent = 'No event selected. Please switch to an event first.';
+      return;
+    }
+
+    submitBtn.disabled    = true;
+    submitBtn.textContent = 'Checking in…';
+
+    fetch(_BASE_URL + '/events/' + eventId + '/checkin/scan', {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + getStoredToken(),
+      },
+      body: JSON.stringify({ code: code }),
+    })
+      .then(function (res) {
+        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+      })
+      .then(function (result) {
+        submitBtn.disabled    = false;
+        submitBtn.textContent = 'Check In';
+
+        if (result.ok) {
+          var attendee  = result.data.attendee || {};
+          var isDupe    = result.data.duplicate === true;
+          var name      = ((attendee.firstName || '') + ' ' + (attendee.lastName || '')).trim() || 'Attendee';
+
+          resultEl.className   = 'rta-scan-modal__result rta-scan-modal__result--' + (isDupe ? 'duplicate' : 'success');
+          resultEl.style.display = 'block';
+          resultEl.textContent = isDupe
+            ? '⚠️ ' + name + ' already checked in.'
+            : '✅ ' + name + ' checked in successfully!';
+
+          if (input) input.value = '';
+
+          // Refresh attendance data
+          _manualRefresh();
+
+        } else {
+          errorEl.textContent = (result.data && result.data.message) || 'Code not found. Please try again.';
+          if (input) { input.value = ''; input.focus(); }
+        }
+      })
+      .catch(function () {
+        submitBtn.disabled    = false;
+        submitBtn.textContent = 'Check In';
+        errorEl.textContent   = 'Network error. Please try again.';
+      });
+  });
+}
+
+function _rtaCurrentEventId() {
+  // Get the currently loaded event ID from the page
+  var eventNameEl = document.getElementById('eventName');
+  if (eventNameEl && eventNameEl.dataset.id) return eventNameEl.dataset.id;
+  // Fallback — read from URL
+  var params = new URLSearchParams(window.location.search);
+  return params.get('eventId') || null;
 }
