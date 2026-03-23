@@ -600,8 +600,8 @@ function _attRenderEventsGrid(events) {
           'Content-Type':  'application/json',
           'Authorization': 'Bearer ' + getStoredToken(),
         },
-        // Ezekiel's register endpoint uses Bearer token to identify user — no body needed
-        body: JSON.stringify({}),
+        // Swagger confirmed: POST /events/{eventId}/register requires { phone } in body
+        body: JSON.stringify({ phone: regPhone }),
       })
         .then(function (res) {
           return res.json().then(function (data) { return { ok: res.ok, data: data }; });
