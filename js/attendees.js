@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
   requireAuth();
 
   // Detect tab for correct sidebar active state
-  var _tabParam = new URLSearchParams(window.location.search).get('tab');
+  var _tabParam  = new URLSearchParams(window.location.search).get('tab');
   var _activeTab = _tabParam === 'events' ? 'att-events' : _tabParam === 'tickets' ? 'att-tickets' : 'attendees';
   loadDashboardComponents(_activeTab);
 
@@ -70,8 +70,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ── Role-based controls ───────────────────────
-  var user    = getStoredUser();
-  var role    = user && user.role;
+  var user = getStoredUser();
+  var role = user && user.role;
   // FIX: Add Attendees is organizer only — admin oversees, does not operate
   var isOrganizer = role === 'organizer';
   // Export CSV available to both admin and organizer
@@ -582,9 +582,9 @@ function _attRenderEventsGrid(events) {
   // Wire Register buttons
   grid.querySelectorAll('.att-event-card__btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var eventId   = btn.dataset.id;
-      var regUser   = getStoredUser();
-      var regPhone  = regUser && regUser.phone;
+      var eventId  = btn.dataset.id;
+      var regUser  = getStoredUser();
+      var regPhone = regUser && regUser.phone;
 
       if (!regPhone) {
         _attShowToast('Please add your phone number in Settings before registering for an event.', 'error');
@@ -608,27 +608,27 @@ function _attRenderEventsGrid(events) {
         })
         .then(function (result) {
           if (result.ok || result.status === 201) {
-            // Registration successful — store ticket data and show verification modal
             var regUser     = getStoredUser();
             var regAttendee = result.data.attendee || {};
             var ticketData  = Object.assign({}, result.data, {
-              firstName:  regAttendee.firstName  || (regUser && regUser.firstName)  || '',
-              lastName:   regAttendee.lastName   || (regUser && regUser.lastName)   || '',
-              name:       (regAttendee.firstName || regAttendee.lastName)
-                            ? ((regAttendee.firstName || '') + ' ' + (regAttendee.lastName || '')).trim()
-                            : (regUser && ((regUser.firstName || '') + ' ' + (regUser.lastName || '')).trim()) || '',
-              email:      regAttendee.email  || (regUser && regUser.email)  || '',
-              phone:      regAttendee.phone  || (regUser && regUser.phone)  || '',
-              eventId:    eventId,
-              status:     'pending',
-              ticketId:   result.data.ticketId || (regAttendee && regAttendee._id) || result.data._id || '',
+              firstName: regAttendee.firstName  || (regUser && regUser.firstName)  || '',
+              lastName:  regAttendee.lastName   || (regUser && regUser.lastName)   || '',
+              name:      (regAttendee.firstName || regAttendee.lastName)
+                           ? ((regAttendee.firstName || '') + ' ' + (regAttendee.lastName || '')).trim()
+                           : (regUser && ((regUser.firstName || '') + ' ' + (regUser.lastName || '')).trim()) || '',
+              email:     regAttendee.email  || (regUser && regUser.email)  || '',
+              phone:     regAttendee.phone  || (regUser && regUser.phone)  || '',
+              eventId:   eventId,
+              status:    'pending',
+              ticketId:  result.data.ticketId || (regAttendee && regAttendee._id) || result.data._id || '',
             });
             localStorage.setItem('eventpro_selected_attendee', JSON.stringify(ticketData));
             btn.textContent = 'Verify Code';
-            // Show verification modal
-            _attShowVerifyModal(eventId, regUser && regUser.phone, btn, ticketData);
+
+            // Open SMS verification modal
+            _attShowVerifyModal(eventId, regPhone, btn, ticketData);
+
           } else if (result.status === 400) {
-            // Already registered
             btn.disabled    = false;
             btn.textContent = 'Already Registered';
             btn.style.background = '#F59E0B';
@@ -651,11 +651,9 @@ function _attRenderEventsGrid(events) {
 //  MY TICKETS TAB
 //  Triggered when URL has ?tab=tickets
 //  Endpoint: GET /auth/profile/registrations
-//  (To be built by Ezekiel — see spec below)
 // ════════════════════════════════════════════════
 
 function _attShowMyTickets() {
-  // Hide attendees-specific UI
   var attTable   = document.getElementById('attendeeTable');
   var attFilters = document.querySelector('.att-controls');
   var attStats   = document.querySelector('.att-stats');
@@ -668,11 +666,9 @@ function _attShowMyTickets() {
   if (addBtn)     addBtn.hidden            = true;
   if (exportBtn)  exportBtn.hidden         = true;
 
-  // Update heading
   var heading = document.getElementById('eventNameDisplay');
   if (heading) heading.textContent = 'My Tickets';
 
-  // Inject tickets container
   var main = document.querySelector('.dashboard-content');
   if (!main) return;
 
@@ -684,7 +680,6 @@ function _attShowMyTickets() {
     + '</div>';
   main.appendChild(section);
 
-  // Inject styles
   var style = document.createElement('style');
   style.textContent =
     '.att-tickets-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem; }'
@@ -707,8 +702,6 @@ function _attShowMyTickets() {
     + '.att-tickets-empty a { color: var(--color-primary); font-weight: 600; text-decoration: none; }';
   document.head.appendChild(style);
 
-  // Fetch user's registered tickets
-  // Endpoint: GET /auth/profile/registrations
   fetch(_ATT_API + '/auth/profile/registrations', {
     headers: {
       'Content-Type':  'application/json',
@@ -750,12 +743,12 @@ function _attRenderTicketsGrid(tickets) {
   }
 
   grid.innerHTML = tickets.map(function (t) {
-    var eventName  = _attEscHtml(t.eventName  || t.event && t.event.title || t.event && t.event.name || 'Event');
-    var ticketId   = _attEscHtml(t.ticketId   || t.id  || t._id  || '—');
-    var date       = t.eventDate || (t.event && (t.event.startDate || t.event.date));
-    var dateStr    = date ? new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
-    var location   = _attEscHtml(t.eventLocation || (t.event && t.event.location) || '—');
-    var status     = (t.status || 'confirmed').toLowerCase();
+    var eventName   = _attEscHtml(t.eventName  || (t.event && t.event.title) || (t.event && t.event.name) || 'Event');
+    var ticketId    = _attEscHtml(t.ticketId   || t.id  || t._id  || '—');
+    var date        = t.eventDate || (t.event && (t.event.startDate || t.event.date));
+    var dateStr     = date ? new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+    var location    = _attEscHtml(t.eventLocation || (t.event && t.event.location) || '—');
+    var status      = (t.status || 'confirmed').toLowerCase();
     var statusClass = status === 'confirmed' ? 'confirmed' : status === 'cancelled' ? 'cancelled' : 'pending';
     var statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
 
@@ -771,7 +764,6 @@ function _attRenderTicketsGrid(tickets) {
       + '</div>';
   }).join('');
 
-  // Wire View Ticket buttons
   grid.querySelectorAll('.att-ticket-card__btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
       try {
@@ -788,15 +780,33 @@ function _attRenderTicketsGrid(tickets) {
 // ════════════════════════════════════════════════
 //  SMS VERIFICATION MODAL
 //  Shown after successful registration
-//  Calls POST /events/{eventId}/verify
+//
+//  Twilio SMS flow:
+//  1. POST /events/{eventId}/register → backend triggers
+//     Twilio to send 6-digit OTP to attendee's phone
+//  2. User enters OTP in this modal
+//  3. POST /events/{eventId}/verify { phone, otp } → confirmed
+//  4. Resend → POST /events/{eventId}/resend-otp { phone }
+//
+//  Works for smartphone AND basic/feature phone users
+//  because OTP is delivered via plain SMS (no app needed)
+//
+//  TODO (Ezekiel): Confirm resend endpoint path —
+//  assumed POST /events/{eventId}/resend-otp
+//  Update _ATT_RESEND_OTP_PATH below if different
 // ════════════════════════════════════════════════
+
+// TODO: Update this if Ezekiel confirms a different resend path
+var _ATT_RESEND_OTP_PATH = '/resend-otp';
 
 function _attShowVerifyModal(eventId, phone, registerBtn, ticketData) {
   // Remove any existing modal
   var existing = document.getElementById('attVerifyModal');
   if (existing) existing.remove();
 
-  var maskedPhone = phone ? phone.slice(0, 4) + '****' + phone.slice(-3) : 'your phone';
+  var maskedPhone = phone
+    ? phone.slice(0, 4) + '****' + phone.slice(-3)
+    : 'your phone';
 
   // Inject modal styles
   var style = document.createElement('style');
@@ -821,23 +831,23 @@ function _attShowVerifyModal(eventId, phone, registerBtn, ticketData) {
     + '.att-verify-resend:disabled { cursor: not-allowed; }';
   document.head.appendChild(style);
 
-  // Build modal HTML
+  // Build modal
   var overlay = document.createElement('div');
   overlay.id        = 'attVerifyModal';
   overlay.className = 'att-verify-overlay';
-  overlay.setAttribute('role', 'dialog');
-  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('role',            'dialog');
+  overlay.setAttribute('aria-modal',      'true');
   overlay.setAttribute('aria-labelledby', 'attVerifyTitle');
 
   overlay.innerHTML =
     '<div class="att-verify-modal">'
     + '<div class="att-verify-modal__icon">'
-    +   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6F00FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
-    +     '<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.0 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/>'
+    +   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6F00FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    +     '<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 010 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/>'
     +   '</svg>'
     + '</div>'
     + '<h2 class="att-verify-modal__title" id="attVerifyTitle">Verify Your Registration</h2>'
-    + '<p class="att-verify-modal__sub">We sent a 6-digit code to <strong>' + maskedPhone + '</strong>. Enter it below to confirm your registration.</p>'
+    + '<p class="att-verify-modal__sub">A 6-digit code was sent via SMS to <strong>' + maskedPhone + '</strong>. Works on any phone — no internet required to receive it.</p>'
     + '<div class="att-verify-inputs" id="attVerifyInputs">'
     +   '<input class="att-verify-input" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1" />'
     +   '<input class="att-verify-input" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2" />'
@@ -853,7 +863,7 @@ function _attShowVerifyModal(eventId, phone, registerBtn, ticketData) {
 
   document.body.appendChild(overlay);
 
-  // Wire digit inputs — auto advance
+  // ── Wire digit inputs — auto advance, backspace, paste ──
   var inputs = overlay.querySelectorAll('.att-verify-input');
   inputs.forEach(function (input, i) {
     input.addEventListener('input', function () {
@@ -867,69 +877,96 @@ function _attShowVerifyModal(eventId, phone, registerBtn, ticketData) {
         inputs[i - 1].focus();
       }
     });
+    // Paste support — distribute digits across all boxes
     input.addEventListener('paste', function (e) {
       e.preventDefault();
-      var pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+      var pasted = (e.clipboardData || window.clipboardData)
+        .getData('text')
+        .replace(/[^0-9]/g, '')
+        .slice(0, 6);
       pasted.split('').forEach(function (digit, idx) {
         if (inputs[idx]) inputs[idx].value = digit;
       });
-      if (inputs[pasted.length - 1]) inputs[pasted.length - 1].focus();
+      var lastIdx = Math.min(pasted.length - 1, inputs.length - 1);
+      if (inputs[lastIdx]) inputs[lastIdx].focus();
     });
   });
   if (inputs[0]) inputs[0].focus();
 
-  // Resend cooldown
-  var cooldown = 60;
+  // ── Resend cooldown timer ────────────────────────────────
+  var cooldown  = 60;
   var resendBtn = overlay.querySelector('#attVerifyResend');
-  var timer = setInterval(function () {
+  var timer     = setInterval(function () {
     cooldown -= 1;
     if (cooldown <= 0) {
       clearInterval(timer);
-      resendBtn.disabled     = false;
-      resendBtn.textContent  = 'Resend Code';
+      resendBtn.disabled    = false;
+      resendBtn.textContent = 'Resend Code';
     } else {
       resendBtn.textContent = 'Resend Code (' + cooldown + 's)';
     }
   }, 1000);
 
+  // ── FIX: Resend — calls dedicated resend-otp endpoint ───
+  // Previously this re-called /register which would attempt
+  // a duplicate registration. Now correctly calls resend-otp
+  // with the phone number so Twilio sends a fresh code.
   resendBtn.addEventListener('click', function () {
     resendBtn.disabled    = true;
     resendBtn.textContent = 'Sending…';
-    // Re-call register to trigger new SMS
-    fetch(_ATT_API + '/events/' + eventId + '/register', {
+
+    // TODO: Confirm exact resend path with Ezekiel
+    // Assumed: POST /events/{eventId}/resend-otp { phone }
+    fetch(_ATT_API + '/events/' + eventId + _ATT_RESEND_OTP_PATH, {
       method:  'POST',
       headers: {
         'Content-Type':  'application/json',
         'Authorization': 'Bearer ' + getStoredToken(),
       },
-      body: JSON.stringify({}),
+      // FIX: phone is now passed so Twilio knows where to send the new code
+      body: JSON.stringify({ phone: phone }),
     })
-      .then(function () {
-        cooldown = 60;
-        resendBtn.disabled    = true;
-        resendBtn.textContent = 'Resend Code (60s)';
-        var countdown = setInterval(function () {
-          cooldown -= 1;
-          if (cooldown <= 0) {
-            clearInterval(countdown);
-            resendBtn.disabled    = false;
-            resendBtn.textContent = 'Resend Code';
-          } else {
-            resendBtn.textContent = 'Resend Code (' + cooldown + 's)';
-          }
-        }, 1000);
-        _attShowToast('New code sent to your phone.', 'success');
+      .then(function (res) {
+        return res.json().then(function (data) {
+          return { ok: res.ok, data: data };
+        });
+      })
+      .then(function (result) {
+        if (result.ok) {
+          // Reset cooldown for another 60s
+          cooldown              = 60;
+          resendBtn.disabled    = true;
+          resendBtn.textContent = 'Resend Code (60s)';
+          var countdown = setInterval(function () {
+            cooldown -= 1;
+            if (cooldown <= 0) {
+              clearInterval(countdown);
+              resendBtn.disabled    = false;
+              resendBtn.textContent = 'Resend Code';
+            } else {
+              resendBtn.textContent = 'Resend Code (' + cooldown + 's)';
+            }
+          }, 1000);
+          _attShowToast('New code sent to your phone.', 'success');
+        } else {
+          resendBtn.disabled    = false;
+          resendBtn.textContent = 'Resend Code';
+          _attShowToast(
+            (result.data && result.data.message) || 'Failed to resend. Try again.',
+            'error'
+          );
+        }
       })
       .catch(function () {
         resendBtn.disabled    = false;
         resendBtn.textContent = 'Resend Code';
-        _attShowToast('Failed to resend. Try again.', 'error');
+        _attShowToast('Network error. Try again.', 'error');
       });
   });
 
-  // Verify button
-  var verifyBtn  = overlay.querySelector('#attVerifyBtn');
-  var errorEl    = overlay.querySelector('#attVerifyError');
+  // ── Verify button ────────────────────────────────────────
+  var verifyBtn = overlay.querySelector('#attVerifyBtn');
+  var errorEl   = overlay.querySelector('#attVerifyError');
 
   verifyBtn.addEventListener('click', function () {
     var code = Array.from(inputs).map(function (i) { return i.value; }).join('');
@@ -945,44 +982,52 @@ function _attShowVerifyModal(eventId, phone, registerBtn, ticketData) {
     verifyBtn.disabled    = true;
     verifyBtn.textContent = 'Verifying…';
 
+    // FIX: Body uses 'otp' key to match sms-verification.js and the
+    // Twilio verify flow on the backend. Previously this sent 'code'
+    // which silently failed if the backend expected 'otp'.
+    // TODO: Confirm with Ezekiel — if backend expects 'code' swap back.
+    // Swagger ref: POST /events/{eventId}/verify { phone, otp }
     fetch(_ATT_API + '/events/' + eventId + '/verify', {
       method:  'POST',
       headers: {
         'Content-Type':  'application/json',
         'Authorization': 'Bearer ' + getStoredToken(),
       },
-      body: JSON.stringify({ phone: phone, code: code }),
+      body: JSON.stringify({ phone: phone, otp: code }),
     })
       .then(function (res) {
-        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+        return res.json().then(function (data) {
+          return { ok: res.ok, data: data };
+        });
       })
       .then(function (result) {
         if (result.ok) {
           // Update ticket status to confirmed
           var confirmed = Object.assign({}, ticketData, {
             status:   'confirmed',
-            ticketId: (result.data.attendee && result.data.attendee.ticketId) || ticketData.ticketId,
+            ticketId: (result.data.attendee && result.data.attendee.ticketId)
+                        || ticketData.ticketId,
           });
           localStorage.setItem('eventpro_selected_attendee', JSON.stringify(confirmed));
 
-          // Close modal and show success
+          // Clean up modal and timer
           clearInterval(timer);
           overlay.remove();
 
-          // Update register button
+          // Update register button to reflect confirmed state
           if (registerBtn) {
             registerBtn.textContent      = '✓ Registered';
             registerBtn.style.background = '#22C55E';
             registerBtn.disabled         = true;
           }
 
-          // Show success with View Ticket option
-          _attShowVerifySuccess(eventId);
+          _attShowVerifySuccess();
 
         } else {
           verifyBtn.disabled    = false;
           verifyBtn.textContent = 'Verify & Confirm';
-          errorEl.textContent   = (result.data && result.data.message) || 'Invalid or expired code. Please try again.';
+          errorEl.textContent   = (result.data && result.data.message)
+            || 'Invalid or expired code. Please try again.';
           inputs.forEach(function (i) { i.classList.add('is-error'); i.value = ''; });
           if (inputs[0]) inputs[0].focus();
         }
@@ -995,6 +1040,6 @@ function _attShowVerifyModal(eventId, phone, registerBtn, ticketData) {
   });
 }
 
-function _attShowVerifySuccess(eventId) {
-  _attShowToast('Registration confirmed! You can view your ticket in My Tickets.', 'success');
+function _attShowVerifySuccess() {
+  _attShowToast('Registration confirmed! View your ticket in My Tickets.', 'success');
 }
