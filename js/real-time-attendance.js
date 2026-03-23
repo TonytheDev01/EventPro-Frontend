@@ -211,8 +211,9 @@ function _fetchAttendance(eventId) {
 // ── Render Stats ──────────────────────────────────────────
 function _renderStats(attendees, stats) {
   var checkedIn = _countChecked(attendees);
-  var total     = (stats && stats.totalAttendees) ? stats.totalAttendees : attendees.length;
-  var capacity  = (stats && stats.capacity)       ? stats.capacity       : 500;
+  // Use attendees.length for event-specific count — dashboard/stats gives platform-wide totals
+  var total     = attendees.length;
+  var capacity  = (stats && stats.capacity) ? stats.capacity : 500;
   var pct       = total > 0 ? Math.round((checkedIn / total) * 100) : 0;
   var yet       = Math.max(total - checkedIn, 0);
   var fill      = total > 0 ? Math.min((checkedIn / total) * 100, 100) : 0;
