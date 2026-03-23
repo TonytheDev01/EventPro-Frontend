@@ -46,7 +46,39 @@ document.addEventListener('DOMContentLoaded', function () {
     // Prevent analytics crash from logging user out
   });
 
+  // ── SSE Stream — live stat updates ───────────
+  // GET /organizer/dashboard/stream (Swagger confirmed)
+  _initSSEStream(token);
+
 });
+
+// ════════════════════════════════════════════════
+//  SSE STREAM — live organizer dashboard updates
+//  GET /organizer/dashboard/stream?token={jwt}
+// ════════════════════════════════════════════════
+
+function _initSSEStream(token) {
+  if (!token || typeof EventSource === 'undefined') return;
+
+  var url = _ORG_API + '/organizer/dashboard/stream?token=' + encodeURIComponent(token);
+  var es  = new EventSource(url);
+
+  es.onmessage = function (e) {
+    try {
+      var data = JSON.parse(e.data);
+      if (data && typeof data.totalEvents !== 'undefined') {
+        // Update stat cards silently with live data
+        var r = { status: 'fulfilled', value: data };
+        try { _renderStatCards(r); } catch(err) {}
+      }
+    } catch (err) { /* ignore malformed messages */ }
+  };
+
+  es.onerror = function () {
+    // SSE failed — not critical, dashboard still works with initial load
+    es.close();
+  };
+}
 
 // ════════════════════════════════════════════════
 //  API HELPER

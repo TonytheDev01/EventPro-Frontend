@@ -604,9 +604,6 @@ function _attRenderEventsGrid(events) {
         body: JSON.stringify({ phone: regPhone }),
       })
         .then(function (res) {
-          return res.json().then(function (data) { return { ok: res.ok, data: data }; });
-        })
-        .then(function (res) {
           return res.json().then(function (data) { return { ok: res.ok, status: res.status, data: data }; });
         })
         .then(function (result) {

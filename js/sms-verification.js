@@ -9,17 +9,16 @@
 //  2. Phone number is read from localStorage
 //     (stored by forget-password.js before redirecting here)
 //  3. User enters 6-digit OTP code
-//  4. Submit → POST /auth/verify-otp (stubbed — pending Swagger)
+//  4. Submit → POST /auth/verify-otp (Swagger confirmed)
 //  5. Success → redirect to auth-reset-password.html?token=...
-//  6. Resend → POST /auth/resend-otp (stubbed — pending Swagger)
+//  6. Resend → POST /auth/resend-otp (Swagger confirmed)
 //
-//  TODO: Replace stubbed endpoints once Ezekiel confirms
-//        OTP endpoints in Swagger docs.
+//  Endpoints confirmed in Swagger — March 2026
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', function () {
 
-  // ── DOM refs ───────────────────────────────────────────
+  // ── DOM refs 
   var inputs        = document.querySelectorAll('.otp-input');
   var form          = document.getElementById('verificationForm');
   var verifyBtn     = document.getElementById('verifyBtn');
@@ -39,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
     maskedPhoneEl.textContent = 'Phone not available';
   }
 
-  // ── Mask phone number ──────────────────────────────────
+  // ── Mask phone number 
   function _maskPhone(phone) {
     if (!phone) return '';
     var visibleStart   = phone.slice(0, 4);
@@ -87,14 +86,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // ── Get full OTP string ────────────────────────────────
+  // ── Get full OTP string 
   function _getOTP() {
     return Array.from(inputs).map(function (input) {
       return input.value;
     }).join('');
   }
 
-  // ── Clear OTP inputs ───────────────────────────────────
+  // ── Clear OTP inputs 
   function _clearOTP() {
     inputs.forEach(function (input) {
       input.value = '';
@@ -102,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
     inputs[0].focus();
   }
 
-  // ── Countdown timer ────────────────────────────────────
+  // ── Countdown timer 
   var _countdown = 30;
   var _timer     = null;
 
@@ -129,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   _startTimer();
 
-  // ── Banner helpers ─────────────────────────────────────
+  // ── Banner helpers 
   function _showError(msg) {
     errorBanner.textContent = msg;
     errorBanner.hidden      = false;
@@ -147,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
     successBanner.hidden = true;
   }
 
-  // ── Form submit — verify OTP ───────────────────────────
+  // ── Form submit — verify OTP 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     _clearBanners();
@@ -161,12 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     _setLoading(true);
 
-    /*
-     * TODO: Replace with real endpoint once Ezekiel confirms in Swagger.
-     * Expected: POST /auth/verify-otp { otp, phone }
-     * On success: backend returns { token } for use in reset-password flow
-     * Pattern already in auth-service.js — use request() directly if needed.
-     */
+    // Swagger confirmed: POST /auth/verify-otp { otp, phone } → { token, message }
     fetch('https://eventpro-fxfv.onrender.com/api/auth/verify-otp', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -203,16 +197,13 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 
-  // ── Resend OTP ─────────────────────────────────────────
+  // ── Resend OTP 
   resendBtn.addEventListener('click', function () {
     resendBtn.disabled = true;
     _clearBanners();
     _clearOTP();
 
-    /*
-     * TODO: Replace with real endpoint once confirmed in Swagger.
-     * Expected: POST /auth/resend-otp { phone }
-     */
+    // Swagger confirmed: POST /auth/resend-otp { phone } → { message }
     fetch('https://eventpro-fxfv.onrender.com/api/auth/resend-otp', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
